@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Navbar from "../Navbar";
 import HeroCards from "../HeroCards";
+import Footer from "../Footer";
 
 const Home = () => {
   const [open, setOpen] = useState<boolean>(false);
@@ -22,6 +23,7 @@ const Home = () => {
         setOpen={setOpen}
         setBpOpen={setBpOpen}
       />
+      <Footer />
     </div>
   );
 };
