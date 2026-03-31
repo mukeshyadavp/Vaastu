@@ -5,7 +5,11 @@ export default defineConfig({
   plugins: [react()],
 
   resolve: {
-    dedupe: ["react", "react-dom"]
+    dedupe: ["react", "react-dom"],
+    alias: {
+      react: "react",
+      "react-dom": "react-dom"
+    }
   },
 
   optimizeDeps: {
@@ -14,10 +18,11 @@ export default defineConfig({
 
   build: {
     rollupOptions: {
-      external: [] // 🔥 VERY IMPORTANT (prevents react from being externalized)
+      external: [], // force bundling
     },
     commonjsOptions: {
-      include: [/node_modules/]
+      include: [/node_modules/],
+      transformMixedEsModules: true
     }
   }
 });
