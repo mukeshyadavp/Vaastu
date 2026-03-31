@@ -26,6 +26,7 @@ const position: LatLngExpression = [17.385, 78.4867];
   );
 };
 
+
 type NavbarProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
