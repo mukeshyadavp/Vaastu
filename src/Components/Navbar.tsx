@@ -4,19 +4,18 @@ import logo from "../assets/logo.png";
 import "./Navbar.css";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-
+/// <reference types="leaflet" />
 
 const MapComponent = () => {
-  const position = [17.385, 78.4867]; 
-
+const position: [number, number] = [17.385, 78.4867];
   return (
-    <MapContainer
-      center={position}
+  <MapContainer
+  {...({ center: position } as any)}
       zoom={13}
       style={{ height: "100%", width: "100%", borderRadius: "12px" }}
     >
-      <TileLayer
-        attribution="&copy; OpenStreetMap contributors"
+     <TileLayer
+  {...({ attribution: "&copy; OpenStreetMap contributors" } as any)}
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <Marker position={position}>
@@ -31,7 +30,7 @@ const Navbar = () => {
   const [formOpen, setFormOpen] = useState(false);
   const [type, setType] = useState("");
   const [step, setStep] = useState(1);
-  const [file, setFile] = useState(null);
+ const [file, setFile] = useState<File | null>(null);
   const [floors, setFloors] = useState("");
   const [area, setArea] = useState("");
   const [height, setHeight] = useState("");
@@ -45,9 +44,9 @@ const Navbar = () => {
   const [landType, setLandType] = useState("");
 
 
-  const goToStep = (stepNumber) => {
-    setStep(stepNumber);
-  };
+  // const goToStep = (stepNumber: number) => {
+  //   setStep(stepNumber);
+  // };
 
   return (
     <div>
@@ -584,7 +583,11 @@ const Navbar = () => {
                         type="file"
                         id="fileUpload"
                         style={{ display: "none" }}
-                        onChange={(e) => setFile(e.target.files[0])}
+                        onChange={(e) => {
+                          if (e.target.files) {
+                            setFile(e.target.files[0]);
+                          }
+                        }}
                       />
 
                       <label htmlFor="fileUpload" style={{ cursor: "pointer" }}>
@@ -595,7 +598,7 @@ const Navbar = () => {
 
                       {file && (
                         <p style={{ marginTop: "10px", color: "green" }}>
-                          ✅ {file.name}
+                     { file?.name}
                         </p>
                       )}
                     </div>
