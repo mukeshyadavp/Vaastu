@@ -3,7 +3,12 @@ import house2 from "../assets/buildings.jpeg";
 import house3 from "../assets/house.webp";
 import "./HeroCards.css";
 
-const HeroCards = () => {
+type HeroCardsProps = {
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setBpOpen: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+const HeroCards: React.FC<HeroCardsProps> = ({ setOpen }) => {
   return (
 <div className="container">
   <div className="card">
@@ -13,7 +18,14 @@ const HeroCards = () => {
 
   <div className="card">
     <img src={house2} className="image" />
-    <button className="button">Instant Approval</button>
+    <button
+  className="button"
+  onClick={() => {
+    setOpen(true); 
+  }}
+>
+  Instant Approval
+</button>
   </div>
 
   <div className="card">

@@ -1,21 +1,22 @@
-import { useState } from "react";
+import { useState, } from "react";
 import logo from "../assets/logo.png";
 // import mapImage from "../assets/map.jpg";
 import "./Navbar.css";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-/// <reference types="leaflet" />
+import type { LatLngExpression } from "leaflet";
+
 
 const MapComponent = () => {
-const position: [number, number] = [17.385, 78.4867];
+const position: LatLngExpression = [17.385, 78.4867];
   return (
-  <MapContainer
-  {...({ center: position } as any)}
+    <MapContainer
+      center={position}
       zoom={13}
       style={{ height: "100%", width: "100%", borderRadius: "12px" }}
     >
-     <TileLayer
-  {...({ attribution: "&copy; OpenStreetMap contributors" } as any)}
+      <TileLayer
+        attribution="&copy; OpenStreetMap contributors"
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <Marker position={position}>
@@ -24,13 +25,19 @@ const position: [number, number] = [17.385, 78.4867];
     </MapContainer>
   );
 };
-const Navbar = () => {
-  const [open, setOpen] = useState(false);
-  const [bpOpen, setBpOpen] = useState(false);
-  const [formOpen, setFormOpen] = useState(false);
+
+type NavbarProps = {
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  bpOpen: boolean;
+  setBpOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  formOpen: boolean;
+  setFormOpen: React.Dispatch<React.SetStateAction<boolean>>;
+};
+const Navbar: React.FC<NavbarProps> = ({open,  setOpen, bpOpen, setBpOpen, formOpen, setFormOpen}) => {
   const [type, setType] = useState("");
   const [step, setStep] = useState(1);
- const [file, setFile] = useState<File | null>(null);
+  const [file, setFile] = useState<File | null>(null);
   const [floors, setFloors] = useState("");
   const [area, setArea] = useState("");
   const [height, setHeight] = useState("");
@@ -44,9 +51,7 @@ const Navbar = () => {
   const [landType, setLandType] = useState("");
 
 
-  // const goToStep = (stepNumber: number) => {
-  //   setStep(stepNumber);
-  // };
+
 
   return (
     <div>
@@ -583,12 +588,12 @@ const Navbar = () => {
                         type="file"
                         id="fileUpload"
                         style={{ display: "none" }}
-                        onChange={(e) => {
-                          if (e.target.files) {
-                            setFile(e.target.files[0]);
-                          }
-                        }}
-                      />
+onChange={(e) => {
+  const selectedFile = e.target.files?.[0];
+  if (selectedFile) {
+    setFile(selectedFile);
+  }
+}}                      />
 
                       <label htmlFor="fileUpload" style={{ cursor: "pointer" }}>
                         📎 Drag & drop files here, or <span>Browse</span>
@@ -598,7 +603,7 @@ const Navbar = () => {
 
                       {file && (
                         <p style={{ marginTop: "10px", color: "green" }}>
-                     { file?.name}
+                          ✅ {file.name}
                         </p>
                       )}
                     </div>
