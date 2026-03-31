@@ -74,6 +74,20 @@
   transition: 0.3s;
 }
 
+.homeIcon {
+  font-size: 36px;       /* 🔥 bigger */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;    /* spacing */
+}
+
+.menuItems {
+  display: flex;
+  align-items: center;   /* 🔥 vertical center */
+  gap: 25px;
+}
+
 .navBtn:hover {
   color: #2e7d32;
   border-bottom: 2px solid #2e7d32;
@@ -677,4 +691,48 @@
 
 .goBtn:hover {
   transform: scale(1.05);
+}
+
+
+@media (max-width: 768px) {
+
+  /* Modal height fix */
+  .largeModal {
+    width: 95%;
+    padding: 20px;
+  }
+
+  /* Title spacing */
+  .modalContent h4 {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  /* RADIO GROUP FIX 🔥 */
+  .radioGroup {
+    flex-direction: column;   /* vertical */
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* Full width buttons */
+  .radioGroup label {
+    width: 80%;
+    text-align: center;
+    padding: 12px;
+  }
+
+  /* GO button spacing */
+  .goBtn {
+    width: 80%;
+    margin-top: 15px;
+  }
+}
+
+.modalOverlay {
+  z-index: 999;
+}
+
+.modal {
+  z-index: 1000;
 }

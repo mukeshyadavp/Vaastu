@@ -4,18 +4,30 @@
   gap: 20px;
 }
 
+/* CARD */
 .card {
   width: 32%;
   text-align: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
+/* IMAGE */
 .image {
   width: 100%;
-  height: 61%;
+  height: 220px;            /* 🔥 FIXED */
   border-radius: 10px;
-  object-fit: cover; 
+  object-fit: cover;
+  transition: 0.3s;
 }
 
+/* HOVER ZOOM (optional 🔥) */
+.card:hover .image {
+  transform: scale(1.05);
+}
+
+/* BUTTON */
 .button {
   background: #2e7d32;
   color: white;
@@ -23,21 +35,60 @@
   border-radius: 6px;
   margin-top: 10px;
   font-weight: bold;
-  border: none;             
-  cursor: pointer;         
-  width: 100%;          
-  transition: 0.3s;       
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  transition: 0.3s;
 }
 
 .button:hover {
-  background: #1b5e20;    
+  background: #1b5e20;
 }
 
+/* OVERLAY */
+.overlay {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 2;   /* 🔥 ADD THIS */
 
+  width: 65%;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 15px;
+  border-radius: 16px;
+
+  opacity: 0;
+  transform: translateY(20px);
+  transition: 0.3s ease;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.card:hover .overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* TEXT */
+.overlay h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.overlay p {
+  font-size: 14px;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+/* ================= MOBILE FIX 🔥 ================= */
 @media (max-width: 768px) {
 
   .container {
     flex-direction: column;
+    padding: 15px;
+    gap: 25px;
   }
 
   .card {
@@ -45,6 +96,26 @@
   }
 
   .image {
-    height: auto;
+    height: 180px;       /* 🔥 PERFECT MOBILE SIZE */
+  }
+
+  .overlay {
+    width: 85%;
+    left: 7.5%;
+    top: 15px;
+    padding: 12px;
+  }
+
+  .overlay h4 {
+    font-size: 15px;
+  }
+
+  .overlay p {
+    font-size: 13px;
+  }
+
+  .button {
+    padding: 10px;
+    font-size: 14px;
   }
 }

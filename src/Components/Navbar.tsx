@@ -71,7 +71,7 @@ const Navbar: React.FC<NavbarProps> = ({open,  setOpen, bpOpen, setBpOpen, formO
       {/* Menu Bar */}
       <div className="menuBar">
         <div className="menuItems">
-          <button className="navBtn">🏠</button>
+       <button className="navBtn homeIcon">🏠</button>
           <button className="navBtn">ABOUT AP-bPASS</button>
           <button className="navBtn">INFORMATION ▼</button>
           <button className="navBtn">RESOURCES ▼</button>
