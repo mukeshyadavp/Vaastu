@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import logo from "../assets/logo.png";
 import "./Navbar.css";
 import "leaflet/dist/leaflet.css";
-
+ 
 /// ✅ FIXED MAP COMPONENT (Vercel-safe)
 const MapComponent = () => {
   const [Leaflet, setLeaflet] = useState<any>(null);
