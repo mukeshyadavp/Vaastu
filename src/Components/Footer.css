@@ -38,6 +38,10 @@
   height: 24px;
   margin: 0 10px;
   vertical-align: middle;
+  
+}
+.social{
+  margin-top: 15px;
 }
 
 .footer-bottom {
@@ -45,4 +49,8 @@
   border-top: 1px solid rgba(255, 255, 255, 0.2);
   padding-top: 20px;
   font-size: 13px;
+}
+li{
+  cursor: pointer;
+  
 }
