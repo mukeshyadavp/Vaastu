@@ -1,6 +1,6 @@
 import house1 from "../assets/charming-yellow-house-with-wooden-windows-green-grassy-garden.jpg";
 import house2 from "../assets/3d-rendering-house-model.jpg";
-import house3 from "../assets/modern-district-aerial-panorama-urban-style.jpg";
+import house3 from "../assets/Satellite.jpg";
 import "./HeroCards.css";
 
 type HeroCardsProps = {
@@ -8,7 +8,7 @@ type HeroCardsProps = {
   setBpOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const HeroCards: React.FC<HeroCardsProps> = ({ setOpen }) => {
+const HeroCards: React.FC<HeroCardsProps> = ({ setOpen, setBpOpen }) => {
   return (
 <div className="container">
 <div className="card">
@@ -58,19 +58,18 @@ const HeroCards: React.FC<HeroCardsProps> = ({ setOpen }) => {
 
   {/* 🔥 HOVER CONTENT */}
   <div className="overlay">
-    <h4>Single Window</h4>
+    <h4>Monitor</h4>
     <p>
-     Apply through single window system for large residential buildings above 
-  500 Sq. Meters or non-residential and special cases requiring detailed approvals.
+The satellite tracks construction progress and ensures compliance with building regulations, providing real-time updates and alerts for any deviations.
     </p>
   </div>
 
   <button className="button"
-     onClick={() => {
-      setOpen(true); 
-    }}
+   onClick={() => {
+  setBpOpen(true);
+}}
   
-  >Single Window</button>
+  >Monitor</button>
 </div>
 </div>
   );

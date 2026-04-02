@@ -2,11 +2,13 @@ import { useState } from "react";
 import Navbar from "../Navbar";
 import HeroCards from "../HeroCards";
 import Footer from "../Footer";
+import MonitorPopup from "../MonitorPopup"; //
 
 const Home = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [bpOpen, setBpOpen] = useState<boolean>(false);
   const [formOpen, setFormOpen] = useState<boolean>(false);
+  const [monitorOpen, setMonitorOpen] = useState(false);
 
   return (
     <div>
@@ -21,8 +23,11 @@ const Home = () => {
 
       <HeroCards
         setOpen={setOpen}
-        setBpOpen={setBpOpen}
+       setBpOpen={setMonitorOpen} 
       />
+      {monitorOpen && (
+  <MonitorPopup setBpOpen={setMonitorOpen} />
+)}
       <Footer />
     </div>
   );

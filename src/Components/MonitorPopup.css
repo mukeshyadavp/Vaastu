@@ -1,0 +1,104 @@
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.popup-content {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 900px;
+  position: relative;
+}
+
+/* CLOSE */
+.close {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+/* BUILDING GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.card-box {
+  background: #e3f2fd;
+  padding: 25px;
+  text-align: center;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.card-box:hover {
+  background: #bbdefb;
+}
+
+/* 🔥 MONTH TIMELINE */
+.timeline-months {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  margin-top: 15px;
+}
+
+/* EACH MONTH */
+.month-card {
+  min-width: 220px;
+}
+
+/* IMAGE BOX */
+.image-box {
+  position: relative;
+}
+
+.image-box img {
+  width: 220px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* 🔴 RED BOX */
+/* .highlight-box {
+  position: absolute;
+  top: 30%;
+  left: 30%;
+  width: 130px;
+  height: 130px;
+  border: 3px solid red;
+} */
+
+/* ALERT */
+.alert-box {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  background: black;
+  color: white;
+  padding: 5px;
+  font-size: 12px;
+  border-radius: 5px;
+}
+
+/* BACK BUTTON */
+.back-btn {
+  margin-top: 15px;
+  padding: 8px 15px;
+  cursor: pointer;
+}
