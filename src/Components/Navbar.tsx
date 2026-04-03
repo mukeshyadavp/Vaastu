@@ -8,7 +8,7 @@ import type { LatLngExpression } from "leaflet";
 
 
 const MapComponent = () => {
-const position: LatLngExpression = [17.385, 78.4867];
+  const position: LatLngExpression = [17.385, 78.4867];
   return (
     <MapContainer
       center={position}
@@ -34,7 +34,7 @@ type NavbarProps = {
   formOpen: boolean;
   setFormOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
-const Navbar: React.FC<NavbarProps> = ({open,  setOpen, bpOpen, setBpOpen, formOpen, setFormOpen}) => {
+const Navbar: React.FC<NavbarProps> = ({ open, setOpen, bpOpen, setBpOpen, formOpen, setFormOpen }) => {
   const [type, setType] = useState("");
   const [step, setStep] = useState(1);
   const [file, setFile] = useState<File | null>(null);
@@ -49,8 +49,35 @@ const Navbar: React.FC<NavbarProps> = ({open,  setOpen, bpOpen, setBpOpen, formO
   const [plotArea, setPlotArea] = useState("");
   const [roadWidth, setRoadWidth] = useState("");
   const [landType, setLandType] = useState("");
+  const [cadFiles, setCadFiles] = useState<File[]>([]);
+  const [result, setResult] = useState<"success" | "failure" | "">("");
 
 
+const validateBuilding = () => {
+  if (cadFiles.length === 0) {
+    setResult("failure");
+    return;
+  }
+
+
+  const fileNames = cadFiles.map(file => file.name.toLowerCase());
+
+  const isSuccessFile = fileNames.some(name =>
+    name.includes("success") || name.includes("2006")
+  );
+
+  const isFailureFile = fileNames.some(name =>
+    name.includes("failure") || name.includes("2016")
+  );
+
+  if (isSuccessFile) {
+    setResult("success");
+  } else if (isFailureFile) {
+    setResult("failure");
+  } else {
+    setResult("failure"); // default
+  }
+};
 
 
   return (
@@ -71,7 +98,7 @@ const Navbar: React.FC<NavbarProps> = ({open,  setOpen, bpOpen, setBpOpen, formO
       {/* Menu Bar */}
       <div className="menuBar">
         <div className="menuItems">
-       <button className="navBtn homeIcon">🏠</button>
+          <button className="navBtn homeIcon">🏠</button>
           <button className="navBtn">ABOUT AP-bPASS</button>
           <button className="navBtn">INFORMATION ▼</button>
           <button className="navBtn">RESOURCES ▼</button>
@@ -126,33 +153,33 @@ const Navbar: React.FC<NavbarProps> = ({open,  setOpen, bpOpen, setBpOpen, formO
             <div className="modalContent">
               <h4>Building Permission Type</h4>
 
-           <div className="radioGroup">
+              <div className="radioGroup">
 
-  <input
-    type="radio"
-    id="new"
-    name="type"
-    onChange={() => setType("new")}
-  />
-  <label htmlFor="new">New</label>
+                <input
+                  type="radio"
+                  id="new"
+                  name="type"
+                  onChange={() => setType("new")}
+                />
+                <label htmlFor="new">New</label>
 
-  <input
-    type="radio"
-    id="additional"
-    name="type"
-    onChange={() => setType("additional")}
-  />
-  <label htmlFor="additional">Additional</label>
+                <input
+                  type="radio"
+                  id="additional"
+                  name="type"
+                  onChange={() => setType("additional")}
+                />
+                <label htmlFor="additional">Additional</label>
 
-  <input
-    type="radio"
-    id="revision"
-    name="type"
-    onChange={() => setType("revision")}
-  />
-  <label htmlFor="revision">Revision</label>
+                <input
+                  type="radio"
+                  id="revision"
+                  name="type"
+                  onChange={() => setType("revision")}
+                />
+                <label htmlFor="revision">Revision</label>
 
-</div>
+              </div>
 
               <button
                 className="goBtn"
@@ -169,6 +196,9 @@ const Navbar: React.FC<NavbarProps> = ({open,  setOpen, bpOpen, setBpOpen, formO
           </div>
         </div>
       )}
+
+
+
 
 
       {formOpen && (
@@ -210,12 +240,26 @@ const Navbar: React.FC<NavbarProps> = ({open,  setOpen, bpOpen, setBpOpen, formO
               >
                 Building Details
               </div>
-
               <div
                 className={`step ${step >= 4 ? "active" : ""}`}
                 onClick={() => setStep(4)}
               >
+                Upload CAD Designs
+              </div>
+
+
+              <div
+                className={`step ${step >= 5 ? "active" : ""}`}
+                onClick={() => setStep(5)}
+              >
                 Review & Submit
+              </div>
+
+              <div
+                className={`step ${step >= 6 ? "active" : ""}`}
+                onClick={() => setStep(6)}
+              >
+                Result
               </div>
             </div>
             {/* STEP 1 - APPLICANT */}
@@ -530,8 +574,93 @@ const Navbar: React.FC<NavbarProps> = ({open,  setOpen, bpOpen, setBpOpen, formO
             )}
 
 
-            {/* STEP 4 - REVIEW & SUBMIT */}
+            {/* STEP 4 - CAD UPLOAD */}
             {step === 4 && (
+              <>
+                <h2 className="sectionTitle">Upload CAD Designs</h2>
+
+                <div className="plotWrapper">
+
+                  {/* LEFT SIDE */}
+                  <div className="plotLeft">
+
+                    <div
+                      className="uploadBox large"
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        const files = Array.from(e.dataTransfer.files);
+                        setCadFiles(files);
+                      }}
+                      onDragOver={(e) => e.preventDefault()}
+                    >
+                      <input
+                        type="file"
+                        multiple
+                        accept=".dwg,.dxf,.pdf,.png,.jpg"
+                        id="cadUpload"
+                        style={{ display: "none" }}
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files || []);
+                          setCadFiles(files);
+                        }}
+                      />
+
+                      <label htmlFor="cadUpload" style={{ cursor: "pointer" }}>
+                        📐 Drag & drop CAD files here, or <span>Browse</span>
+                      </label>
+
+                      <small>
+                        Allowed: DWG, DXF, PDF, JPG, PNG (Max 10MB each)
+                      </small>
+
+                      {/* FILE LIST */}
+                      {cadFiles.length > 0 && (
+                        <div className="fileList">
+                          {cadFiles.map((file, index) => (
+                            <p key={index} style={{ color: "green" }}>
+                              ✅ {file.name}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+
+                  {/* RIGHT SIDE MAP */}
+                  <div className="plotRight">
+                    <div className="mapBoxReal">
+                      <MapComponent />
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* BUTTONS */}
+                <div className="bottomActions">
+                  <button className="backBtn" onClick={() => setStep(3)}>
+                    ‹ Back
+                  </button>
+
+<button
+  className="nextBtn"
+  onClick={() => {
+    if (cadFiles.length > 0) {
+      validateBuilding();   // ✅ your new validation function
+      setStep(5);
+    }
+  }}
+>
+  Next →
+</button>
+                </div>
+              </>
+            )}
+
+
+
+            {/* STEP 5 - REVIEW & SUBMIT */}
+            {step === 5 && (
               <>
                 <h2 className="sectionTitle">Review & Submit</h2>
 
@@ -551,6 +680,8 @@ const Navbar: React.FC<NavbarProps> = ({open,  setOpen, bpOpen, setBpOpen, formO
                       <p><strong>Relationship:</strong> ---</p>
                       <p><strong>Aadhaar Number:</strong> ---</p>
                     </div>
+
+
 
                     {/* Plot */}
                     <div className="reviewCard">
@@ -604,12 +735,12 @@ const Navbar: React.FC<NavbarProps> = ({open,  setOpen, bpOpen, setBpOpen, formO
                         type="file"
                         id="fileUpload"
                         style={{ display: "none" }}
-onChange={(e) => {
-  const selectedFile = e.target.files?.[0];
-  if (selectedFile) {
-    setFile(selectedFile);
-  }
-}}                      />
+                        onChange={(e) => {
+                          const selectedFile = e.target.files?.[0];
+                          if (selectedFile) {
+                            setFile(selectedFile);
+                          }
+                        }} />
                       <label htmlFor="fileUpload" style={{ cursor: "pointer" }}>
                         📎 Drag & drop files here, or <span>Browse</span>
                       </label>
@@ -627,17 +758,85 @@ onChange={(e) => {
 
                 </div>
 
+
+                
+
                 {/* BUTTONS */}
                 <div className="bottomActions">
                   <button className="backBtn" onClick={() => setStep(3)}>‹ Back</button>
-                  <button className="nextBtn">Submit</button>
-                </div>
+                  <button
+                    className="nextBtn"
+                    onClick={() => setStep(6)}
+                  >
+                    Submit
+                  </button>                </div>
               </>
             )}
+
+
+            {/* STEP 6 - RESULT */}
+{step === 6 && (
+  <>
+    <h2 className="sectionTitle">Result</h2>
+
+    <div className="reviewCard" style={{ textAlign: "center" }}>
+
+     {result === "" ? (
+  <>
+    <h3 style={{ color: "gray" }}>⚠ No Result Found</h3>
+    <p>Please upload CAD files and submit to see result.</p>
+  </>
+) : result === "success" ? (
+  <>
+    <h3 style={{ color: "green" }}>✅ Building Permission Approved</h3>
+    <p>All CAD validations passed successfully.</p>
+  </>
+) : (
+  <>
+    <h3 style={{ color: "red" }}>❌ Building Permission Failed</h3>
+    <p>Some rules are not satisfied.</p>
+  </>
+)}
+
+      {/* DOWNLOAD BUTTON */}
+      <button
+  className="nextBtn"
+  style={{ marginTop: "20px" }}
+  disabled={result === ""}
+  onClick={() => {
+    const link = document.createElement("a");
+
+    if (result === "success") {
+      link.href = "/AP-VAASTU-20260327062006 - VAASTU.pdf";
+      link.download = "AP-Vaastu-2006.pdf";
+    } else {
+      link.href = "/AP-VAASTU-20260327062016 - VAASTU.pdf";
+      link.download = "AP-Vaastu-2016.pdf";
+    }
+
+    link.click();
+  }}
+>
+  📥 Download Compliance Report
+</button>
+
+    </div>
+
+    <div className="bottomActions">
+      <button className="backBtn" onClick={() => setStep(5)}>
+        ‹ Back
+      </button>
+    </div>
+  </>
+)}
           </div>
         </div>
       )}
+
+
     </div>
+
+
   );
 };
 
