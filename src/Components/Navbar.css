@@ -233,13 +233,13 @@
 /* Form Page (FIXED) */
 .formPage {
   background: white;
-  width: 80%;
-  max-width: 900px;
+  width: 90%;          
+  max-width: 1300px;   
   padding: 30px;
   border-radius: 10px;
 
-  max-height: 90vh;     
-  overflow-y: auto;    
+  max-height: 90vh;
+  overflow-y: auto;
   position: relative;
 }
 
