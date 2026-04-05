@@ -1,67 +1,72 @@
 import "./Footer.css";
-
-
+import {
+  FaWhatsapp,
+  FaInstagram,
+  FaTwitter,
+  FaFacebookF,
+  FaYoutube
+} from "react-icons/fa";
 
 const Footer = () => {
   return (
     <footer className="footer">
-      <div className="footer-content">
-        <div className="footer-section">
-          <h4>DEPARTMENTS</h4>
-       
-          <ul>
-           
-            <li>AP-bPASS Portal</li>
-            <li>GAMC</li>
-            <li>DTCP</li>
-            <li>AMDA</li>
-          </ul>
-         
-        </div>
+      <div className="footer-wrapper">
 
-        <div className="footer-section">
-          <h4>SUPPORT</h4>
-         
-          <ul>
-            <li>Help</li>
-            <li>FAQs</li>
-            <li>Contact Us</li>
-            <li>Privacy Policy</li>
-          </ul>
-        </div>
+        <div className="footer-grid">
 
-        <div className="footer-section social">
-          <h4>Follow Us</h4>
-          <div className="social-icons">
-           
-            <img src="/whatsapp.png" alt="WhatsApp" />
-            <img src="/instagram.jpg" alt="Instagram" />
-            <img src="/twitter.png" alt="Twitter" />
-            <div className="social">
-            <img src="/facebook.jpg" alt="Facebook" />
-            <img src="/youtube.png" alt="YouTube" /></div>
-            
+          {/* Departments */}
+          <div className="footer-col">
+            <h3>Departments</h3>
+            <ul>
+              <li><a href="#">AP-bPASS Portal</a></li>
+              <li><a href="#">GAMC</a></li>
+              <li><a href="#">DTCP</a></li>
+              <li><a href="#">AMDA</a></li>
+            </ul>
           </div>
+
+          {/* Support */}
+          <div className="footer-col">
+            <h3>Support</h3>
+            <ul>
+              <li><a href="#">Help</a></li>
+              <li><a href="#">FAQs</a></li>
+              <li><a href="#">Contact Us</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+            </ul>
+          </div>
+
+          {/* Social */}
+          <div className="footer-col">
+            <h3>Follow Us</h3>
+            <div className="social-icons">
+              <a href="#"><FaWhatsapp /></a>
+              <a href="#"><FaInstagram /></a>
+              <a href="#"><FaTwitter /></a>
+              <a href="#"><FaFacebookF /></a>
+              <a href="#"><FaYoutube /></a>
+            </div>
+          </div>
+
+          {/* Address */}
+          <div className="footer-col address">
+            <h3>AP-bPASS</h3>
+            <p>
+              5th Floor, ENC (PH) Building <br />
+              MA&UD Campus, Kashana Building Complex <br />
+              Opp: PTI Building, AC Guards <br />
+              Vijayawada – 500004
+            </p>
+          </div>
+
         </div>
 
-        <div className="footer-section contact">
-          <h4>AP-bPASS</h4>
-          <p>
-            5th Floor, ENC (PH) Building, <br />
-            MA&UD Campus, Kashana Building Complex, <br />
-            Opp: PTI Building, AC Guards, Vijayawada – 500004.
-          </p>
+        {/* Bottom */}
+        <div className="footer-bottom">
+          <p>© 2022 AP-bPASS. All rights reserved.</p>
+          <p>Designed & Developed by Hyno Technologies LLP</p>
         </div>
-      </div>
 
-      <div className="footer-bottom">
-        <p>
-          ©2022 ANDHRA PRADESH BUILDING PERMISSION APPROVAL AND SELF CERTIFICATION
-          SYSTEM. ALL RIGHTS RESERVED.
-        </p>
-        <p>
-          Designed & Developed by: <strong>Hyno Technologies LLP</strong>
-        </p>
       </div>
     </footer>
   );
