@@ -78,17 +78,37 @@ const MonitorPopup = ({ setBpOpen }: { setBpOpen: (val: boolean) => void }) => {
           <>
             <h2>Buildings Progress</h2>
 
-            <div className="grid">
-              {buildings.map((b) => (
-                <div
-                  key={b.id}
-                  className="card-box"
-                  onClick={() => setSelectedBuilding(b)}
-                >
-                  <h3>{b.name}</h3>
-                </div>
-              ))}
-            </div>
+  <div className="grid">
+
+  <div
+    className="card-box b1"
+    onClick={() => setSelectedBuilding(buildings[0])}
+  >
+    <div className="card-text">Building 1</div>
+  </div>
+
+  <div
+    className="card-box b2"
+    onClick={() => setSelectedBuilding(buildings[1])}
+  >
+    <div className="card-text">Building 2</div>
+  </div>
+
+  <div
+    className="card-box b3"
+    onClick={() => setSelectedBuilding(buildings[2])}
+  >
+    <div className="card-text">Building 3</div>
+  </div>
+
+  <div
+    className="card-box b4"
+    onClick={() => setSelectedBuilding(buildings[3])}
+  >
+    <div className="card-text">Building 4</div>
+  </div>
+
+</div>
           </>
         )}
 
