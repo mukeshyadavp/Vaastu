@@ -3,6 +3,9 @@ import Navbar from "../Navbar";
 import HeroCards from "../HeroCards";
 import Footer from "../Footer";
 import MonitorPopup from "../MonitorPopup"; //
+import SliderCards from "../SliderCards";
+import HeroSlider from "../HeroSlider";
+import Features from "../Features";
 
 const Home = () => {
   const [open, setOpen] = useState<boolean>(false);
@@ -20,6 +23,7 @@ const Home = () => {
         formOpen={formOpen}
         setFormOpen={setFormOpen}
       />
+      <HeroSlider /> 
 
       <HeroCards
         setOpen={setOpen}
@@ -28,6 +32,9 @@ const Home = () => {
       {monitorOpen && (
   <MonitorPopup setBpOpen={setMonitorOpen} />
 )}
+<Features /> 
+<SliderCards />
+
       <Footer />
     </div>
   );

@@ -1,0 +1,72 @@
+.featuresWrapper {
+  max-width: 1200px;
+  margin: 70px auto;
+  padding: 0 20px;
+  text-align: center;
+
+  /* 🔥 PREMIUM BACKGROUND */
+  background: #f5f7f6;
+  border-radius: 20px;
+}
+
+/* TITLE */
+.featuresTitle {
+  font-size: 32px;
+  margin-bottom: 40px;
+  font-weight: 600;
+  color: #1f2937;   /* 🔥 professional dark */
+}
+
+/* GRID */
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+
+/* CARD */
+.featureCard {
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 16px;
+
+  /* 🔥 subtle border + shadow */
+  border: 1px solid #e2e8e5;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.04);
+
+  transition: all 0.3s ease;
+}
+
+/* ICON */
+.icon {
+  font-size: 30px;
+  margin-bottom: 15px;
+  color: #2e7d32;   /* 🔥 main green accent */
+}
+
+/* TEXT */
+.featureCard h4 {
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: #111827;   /* strong heading */
+}
+
+.featureCard p {
+  font-size: 14px;
+  color: #6b7280;   /* soft readable text */
+  line-height: 1.5;
+}
+
+/* 🔥 HOVER EFFECT */
+.featureCard:hover {
+  transform: translateY(-6px);
+  border-color: #2e7d32;
+  box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .featuresGrid {
+    grid-template-columns: 1fr;
+  }
+}
