@@ -197,3 +197,143 @@
   
   pointer-events: none; /* 🔥 THIS FIX */
 }
+
+
+
+/* ================= MOBILE (≤ 768px) ================= */
+@media (max-width: 768px) {
+
+  .popup-content {
+    width: 95%;
+    padding: 15px;
+    border-radius: 10px;
+  }
+
+  /* GRID → 1 column */
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .card-box {
+    height: 130px;
+  }
+
+  .card-text {
+    font-size: 16px;
+  }
+
+  /* Timeline scroll smoother */
+  .timeline-months {
+    gap: 15px;
+    padding-bottom: 10px;
+  }
+
+  .month-card {
+    min-width: 180px;
+  }
+
+  .image-box img {
+    width: 180px;
+    height: 120px;
+  }
+
+  /* Top image */
+  .small-side-image {
+    width: 100%;
+    height: 140px;
+  }
+
+  /* Center align */
+  .building-top-section {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Button full width */
+  .back-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Alert smaller */
+  .alert-box {
+    font-size: 11px;
+    padding: 4px;
+  }
+}
+
+
+/* ================= TABLET (769px - 1024px) ================= */
+@media (min-width: 769px) and (max-width: 1024px) {
+
+  .popup-content {
+    width: 92%;
+  }
+
+  /* GRID → 2 columns (slightly adjusted) */
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+
+  .card-box {
+    height: 140px;
+  }
+
+  /* Timeline */
+  .month-card {
+    min-width: 200px;
+  }
+
+  .image-box img {
+    width: 200px;
+    height: 140px;
+  }
+
+  /* Top image align left */
+  .building-top-section {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .small-side-image {
+    width: 200px;
+    height: 140px;
+  }
+}
+
+
+/* ================= EXTRA SMALL DEVICES (≤ 480px) ================= */
+@media (max-width: 480px) {
+
+  .popup-content {
+    padding: 10px;
+  }
+
+  h2 {
+    font-size: 18px;
+    text-align: center;
+  }
+
+  .card-box {
+    height: 110px;
+  }
+
+  .card-text {
+    font-size: 14px;
+  }
+
+  .month-card {
+    min-width: 160px;
+  }
+
+  .image-box img {
+    width: 160px;
+    height: 110px;
+  }
+
+  .small-side-image {
+    height: 120px;
+  }
+}

@@ -1,10 +1,9 @@
 .featuresWrapper {
   max-width: 1200px;
   margin: 70px auto;
-  padding: 0 20px;
+  padding: 40px 20px;
   text-align: center;
 
-  /* 🔥 PREMIUM BACKGROUND */
   background: #f5f7f6;
   border-radius: 20px;
 }
@@ -14,10 +13,10 @@
   font-size: 32px;
   margin-bottom: 40px;
   font-weight: 600;
-  color: #1f2937;   /* 🔥 professional dark */
+  color: #1f2937;
 }
 
-/* GRID */
+/* GRID - DESKTOP */
 .featuresGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -30,7 +29,6 @@
   padding: 25px;
   border-radius: 16px;
 
-  /* 🔥 subtle border + shadow */
   border: 1px solid #e2e8e5;
   box-shadow: 0 6px 15px rgba(0,0,0,0.04);
 
@@ -41,32 +39,117 @@
 .icon {
   font-size: 30px;
   margin-bottom: 15px;
-  color: #2e7d32;   /* 🔥 main green accent */
+  color: #2e7d32;
 }
 
 /* TEXT */
 .featureCard h4 {
   margin-bottom: 10px;
   font-size: 18px;
-  color: #111827;   /* strong heading */
+  color: #111827;
 }
 
 .featureCard p {
   font-size: 14px;
-  color: #6b7280;   /* soft readable text */
+  color: #6b7280;
   line-height: 1.5;
 }
 
-/* 🔥 HOVER EFFECT */
+/* HOVER */
 .featureCard:hover {
   transform: translateY(-6px);
   border-color: #2e7d32;
   box-shadow: 0 12px 25px rgba(0,0,0,0.08);
 }
 
-/* MOBILE */
-@media (max-width: 768px) {
+/* ============================= */
+/* 📲 TABLET VIEW (768px - 1024px) */
+/* ============================= */
+@media (max-width: 1024px) {
+
+  .featuresWrapper {
+    padding: 30px 15px;
+  }
+
+  .featuresTitle {
+    font-size: 26px;
+  }
+
   .featuresGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr); /* 🔥 2 cards */
+    gap: 20px;
+  }
+
+  .featureCard {
+    padding: 20px;
+  }
+
+  .icon {
+    font-size: 26px;
+  }
+
+  .featureCard h4 {
+    font-size: 16px;
+  }
+
+  .featureCard p {
+    font-size: 13px;
+  }
+}
+
+/* ============================= */
+/* 📱 MOBILE VIEW (max 767px) */
+/* ============================= */
+@media (max-width: 767px) {
+
+  .featuresWrapper {
+    margin: 40px 10px;
+    padding: 20px 15px;
+    border-radius: 15px;
+  }
+
+  .featuresTitle {
+    font-size: 22px;
+    margin-bottom: 25px;
+  }
+
+  .featuresGrid {
+    grid-template-columns: 1fr; /* 🔥 1 card */
+    gap: 15px;
+  }
+
+  .featureCard {
+    padding: 18px;
+    border-radius: 12px;
+  }
+
+  .icon {
+    font-size: 24px;
+  }
+
+  .featureCard h4 {
+    font-size: 15px;
+  }
+
+  .featureCard p {
+    font-size: 13px;
+  }
+}
+
+/* ============================= */
+/* 💻 LARGE SCREENS (optional polish) */
+/* ============================= */
+@media (min-width: 1400px) {
+
+  .featuresGrid {
+    gap: 40px;
+  }
+
+  .featureCard {
+    padding: 30px;
+  }
+
+  .featuresTitle {
+    font-size: 36px;
   }
 }
