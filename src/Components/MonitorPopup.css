@@ -20,7 +20,7 @@
 
   /* ✅ ADD THESE */
   max-height: 90vh;     /* 👈 limit height */
-  overflow-y: auto;     /* 👈 enable scroll */
+  /* overflow-y: auto;     👈 enable scroll */
   
   position: relative;
 }
