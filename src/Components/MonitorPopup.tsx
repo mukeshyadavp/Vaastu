@@ -38,8 +38,8 @@ const MapPreview = ({ id }: { id: number }) => {
       center={position}
       zoom={16}
       style={{
-        height: "250px",
-        width: "80%",
+        height: "150px",
+        width: "60%",
         borderRadius: "10px"
       }}
       scrollWheelZoom={false}
