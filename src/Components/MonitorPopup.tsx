@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import "./MonitorPopup.css";
 
 import img1 from "../assets/empty land.webp";
@@ -13,6 +13,42 @@ import img23 from "../assets/Image2-3.jfif";
 import img31 from "../assets/building3-1.webp";
 import img41 from "../assets/building4-1.jfif";
 
+import { MapContainer, TileLayer, Marker } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+
+const blinkingIcon = L.divIcon({
+  className: "",
+  html: `<div class="blink-marker"></div>`,
+  iconSize: [20, 20],
+});
+
+
+const buildingLocations: Record<number, [number, number]> = {
+  1: [17.385, 78.4867],   // Hyderabad
+  2: [17.4500, 78.3800],  // Location 2
+  3: [17.3000, 78.5500],  // Location 3
+  4: [17.4200, 78.6000],  // Location 4
+};
+const MapPreview = ({ id }: { id: number }) => {
+  const position = buildingLocations[id];
+
+  return (
+    <MapContainer
+      center={position}
+      zoom={16}
+      style={{
+        height: "250px",
+        width: "80%",
+        borderRadius: "10px"
+      }}
+      scrollWheelZoom={false}
+    >
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      <Marker position={position} icon={blinkingIcon} />
+    </MapContainer>
+  );
+};
 // 🔥 TYPES
 type Building = {
   id: number;
@@ -66,6 +102,16 @@ const buildingDataMap: Record<number, BuildingItem[]> = {
 const MonitorPopup = ({ setBpOpen }: { setBpOpen: (val: boolean) => void }) => {
   const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(null);
 
+  useEffect(() => {
+  // 🚫 disable background scroll
+  document.body.style.overflow = "hidden";
+
+  return () => {
+    // ✅ enable back when popup closes
+    document.body.style.overflow = "auto";
+  };
+}, []);
+
   return (
     <div className="popup">
       <div className="popup-content">
@@ -118,10 +164,9 @@ const MonitorPopup = ({ setBpOpen }: { setBpOpen: (val: boolean) => void }) => {
             <h2>{selectedBuilding.name}</h2>
 
             {/* 🔥 Small left image */}
-            <div className="building-top-section">
-           <img src={selectedBuilding.img} alt="Building" className="small-side-image" />
-            </div>
-
+<div className="building-top-section">
+  <MapPreview id={selectedBuilding.id} />
+</div>
             {/* 🔥 Dynamic Cards */}
             <div className="timeline-months">
               {buildingDataMap[selectedBuilding.id]?.map(

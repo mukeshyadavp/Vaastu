@@ -1,4 +1,4 @@
-import { useState, } from "react";
+import { useState, useEffect } from "react";
 import logo from "../assets/logo.png";
 // import mapImage from "../assets/map.jpg";
 import "./Navbar.css";
@@ -79,6 +79,18 @@ const validateBuilding = () => {
   }
 };
 
+
+useEffect(() => {
+  if (open || bpOpen || formOpen) {
+    document.body.style.overflow = "hidden";  // 🚫 stop background scroll
+  } else {
+    document.body.style.overflow = "auto";    // ✅ enable again
+  }
+
+  return () => {
+    document.body.style.overflow = "auto";
+  };
+}, [open, bpOpen, formOpen]);
 
   return (
     <div>
