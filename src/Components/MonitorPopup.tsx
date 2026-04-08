@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import "./MonitorPopup.css";
 
 import img1 from "../assets/empty land.webp";
@@ -101,6 +101,16 @@ const buildingDataMap: Record<number, BuildingItem[]> = {
 
 const MonitorPopup = ({ setBpOpen }: { setBpOpen: (val: boolean) => void }) => {
   const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(null);
+
+  useEffect(() => {
+  // 🚫 disable background scroll
+  document.body.style.overflow = "hidden";
+
+  return () => {
+    // ✅ enable back when popup closes
+    document.body.style.overflow = "auto";
+  };
+}, []);
 
   return (
     <div className="popup">
