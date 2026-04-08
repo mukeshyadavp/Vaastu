@@ -9,6 +9,7 @@
   justify-content: center;
   align-items: center;
   z-index: 999;
+
 }
 
 .popup-content {
@@ -20,7 +21,7 @@
 
   /* ✅ ADD THESE */
   max-height: 90vh;     /* 👈 limit height */
-  /* overflow-y: auto;     👈 enable scroll */
+  overflow-y: auto;     
   
   position: relative;
 }
@@ -86,7 +87,7 @@
 
 /* EACH MONTH */
 .month-card {
-  min-width: unset;   /* ❌ REMOVE old */
+  min-width: unset;   
   width: 100%;        /* ✅ fit inside grid */
 }
 
