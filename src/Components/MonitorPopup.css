@@ -337,3 +337,19 @@
     height: 120px;
   }
 }
+
+
+.blink-marker {
+  width: 15px;
+  height: 15px;
+  background: red;
+  border-radius: 50%;
+  animation: blink 1s infinite;
+  border: 2px solid white;
+}
+
+@keyframes blink {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.6); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 1; }
+}
