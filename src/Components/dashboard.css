@@ -23,8 +23,13 @@
   padding: 8px;
   border-radius: 6px;
   transition: 0.2s;
+  cursor: pointer;
 }
-
+.admin-dashboard .sidebar ul {
+  list-style: none;   /* 🔥 removes dots */
+  padding: 0;
+  margin: 0;
+}
 .admin-dashboard .sidebar li:hover {
   background: #334155;
 }
@@ -485,6 +490,7 @@
 .pagination {
   margin-top: 15px;
   display: flex;
+  justify-content: flex-end;
   gap: 10px;
   align-items: center;
 }
@@ -642,5 +648,12 @@ margin-left: 140px;
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+
+@media (max-width: 768px) {
+  .leaflet-control-zoom {
+    display: none !important;
   }
 }
