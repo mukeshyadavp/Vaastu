@@ -1,5 +1,6 @@
 * {
   box-sizing: border-box;
+  transition: all 0.15s ease-in-out;
 }
 
 
@@ -13,37 +14,41 @@
 /* ===== SIDEBAR ===== */
 .admin-dashboard .sidebar {
   width: 220px;
-  background: #1e293b;
+  background: linear-gradient(180deg, #1e293b, #0f172a);
   color: white;
   padding: 20px;
 }
 
-.admin-dashboard .sidebar h2 {
-  margin-bottom: 20px;
-}
-
-.admin-dashboard .sidebar ul {
-  padding: 0;
-}
-
 .admin-dashboard .sidebar li {
-  list-style: none;
-  margin: 10px 0;
-  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.admin-dashboard .sidebar li:hover {
+  background: #334155;
 }
 
 /* ===== MAIN ===== */
 .admin-dashboard .main {
   flex: 1;
-  padding: 20px;
-  background: #f0f1f3;
+  padding: 25px;
+  background: #eef5fd;
 }
 
 /* ===== HEADER ===== */
 .admin-dashboard .header {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
+}
+
+.admin-dashboard .header h1 {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  font-weight: 600;
 }
 
 /* ===== CARDS ===== */
@@ -55,11 +60,34 @@
 
 .admin-dashboard .card {
   flex: 1;
-  padding: 20px;
-  border-radius: 12px;
+  padding: 25px;
+  border-radius: 16px;
   color: white;
   font-weight: bold;
   text-align: center;
+  font-size: 18px;
+
+  /* 🔥 modern shadow */
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+
+  /* 🔥 smooth hover */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-dashboard .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+}
+
+
+.admin-dashboard .card h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.admin-dashboard .card p {
+  font-size: 26px;
+  margin: 0;
 }
 
 /* COLORS */
@@ -93,6 +121,21 @@
   border: 1px solid #ddd;
 }
 
+
+
+.admin-dashboard table {
+  margin-top: 25px;
+  border-radius: 14px;
+}
+
+.admin-dashboard th {
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.admin-dashboard td {
+  font-size: 14px;
+}
 /* BUTTONS */
 .admin-dashboard button {
   margin-right: 5px;
@@ -119,7 +162,10 @@
   background: green;
   color: white;
 }
-
+.map,
+.table-section {
+  margin-top: 30px;
+}
 /* MENU BUTTON */
 .menu-btn {
   background: #1e293b;
@@ -179,17 +225,20 @@
   .admin-dashboard .header h1 {
     font-size: 22px;
     text-align: center;
+    margin-top: 100px;
   }
 
   /* cards */
   .admin-dashboard .cards {
     flex-direction: column;
     gap: 12px;
+    margin-top: 80px;
   }
 
   .admin-dashboard .card {
     width: 100%;
     padding: 15px;
+    
   }
 
   /* map fix */
@@ -213,6 +262,7 @@
     width: 100%;
     overflow-x: auto;
     white-space: nowrap;
+    /* margin-top: -50px; */
   }
 }
 
