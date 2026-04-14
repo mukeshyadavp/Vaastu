@@ -1,3 +1,8 @@
+* {
+  box-sizing: border-box;
+}
+
+
 /* ===== ADMIN LAYOUT ONLY ===== */
 .admin-dashboard {
   display: flex;
@@ -41,11 +46,6 @@
   gap: 10px;
 }
 
-.admin-dashboard .header button {
-  padding: 5px 10px;
-  cursor: pointer;
-}
-
 /* ===== CARDS ===== */
 .admin-dashboard .cards {
   display: flex;
@@ -59,19 +59,13 @@
   border-radius: 12px;
   color: white;
   font-weight: bold;
+  text-align: center;
 }
 
-.admin-dashboard .green {
-  background: #16a34a;
-}
-
-.admin-dashboard .yellow {
-  background: #f59e0b;
-}
-
-.admin-dashboard .red {
-  background: #dc2626;
-}
+/* COLORS */
+.admin-dashboard .green { background: #16a34a; }
+.admin-dashboard .yellow { background: #f59e0b; }
+.admin-dashboard .red { background: #dc2626; }
 
 /* ===== MAP ===== */
 .admin-dashboard .map {
@@ -99,6 +93,7 @@
   border: 1px solid #ddd;
 }
 
+/* BUTTONS */
 .admin-dashboard button {
   margin-right: 5px;
   padding: 6px 10px;
@@ -117,66 +112,102 @@
   color: white;
 }
 
-/* ===== UPLOAD ===== */
-.admin-dashboard input[type="file"] {
-  margin-top: 10px;
-}
-
-.admin-dashboard button {
-  margin-top: 10px;
-}
-
-/* ===== MOBILE RESPONSIVE ===== */
+/* ===== MOBILE FIX ===== */
 @media (max-width: 768px) {
 
+  /* layout fix */
   .admin-dashboard {
     flex-direction: column;
+    width: 100%;
+    overflow-x: hidden;
   }
 
+  /* sidebar */
   .admin-dashboard .sidebar {
     width: 100%;
+    padding: 12px;
     text-align: center;
   }
 
   .admin-dashboard .sidebar ul {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
+    flex-wrap: wrap;
   }
 
   .admin-dashboard .sidebar li {
-    margin: 0;
-    font-size: 14px;
+    font-size: 12px;
+    margin: 5px;
   }
 
+  /* main fix */
+  .admin-dashboard .main {
+    width: 100%;
+    padding: 12px;
+  }
+
+  /* header */
+  .admin-dashboard .header {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .admin-dashboard .header h1 {
+    font-size: 22px;
+    text-align: center;
+  }
+
+  /* cards */
   .admin-dashboard .cards {
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
   }
 
   .admin-dashboard .card {
-    width: 90%;
+    width: 100%;
+    padding: 15px;
   }
 
+  /* map fix */
   .admin-dashboard .map {
     width: 100%;
   }
 
+  /* upload fix */
+  .admin-dashboard input[type="file"] {
+    width: 100%;
+  }
+
+  .admin-dashboard button {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  /* table fix (IMPORTANT) */
   .admin-dashboard table {
-    /* display: block; */
+    display: block;
+    width: 100%;
     overflow-x: auto;
     white-space: nowrap;
   }
-
-  .admin-dashboard .sidebar {
-  width: 130%;
-  }
-
-
-  .admin-dashboard .main {
-background-color: #f0f1f3;
-width: 130%;
-
-  }
 }
 
+/* ===== MOBILE PERFECT WIDTH FIX ===== */
+@media (max-width: 768px) {
 
+  .admin-dashboard .main {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .admin-dashboard .cards {
+    width: 100%;
+    padding: 0;
+  }
+
+  .admin-dashboard .card {
+    width: 100%;
+    margin: 0;
+  }
+
+}
