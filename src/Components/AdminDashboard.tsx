@@ -7,7 +7,9 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 const [file, setFile] = useState<File | null>(null);
-const [result, setResult] = useState<string | null>(null);
+const [result, setResult] = useState<"success" | "failure" | "">("");
+const [message, setMessage] = useState("");
+const [loading, setLoading] = useState(false);
 
 const [applications, setApplications] = useState([
   { id: 101, name: "Ramesh", status: "Pending", lat: 17.385, lng: 78.4867 },
@@ -40,23 +42,32 @@ const handleReject = (id: number) => {
 
 const handleUpload = () => {
   if (!file) {
-    setResult("❌ Please select a file");
+    setResult("failure");
+    setMessage("Please select a file");
     return;
   }
 
   if (file.size > 2 * 1024 * 1024) {
-    setResult("❌ File too large (max 2MB)");
+    setResult("failure");
+    setMessage("File too large (max 2MB)");
     return;
   }
 
-  const fileName = file.name.toLowerCase();
+  setLoading(true); // 🔥 START LOADER
 
-  // fake AI logic
-  if (fileName.includes("plan")) {
-    setResult("✅ Plan is valid");
-  } else {
-    setResult("❌ Invalid building plan");
-  }
+  setTimeout(() => {
+    const fileName = file.name.toLowerCase();
+
+    if (fileName.includes("2006") || fileName.includes("plan")) {
+      setResult("success");
+      setMessage("Plan Approved");
+    } else {
+      setResult("failure");
+      setMessage("Plan Rejected");
+    }
+
+    setLoading(false); // 🔥 STOP LOADER
+  }, 1000); // 2 sec delay
 };
 
 
@@ -109,6 +120,9 @@ const handleUpload = () => {
           <h3>Map View</h3>
   <MapView data={applications} onAdd={handleAddApplication} />
         </div>
+
+
+
 <div style={{ marginTop: "20px" }}>
   <h3>Upload Building Plan</h3>
 
@@ -127,21 +141,61 @@ const handleUpload = () => {
     Upload
   </button>
 </div>
-  {result && (
-  <div
-    style={{
-      marginTop: "10px",
-      padding: "10px",
-      background: "#f1f5f9",
-      borderRadius: "8px",
-      fontWeight: "bold",
-    }}
-  >
-    {result}
+
+{/* 👇 IDHI IMPORTANT – upload row kinda */}
+{loading && (
+  <div className="loader-container">
+    <div className="spinner"></div>
+    <p>Uploading...</p>
   </div>
 )}
 
+  {/* 🔥 STEP 3 CODE EXACT IKKADE */}
+ {!loading && result !== "" && (
+    <div
+      style={{
+        marginTop: "10px",
+        padding: "10px",
+        background: "#f1f5f9",
+        borderRadius: "8px",
+        fontWeight: "bold",
+      }}
+    >
+      <span style={{ color: result === "success" ? "green" : "red" }}>
+        {result === "success" ? "✅" : "❌"} {message}
+      </span>
+
+   <button
+  style={{
+    marginLeft: "10px",
+    padding: "6px 12px",
+    background: "#2e7d32",
+    color: "white",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+  }}
+  onClick={() => {
+    const link = document.createElement("a");
+
+    if (result === "success") {
+      link.href = "/AP-VAASTU-20260327062006 - VAASTU.pdf";
+      link.download = "approved.pdf";
+    } else {
+      link.href = "/AP-VAASTU-20260327062016 - VAASTU.pdf";
+      link.download = "rejected.pdf";
+    }
+
+    link.click();
+  }}
+>
+  ⬇ Download
+</button>
+    </div>
+  )}
 </div>
+
+
         {/* Table */}
     <ApplicationsTable
   data={applications}
