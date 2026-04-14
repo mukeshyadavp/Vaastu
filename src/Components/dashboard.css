@@ -103,16 +103,16 @@
 }
 
 /* APPROVE BUTTON */
-.approve-btn {
+/* .approve-btn {
   background: green;
   color: white;
-}
+} */
 
 /* REJECT BUTTON */
-.reject-btn {
+/* .reject-btn {
   background: red;
   color: white;
-}
+} */
 
 /* BACK BUTTON */
 .back-btn {
@@ -317,16 +317,16 @@
 }
 
 /* VIEW */
-.view-btn {
+/* .view-btn {
   background: #2563eb;
   color: white;
-}
+} */
 
 /* EDIT */
-.edit-btn {
+/* .edit-btn {
   background: #9333ea;
   color: white;
-}
+} */
 
 /* COMMON */
 .view-btn,
@@ -510,4 +510,87 @@
 .admin-dashboard td {
   text-align: center;
   vertical-align: middle;
+}
+
+
+/* ICON ONLY BUTTONS */
+.action-buttons button {
+  border: none;
+  background: transparent; /* 🔥 main change */
+  font-size: 18px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+}
+
+/* hover effect */
+.action-buttons button:hover {
+  background: rgba(0,0,0,0.08);
+}
+
+/* colors only */
+.approve-btn {
+  color: #16a34a;
+}
+
+.reject-btn {
+  color: #dc2626;
+}
+
+.view-btn {
+  color: #2563eb;
+}
+
+.edit-btn {
+  color: #9333ea;
+}
+
+.upload-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+
+/* 🔥 Loader Container */
+.loader-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+
+  /* align-items: flex-start;   
+  justify-content: flex-start; */
+margin-left: 140px;
+  margin-top: 10px;
+}
+@media (max-width: 768px) {
+  .loader-container {
+    width: 100%;
+    margin-top: 12px;
+  }
+}
+
+/* 🔄 Spinner */
+.spinner {
+  width: 35px;
+  height: 35px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #2563eb;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* text */
+.loader-container p {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #2563eb;
+  font-weight: 500;
+}
+
+/* animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
