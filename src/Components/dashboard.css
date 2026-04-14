@@ -31,7 +31,7 @@
 .admin-dashboard .main {
   flex: 1;
   padding: 20px;
-  background: #f1f5f9;
+  background: #f0f1f3;
 }
 
 /* ===== HEADER ===== */
@@ -154,7 +154,7 @@
   }
 
   .admin-dashboard .card {
-    width: 100%;
+    width: 90%;
   }
 
   .admin-dashboard .map {
@@ -162,8 +162,16 @@
   }
 
   .admin-dashboard table {
-    display: block;
+    /* display: block; */
     overflow-x: auto;
     white-space: nowrap;
   }
+
+
+  .admin-dashboard .main {
+background-color: #f0f1f3;
+width: 100%;
+  }
 }
+
+
