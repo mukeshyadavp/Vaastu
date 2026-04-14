@@ -167,10 +167,15 @@
     white-space: nowrap;
   }
 
+  .admin-dashboard .sidebar {
+  width: 120%;
+  }
+
 
   .admin-dashboard .main {
 background-color: #f0f1f3;
-width: 100%;
+width: 120%;
+
   }
 }
 
