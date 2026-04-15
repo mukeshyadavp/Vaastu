@@ -29,7 +29,9 @@ const AdminTopBar = () => {
       <div className="admin-menu-bar">
 
         <div className="admin-menu-left">
+             <div className="homeWrapper">
           <span className="admin-home-icon" onClick={() => navigate("/Home")}>🏠</span>
+          </div>
           <div className="icons1">
 
          <button className="admin-menu-item">Dashboard ▼</button>
