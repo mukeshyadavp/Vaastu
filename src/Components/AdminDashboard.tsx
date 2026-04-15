@@ -51,21 +51,22 @@ const handleReject = (id: number) => {
   <h2>Admin</h2>
 
   <ul>
-    <li onClick={() => setActivePage("dashboard")}>
-  🏠 Dashboard
+    <li onClick={() => {setActivePage("dashboard"); setOpen(false);}  }  className="menu-item">
+  <span>🏠</span> Dashboard
 </li>
 
-<li onClick={() => setActivePage("ai")}>
-  🤖 AI-Assisted Automated Scrutiny
+<li onClick={() => {setActivePage("ai"); setOpen(false);}} className="menu-item">
+  <span>🤖</span> AI-Assisted Automated Scrutiny
 </li>
-<li onClick={() => setActivePage("gis")}>
-  🛰 GIS & Satellite Monitoring
+<li onClick={() => {setActivePage("gis"); setOpen(false);}  } className="menu-item">
+  <span>🛰</span> GIS & Satellite Monitoring
 </li>
-<li onClick={() => setActivePage("governance")}>
-  🏛 Governance Dashboard
+<li onClick={() => {setActivePage("governance"); setOpen(false);}} className="menu-item">
+  <span>🏛</span> Governance Dashboard
 </li>
   </ul>
 </div>
+{open && <div className="overlay" onClick={() => setOpen(false)}></div>}
 
       {/* Main Content */}
    <main className="main">
