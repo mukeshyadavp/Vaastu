@@ -65,7 +65,13 @@
 /* ===== SIDEBAR ===== */
 .admin-dashboard .sidebar {
   width: 220px;
-  background: #1e293b;
+  background: linear-gradient(
+    180deg,
+    #b7dfc6 0%,     /* light green top */
+    #22a7c5 30%,    /* mid green */
+    #64748b 100%    /* grey bottom */
+  );
+  
   color: white;
   padding: 20px;
 }
@@ -136,9 +142,51 @@
 .upload-section {
   margin-top: 30px;
   background: white;
-  padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  padding: 30px 40px;   /* 🔥 more space */
+  border-radius: 20px;  /* smooth */
+  max-width: 900px;     /* 🔥 control width */
+  margin-left: auto;
+  margin-right: auto;   /* center */
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+.upload-section h2 {
+  text-align: left;
+  margin-bottom: 20px;
+}
+.upload-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 10px;
+}
+.upload-btn {
+  background: #2563eb;
+  color: white;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+@media (max-width: 768px) {
+  .upload-section {
+    padding: 20px;
+  }
+
+  .upload-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .upload-btn {
+    width: 100%;
+  }
+}
+.download-btn {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: #16a34a;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
 }
 .table-section {
   margin-top: 30px;
@@ -171,6 +219,7 @@
 @media (max-width: 768px) {
   .admin-dashboard .cards {
     flex-direction: column;
+    gap: 15px;
   }
 
   .admin-dashboard .card {
@@ -242,84 +291,7 @@
 
 
 /* ===== MOBILE FIX ===== */
-@media (max-width: 768px) {
 
-  /* layout fix */
-  .admin-dashboard {
-    flex-direction: column;
-    width: 100%;
-    overflow-x: hidden;
-  }
-
-  /* sidebar */
-  .admin-dashboard .sidebar {
-    width: 100%;
-    padding: 12px;
-    text-align: center;
-  }
-
-  .admin-dashboard .sidebar ul {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-  }
-
-  .admin-dashboard .sidebar li {
-    font-size: 12px;
-    margin: 5px;
-  }
-
-  /* main fix */
-  .admin-dashboard .main {
-    width: 100%;
-    padding: 12px;
-  }
-
-  /* header */
-  .admin-dashboard .header {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .admin-dashboard .header h1 {
-    font-size: 22px;
-    text-align: center;
-  }
-
-  /* cards */
-  .admin-dashboard .cards {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .admin-dashboard .card {
-    width: 100%;
-    padding: 15px;
-  }
-
-  /* map fix */
-  .admin-dashboard .map {
-    width: 100%;
-  }
-
-  /* upload fix */
-  .admin-dashboard input[type="file"] {
-    width: 100%;
-  }
-
-  .admin-dashboard button {
-    width: 100%;
-    margin-top: 10px;
-  }
-
-  /* table fix (IMPORTANT) */
-  .admin-dashboard table {
-    display: block;
-    width: 100%;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-}
 
 /* ===== MOBILE PERFECT WIDTH FIX ===== */
 @media (max-width: 768px) {
@@ -332,10 +304,15 @@
   margin: 10px auto;
 }
 /* MOBILE FILE + BUTTON INLINE */
-.upload-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+@media (max-width: 768px) {
+  .upload-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .upload-btn {
+    width: 100%;
+  }
 }
 
 .upload-btn {
@@ -367,28 +344,20 @@
   padding: 6px 10px;
   border-radius: 6px;
 }
+.menu-btn {
+  display: none;
+}
 
-/* ===== MOBILE SIDEBAR ===== */
 @media (max-width: 768px) {
-
   .menu-btn {
     display: block;
-  }
-
-  .admin-dashboard .sidebar {
     position: fixed;
-    top: 0;
-    left: -100%;
-    height: 100%;
-    width: 200px;
-    z-index: 1000;
-    transition: 0.3s;
-  }
-
-  .admin-dashboard .sidebar.active {
-    left: 0;
+    top: 80px;
+    left: 15px;
+    z-index: 1100;
   }
 }
+
 
 /* BACK BUTTON FIX */
 .back-btn {
@@ -531,9 +500,18 @@
 .search-input {
   margin: 10px 0;
   padding: 8px;
-  width: 250px;
+   width: 250px;
+  max-width: 100%;
   border-radius: 6px;
   border: 1px solid #ccc;
+}
+@media (max-width: 768px) {
+  .search-input {
+    width: 100%;
+    max-width: 300px;   /* 🔥 limit */
+    margin: 10px auto;  /* center */
+    display: block;
+  }
 }
 
 /* PAGINATION */
@@ -634,21 +612,11 @@
 }
 
 /* colors only */
-.approve-btn {
-  color: #16a34a;
+.action-buttons button {
+  color: #0f172a;   /* 🔥 single color */
 }
 
-.reject-btn {
-  color: #dc2626;
-}
 
-.view-btn {
-  color: #2563eb;
-}
-
-.edit-btn {
-  color: #9333ea;
-}
 
 .upload-row {
   display: flex;
@@ -665,7 +633,7 @@
 
   /* align-items: flex-start;   
   justify-content: flex-start; */
-margin-left: 140px;
+margin-left: 90px;
   margin-top: 10px;
 }
 @media (max-width: 768px) {
@@ -698,4 +666,95 @@ margin-left: 140px;
   to {
     transform: rotate(360deg);
   }
+}
+
+
+/* ===== SIDEBAR MENU ITEMS ===== */
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 12px 14px;
+  margin-bottom: 10px;
+
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+
+  color: #cbd5f5;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.menu-item:hover {
+  background: #1e293b;
+  color: white;
+}
+
+/* active item */
+.menu-item.active {
+  background: #2563eb;
+  color: white;
+  font-weight: 600;
+}
+.menu-item span {
+  font-size: 18px;
+}
+.admin-dashboard .sidebar ul {
+  margin-top: 10px;
+}
+
+/* hover */
+.menu-item:hover {
+  background: #334155;
+}
+
+/* active */
+.menu-item.active {
+  background: #2563eb;
+  font-weight: 600;
+}
+.admin-dashboard .sidebar h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  color: #f1f5f9;
+}
+.map-header-img {
+  width: 100%;
+  height: auto; /* adjust avvachu */
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  margin-top: 15px;
+}
+@media (max-width: 768px) {
+  .map-header-img {
+    height: 180px;   /* mobile size */
+  }
+}
+@media (max-width: 768px) {
+  .admin-dashboard .sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px;   /* 🔥 default hidden */
+    height: 100%;
+    width: 240px;
+    z-index: 1000;
+    transition: left 0.3s ease;
+  }
+
+  .admin-dashboard .sidebar.active {
+    left: 0;   /* 🔥 open when active */
+  }
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  z-index: 999;
 }

@@ -1,19 +1,19 @@
 import "./dashboard.css";
-// import { useNavigate } from "react-router-dom";
 import { useState,  } from "react";
-import MapView from "../Components/MapView";
-import ApplicationsTable from "../Components/ApplicationsTable";
+
 import AdminTopBar from "./AdminTopBar";
 // import MonitorPopup from "./MonitorPopup";
 import Dashboard from "./pages/Dashboard";
 const AdminDashboard = () => {
   const [page, setPage] = useState("admin");
   // const navigate = useNavigate();
+import AIUpload from "./AIUpload";
+import GISMonitoring from "./GISMonitoring";
+import GovernanceDashboard from "./GovernanceDashboard";
+const AdminDashboard = () => {
   const [open, setOpen] = useState(false);
-const [file, setFile] = useState<File | null>(null);
-const [result, setResult] = useState<"success" | "failure" | "">("");
-const [message, setMessage] = useState("");
-const [loading, setLoading] = useState(false);
+
+const [activePage, setActivePage] = useState("dashboard");
 
 
 const [applications, setApplications] = useState([
@@ -45,35 +45,7 @@ const handleReject = (id: number) => {
   );
 };
 
-const handleUpload = () => {
-  if (!file) {
-    setResult("failure");
-    setMessage("Please select a file");
-    return;
-  }
 
-  if (file.size > 2 * 1024 * 1024) {
-    setResult("failure");
-    setMessage("File too large (max 2MB)");
-    return;
-  }
-
-  setLoading(true); // 🔥 START LOADER
-
-  setTimeout(() => {
-    const fileName = file.name.toLowerCase();
-
-    if (fileName.includes("2006") || fileName.includes("plan")) {
-      setResult("success");
-      setMessage("Plan Approved");
-    } else {
-      setResult("failure");
-      setMessage("Plan Rejected");
-    }
-
-    setLoading(false); // 🔥 STOP LOADER
-  }, 1000); // 2 sec delay
-};
 
 
   return (
@@ -81,7 +53,26 @@ const handleUpload = () => {
 <AdminTopBar setPage={setPage} />
    <div className="admin-dashboard">
       
-  
+  <div className={`sidebar ${open ? "active" : ""}`}>
+  <h2>Admin</h2>
+
+  <ul>
+    <li onClick={() => {setActivePage("dashboard"); setOpen(false);}  }  className="menu-item">
+  <span>🏠</span> Dashboard
+</li>
+
+<li onClick={() => {setActivePage("ai"); setOpen(false);}} className="menu-item">
+  <span>🤖</span> AI-Assisted Automated Scrutiny
+</li>
+<li onClick={() => {setActivePage("gis"); setOpen(false);}  } className="menu-item">
+  <span>🛰</span> GIS & Satellite Monitoring
+</li>
+<li onClick={() => {setActivePage("governance"); setOpen(false);}} className="menu-item">
+  <span>🏛</span> Governance Dashboard
+</li>
+  </ul>
+</div>
+{open && <div className="overlay" onClick={() => setOpen(false)}></div>}
 
       {/* Main Content */}
       <main className="main">
@@ -93,6 +84,15 @@ const handleUpload = () => {
         <h1>Admin Dashboard</h1>
       </header>
 
+   <main className="main">
+
+  <header className="header">
+    <button className="menu-btn" onClick={() => setOpen(!open)}>☰</button>
+  </header>
+
+  {/* DASHBOARD VIEW */}
+  {activePage === "dashboard" && (
+    <>
       <div className="cards">
         <div className="card green">
           <h3>Approved</h3>
@@ -108,39 +108,44 @@ const handleUpload = () => {
           <h3>Violations</h3>
           <p>{stats.violations}</p>
         </div>
+
+        <div className="card yellow">
+          <h3>Pending</h3>
+          <p>{stats.pending}</p>
+        </div>
       </div>
 
       <div className="map">
         <h3>Map View</h3>
         <MapView data={applications} onAdd={handleAddApplication} />
+        <div className="card red">
+          <h3>Violations</h3>
+          <p>{stats.violations}</p>
+        </div>
       </div>
 
-<div className="upload-section">
-<div style={{ marginTop: "20px" }}>
-  <h3>Upload Building Plan</h3>
+     
 
-<div className="upload-row">
-  <input
-    type="file"
-    accept=".pdf"
-    onChange={(e) => {
-      if (e.target.files) {
-        setFile(e.target.files[0]);
-      }
-    }}
+  
+    </>
+  )}
+
+  {/* AI PAGE */}
+  {activePage === "ai" && <AIUpload />}
+
+  {activePage === "gis" && (
+  <GISMonitoring
+    applications={applications}
+    onApprove={handleApprove}
+    onReject={handleReject}
   />
-
-  <button className="upload-btn" onClick={handleUpload}>
-    Upload
-  </button>
-</div>
-
-{/* 👇 IDHI IMPORTANT – upload row kinda */}
-{loading && (
-  <div className="loader-container">
-    <div className="spinner"></div>
-    <p>Uploading...</p>
-  </div>
+  
+)}
+{activePage === "governance" && (
+  <GovernanceDashboard
+    applications={applications}
+    onAdd={handleAddApplication}
+  />
 )}
 
   {/* 🔥 STEP 3 CODE EXACT IKKADE */}
@@ -203,6 +208,7 @@ const handleUpload = () => {
  
 
       </main>
+</main>
     </div>
     </div>
   );
