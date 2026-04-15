@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Pencil } from "lucide-react";
 
 type Application = {
   id: number;
@@ -83,7 +84,7 @@ const ApplicationsTable = ({ data, onApprove, onReject }: Props) => {
 
                   {/* ✏️ EDIT */}
              <button className="edit-btn" onClick={() => setEditApp(app)}>
-  ✏️
+  <Pencil size={18} />
 </button>
 
                 </div>

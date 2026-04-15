@@ -4,8 +4,9 @@ const AIUpload = () => {
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<"success" | "failure" | "">("");
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // 🔥 spinner state
 
+  // 🔥 UPLOAD
   const handleUpload = () => {
     if (!file) {
       setResult("failure");
@@ -13,7 +14,13 @@ const AIUpload = () => {
       return;
     }
 
-    setLoading(true);
+    if (file.size > 2 * 1024 * 1024) {
+      setResult("failure");
+      setMessage("File too large (max 2MB)");
+      return;
+    }
+
+    setLoading(true); // 🔥 start spinner
 
     setTimeout(() => {
       const fileName = file.name.toLowerCase();
@@ -26,8 +33,23 @@ const AIUpload = () => {
         setMessage("Plan Rejected");
       }
 
-      setLoading(false);
+      setLoading(false); // 🔥 stop spinner
     }, 1000);
+  };
+
+  // 🔥 DOWNLOAD
+  const handleDownload = () => {
+    const link = document.createElement("a");
+
+    if (result === "success") {
+      link.href = "/AP-VAASTU-20260327062006 - VAASTU.pdf";
+      link.download = "approved.pdf";
+    } else {
+      link.href = "/AP-VAASTU-20260327062016 - VAASTU.pdf";
+      link.download = "rejected.pdf";
+    }
+
+    link.click();
   };
 
   return (
@@ -50,6 +72,7 @@ const AIUpload = () => {
         </button>
       </div>
 
+      {/* 🔄 SPINNER */}
       {loading && (
         <div className="loader-container">
           <div className="spinner"></div>
@@ -57,11 +80,26 @@ const AIUpload = () => {
         </div>
       )}
 
+      {/* ✅ RESULT */}
       {!loading && result !== "" && (
-        <div className="result-box">
+        <div
+          style={{
+            marginTop: "15px",
+            padding: "12px",
+            background: "#f8fafc",
+            borderRadius: "10px",
+            display: "flex",
+            alignItems: "center",
+            gap: "15px",
+          }}
+        >
           <span style={{ color: result === "success" ? "green" : "red" }}>
             {result === "success" ? "✅" : "❌"} {message}
           </span>
+
+          <button className="download-btn" onClick={handleDownload}>
+            ⬇ Download Certificate
+          </button>
         </div>
       )}
     </div>
