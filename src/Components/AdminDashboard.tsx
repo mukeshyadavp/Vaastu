@@ -1,10 +1,11 @@
 import "./dashboard.css";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { useState,  } from "react";
 import MapView from "../Components/MapView";
 import ApplicationsTable from "../Components/ApplicationsTable";
+import AdminTopBar from "./AdminTopBar";
 const AdminDashboard = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 const [file, setFile] = useState<File | null>(null);
 const [result, setResult] = useState<"success" | "failure" | "">("");
@@ -72,29 +73,22 @@ const handleUpload = () => {
 
 
   return (
+    <div>
+        <AdminTopBar />
    <div className="admin-dashboard">
       
-      {/* Sidebar */}
-     <aside className={`sidebar ${open ? "active" : ""}`}>
-        <h2>VAASTU</h2>
-        <ul>
-          <li>Dashboard</li>
-          <li>Applications</li>
-          <li>Violations</li>
-          <li>Map View</li>
-        </ul>
-      </aside>
+  
 
       {/* Main Content */}
       <main className="main">
      <header className="header">
   <button className="menu-btn" onClick={() => setOpen(!open)}>☰</button>
 
-<button className="back-btn" onClick={() => navigate("/Home")}>
+{/* <button className="back-btn" onClick={() => navigate("/Home")}>
   ⬅ Back
-</button>
+</button> */}
 
-  <h1>Admin Dashboard</h1>
+  {/* <h1>Admin Dashboard</h1> */}
 </header>
 
         {/* Cards */}
@@ -122,7 +116,7 @@ const handleUpload = () => {
         </div>
 
 
-
+<div className="upload-section">
 <div style={{ marginTop: "20px" }}>
   <h3>Upload Building Plan</h3>
 
@@ -194,7 +188,7 @@ const handleUpload = () => {
     </div>
   )}
 </div>
-
+</div>
 
         {/* Table */}
     <ApplicationsTable
@@ -204,6 +198,7 @@ const handleUpload = () => {
 />
 
       </main>
+    </div>
     </div>
   );
 };

@@ -53,7 +53,7 @@ const Navbar: React.FC<NavbarProps> = ({ open, setOpen, bpOpen, setBpOpen, formO
   const [cadFiles, setCadFiles] = useState<File[]>([]);
   const [result, setResult] = useState<"success" | "failure" | "">("");
   const navigate = useNavigate();
-
+const [showMenu, setShowMenu] = useState(false);
 
 
 const validateBuilding = () => {
@@ -113,7 +113,7 @@ useEffect(() => {
       {/* Menu Bar */}
       <div className="menuBar">
         <div className="menuItems">
-          <button className="navBtn homeIcon">🏠</button>
+          <button className="navBtn homeIcon" >🏠</button>
           <button className="navBtn">ABOUT AP-bPASS</button>
           <button className="navBtn">INFORMATION ▼</button>
           <button className="navBtn">RESOURCES ▼</button>
@@ -122,16 +122,45 @@ useEffect(() => {
           <button className="navBtn">COMPLAINTS ▼</button>
           <button className="navBtn">LOGIN ▼</button>
         </div>
-<div className="rightButtons">
-        <button className="applyBtn" onClick={() => setOpen(true)}>
-          APPLY NOW ▼
-        </button>
-        <button
-  onClick={() => navigate("/admin")}
-  className="bg-blue-500 text-white px-4 py-2 rounded"
->
-  Admin
-</button>
+   <div className="dropdownWrapper">
+
+  <button
+    className="admin-back-btn"
+    onClick={() => setShowMenu(!showMenu)}
+  >
+    User ▼
+  </button>
+
+  {showMenu && (
+    <div className="dropdownMenu">
+
+      {/* 🔥 ADMIN PAGE lo unte only USER chupinchu */}
+      {location.pathname === "/admin" && (
+        <p
+          onClick={() => {
+            navigate("/Home");
+            setShowMenu(false);
+          }}
+        >
+          User 
+        </p>
+      )}
+
+      {/* 🔥 HOME lo unte only ADMIN chupinchu */}
+      {location.pathname === "/Home" && (
+        <p
+          onClick={() => {
+            navigate("/admin");
+            setShowMenu(false);
+          }}
+        >
+          Admin 
+        </p>
+      )}
+
+    </div>
+  )}
+
 </div>
       </div>
 

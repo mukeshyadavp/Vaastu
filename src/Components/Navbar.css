@@ -742,6 +742,7 @@
 .rightButtons {
   display: flex;
   gap: 10px;
+  padding-top: 10px;
 }
 
 .adminBtn {
@@ -751,4 +752,42 @@
   border-radius: 5px;
   border: none;
   cursor: pointer;
+}
+
+/* DROPDOWN WRAPPER */
+.dropdownWrapper {
+  position: relative;
+}
+
+/* DROPDOWN MENU */
+.dropdownMenu {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  text-align: center;
+
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  overflow: hidden;
+  z-index: 1000;
+
+  min-width: 100px;
+}
+
+/* ITEMS */
+.dropdownMenu p {
+  padding: 10px 15px;
+  margin: 0;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+/* HOVER */
+.dropdownMenu p:hover {
+  background: #f1f5f9;
+  color: #2e7d32;
 }
