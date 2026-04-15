@@ -223,3 +223,108 @@
 
 }
 
+/* 🔥 MONITOR BUTTON - Normal styling (same as others) */
+/* .monitor-content-btn {
+  /* Remove all special colors - use default styling */
+
+
+.monitor-content-btn:hover {
+  color: #2e7d32 !important;
+  border-bottom: 2px solid #2e7d32 !important;
+}
+
+/* 🔥 Full page content below navbar - SCROLLABLE */
+.monitor-content-page {
+  width: 100%;
+  height: calc(100vh - 130px); 
+  background: #f8f9fa;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto; /* ✅ ENABLE SCROLLBAR */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #888 #f1f1f1; /* Firefox */
+}
+
+/* Webkit scrollbar (Chrome/Safari) */
+.monitor-content-page::-webkit-scrollbar {
+  width: 8px;
+}
+
+.monitor-content-page::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.monitor-content-page::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.monitor-content-page::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* 🔥 Override MonitorPopup popup styling */
+.monitor-content-page .popup {
+  position: static !important;
+  width: 100% !important;
+  height: auto !important;
+  background: transparent !important;
+  display: block !important;
+  justify-content: unset !important;
+  align-items: unset !important;
+  z-index: 1 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  /* ✅ No fixed positioning */
+}
+
+.monitor-content-page .popup-content {
+  position: static !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  height: auto !important;
+  overflow-y: visible !important; /* ✅ Allow scroll */
+  background: white !important;
+  padding: 30px !important;
+  margin: 0 !important;
+  /* ✅ Remove scroll restrictions */
+}
+
+
+
+.monitor-content-page .close:hover {
+  color: #ff4444 !important;
+}
+
+
+/* Hide close button inside monitor page */
+.monitor-content-page .close {
+  display: none !important;
+}
+
+
+
+
+/* 🔥 MOBILE: Total page scroll (AdminTopBar + Monitor) */
+@media (max-width: 768px) {
+  /* Remove fixed height from monitor page */
+  .monitor-content-page {
+    height: auto !important;          /* ✅ Let it grow naturally */
+    min-height: unset !important;     /* ✅ No min-height restriction */
+    overflow-y: visible !important;   /* ✅ No internal scroll */
+    padding: 10px !important;
+  }
+  
+  /* Monitor content fits naturally */
+  .monitor-content-page .popup-content {
+    padding: 20px !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+}
+
+

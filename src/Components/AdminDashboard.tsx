@@ -4,13 +4,17 @@ import { useState,  } from "react";
 import MapView from "../Components/MapView";
 import ApplicationsTable from "../Components/ApplicationsTable";
 import AdminTopBar from "./AdminTopBar";
+// import MonitorPopup from "./MonitorPopup";
+import Dashboard from "./pages/Dashboard";
 const AdminDashboard = () => {
+  const [page, setPage] = useState("admin");
   // const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 const [file, setFile] = useState<File | null>(null);
 const [result, setResult] = useState<"success" | "failure" | "">("");
 const [message, setMessage] = useState("");
 const [loading, setLoading] = useState(false);
+
 
 const [applications, setApplications] = useState([
   { id: 101, name: "Ramesh", status: "Pending", lat: 17.385, lng: 78.4867 },
@@ -74,47 +78,42 @@ const handleUpload = () => {
 
   return (
     <div>
-        <AdminTopBar />
+<AdminTopBar setPage={setPage} />
    <div className="admin-dashboard">
       
   
 
       {/* Main Content */}
       <main className="main">
-     <header className="header">
-  <button className="menu-btn" onClick={() => setOpen(!open)}>☰</button>
 
-{/* <button className="back-btn" onClick={() => navigate("/Home")}>
-  ⬅ Back
-</button> */}
+  {page === "admin" && (
+    <>
+      <header className="header">
+        <button className="menu-btn" onClick={() => setOpen(!open)}>☰</button>
+        <h1>Admin Dashboard</h1>
+      </header>
 
-  {/* <h1>Admin Dashboard</h1> */}
-</header>
-
-        {/* Cards */}
-     <div className="cards">
-          <div className="card green">
-            <h3>Approved</h3>
-           <p>{stats.approved}</p>
-          </div>
-
-          <div className="card yellow">
-            <h3>Pending</h3>
-        <p>{stats.pending}</p>
-          </div>
-
-          <div className="card red">
-            <h3>Violations</h3>
-         <p>{stats.violations}</p>
-          </div>
+      <div className="cards">
+        <div className="card green">
+          <h3>Approved</h3>
+          <p>{stats.approved}</p>
         </div>
 
-        {/* Map */}
-        <div className="map">
-          <h3>Map View</h3>
-  <MapView data={applications} onAdd={handleAddApplication} />
+        <div className="card yellow">
+          <h3>Pending</h3>
+          <p>{stats.pending}</p>
         </div>
 
+        <div className="card red">
+          <h3>Violations</h3>
+          <p>{stats.violations}</p>
+        </div>
+      </div>
+
+      <div className="map">
+        <h3>Map View</h3>
+        <MapView data={applications} onAdd={handleAddApplication} />
+      </div>
 
 <div className="upload-section">
 <div style={{ marginTop: "20px" }}>
@@ -191,11 +190,17 @@ const handleUpload = () => {
 </div>
 
         {/* Table */}
-    <ApplicationsTable
-  data={applications}
-  onApprove={handleApprove}
-  onReject={handleReject}
-/>
+  <ApplicationsTable
+        data={applications}
+        onApprove={handleApprove}
+        onReject={handleReject}
+      />
+    </>
+  )}
+
+  {page === "dashboard" && <Dashboard />}
+
+ 
 
       </main>
     </div>

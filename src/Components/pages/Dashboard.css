@@ -1,0 +1,285 @@
+.db-dashboard-container {
+  padding: 20px;
+  background: #f7f7f7;
+}
+
+/* ===== TOP CARDS ===== */
+.db-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.db-card {
+  padding: 15px;
+  border-radius: 10px;
+  color: #333;
+  font-weight: bold;
+}
+
+/* COLORS */
+.db-blue { background: #dbeafe; }
+.db-pink { background: #fbcfe8; }
+.db-yellow { background: #fde68a; }
+.db-green { background: #bbf7d0; }
+
+/* ===== CARD CONTENT ===== */
+.db-card-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.db-icon-circle {
+  width: 35px;
+  height: 35px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+/* ===== CHART GRID ===== */
+.db-charts-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.db-chart-box {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+/* ===== BAR CHART ===== */
+.db-bar {
+  width: 50px; /* reduced for mobile fit */
+  border-radius: 6px;
+}
+
+.db-blue-bar { background: #3b82f6; }
+.db-pink-bar { background: #ec4899; }
+.db-green-bar { background: #22c55e; }
+
+/* ===== TIMESHEET ===== */
+.db-timesheet-wrapper {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.db-y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 200px;
+  font-size: 12px;
+  color: #666;
+}
+
+.db-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around; /* 🔥 FIX */
+  gap: 20px;
+  height: 200px;
+  width: 100%;
+}
+
+.db-x-labels {
+  display: flex;
+  justify-content: space-around; /* 🔥 FIX */
+  font-size: 12px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* ===== DONUT ===== */
+.db-donut {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  margin: auto;
+  background: conic-gradient(
+    #3b82f6 0% 69%,
+    #22c55e 69% 93%,
+    #facc15 93% 100%
+  );
+}
+
+/* ===== PIE ===== */
+.db-pie {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  margin: auto;
+  background: conic-gradient(
+    #ec4899 0% 45%,
+    #c084fc 45% 75%,
+    #f9a8d4 75% 100%
+  );
+}
+
+/* ===== LEGEND ===== */
+.db-legend {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.db-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.db-dot.db-blue { background: #3b82f6; }
+.db-dot.db-green { background: #22c55e; }
+.db-dot.db-yellow { background: #facc15; }
+
+.db-dot.audit1 { background: #ec4899; }
+.db-dot.audit2 { background: #c084fc; }
+.db-dot.audit3 { background: #f9a8d4; }
+
+/* ===== PROGRESS ===== */
+.db-progress-item {
+  margin-bottom: 12px;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.db-progress {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 5px;
+}
+
+.db-progress div {
+  height: 100%;
+  background: #3b82f6;
+  border-radius: 5px;
+}
+
+/* ========================= */
+/* 📱 MOBILE (<=768px) */
+/* ========================= */
+@media (max-width: 768px) {
+
+  .db-dashboard-container {
+    padding: 12px;
+  }
+
+  /* cards */
+  .db-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .db-card {
+    padding: 12px;
+  }
+
+  .db-card-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .db-icon-circle {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
+
+  .db-card h2 {
+    font-size: 18px;
+  }
+
+  .db-card p {
+    font-size: 12px;
+  }
+
+  /* charts */
+  .db-charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .db-chart-box {
+    padding: 12px;
+  }
+
+  .db-chart-box h4 {
+    font-size: 14px;
+  }
+
+  /* bars */
+  .db-bar {
+    width: 35px;
+  }
+
+  .db-bars {
+    gap: 15px;
+  }
+
+  .db-x-labels {
+    font-size: 10px;
+  }
+
+  /* charts size */
+  .db-donut,
+  .db-pie {
+    width: 150px;
+    height: 150px;
+  }
+}
+
+/* ========================= */
+/* 📲 SMALL MOBILE (<=480px) */
+/* ========================= */
+@media (max-width: 480px) {
+
+  .db-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .db-card-content {
+    flex-direction: row;
+  }
+
+  .db-x-labels span {
+    font-size: 9px;
+  }
+
+  .db-y-axis {
+    font-size: 10px;
+  }
+}
+
+/* ========================= */
+/* 💻 TABLET (769px–1024px) */
+/* ========================= */
+@media (min-width: 769px) and (max-width: 1024px) {
+
+  .db-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .db-charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .db-donut,
+  .db-pie {
+    width: 200px;
+    height: 200px;
+  }
+
+  .db-bar {
+    width: 45px;
+  }
+}
