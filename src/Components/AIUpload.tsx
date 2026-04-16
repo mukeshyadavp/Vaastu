@@ -1,10 +1,12 @@
 import { useState } from "react";
+import "./AIUpload.css";
 
 const AIUpload = () => {
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<"success" | "failure" | "">("");
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false); // 🔥 spinner state
+  const [progress, setProgress] = useState(0); // ✅ progress state
+  const [loading, setLoading] = useState(false);
 
   // 🔥 UPLOAD
   const handleUpload = () => {
@@ -20,21 +22,32 @@ const AIUpload = () => {
       return;
     }
 
-    setLoading(true); // 🔥 start spinner
+    setLoading(true);
+    setProgress(0);
+    setResult("");
 
-    setTimeout(() => {
-      const fileName = file.name.toLowerCase();
+    let currentProgress = 0;
 
-      if (fileName.includes("2006") || fileName.includes("plan")) {
-        setResult("success");
-        setMessage("Plan Approved");
-      } else {
-        setResult("failure");
-        setMessage("Plan Rejected");
+    const interval = setInterval(() => {
+      currentProgress += 10;
+      setProgress(currentProgress);
+
+      if (currentProgress >= 100) {
+        clearInterval(interval);
+
+        const fileName = file.name.toLowerCase();
+
+        if (fileName.includes("2006") || fileName.includes("plan")) {
+          setResult("success");
+          setMessage("Plan Approved");
+        } else {
+          setResult("failure");
+          setMessage("Plan Rejected");
+        }
+
+        setLoading(false);
       }
-
-      setLoading(false); // 🔥 stop spinner
-    }, 1000);
+    }, 150);
   };
 
   // 🔥 DOWNLOAD
@@ -56,52 +69,68 @@ const AIUpload = () => {
     <div className="upload-section">
       <h2>AI-Assisted Automated Scrutiny</h2>
 
-      <div className="upload-row">
-        <input
-          type="file"
-          accept=".pdf"
-          onChange={(e) => {
-            if (e.target.files) {
-              setFile(e.target.files[0]);
-            }
-          }}
-        />
+      <div className="upload-box">
+        <label className="file-label">
+          <input
+            type="file"
+            accept=".pdf"
+            onChange={(e) => {
+              if (e.target.files) {
+                setFile(e.target.files[0]);
+                setResult("");
+              }
+            }}
+          />
+
+          <div className="upload-content">
+            <p className="upload-icon">📄</p>
+            <p className="upload-text">
+              {file ? file.name : "Click to upload or drag & drop"}
+            </p>
+            <span className="upload-subtext">PDF (Max 2MB)</span>
+          </div>
+        </label>
 
         <button className="upload-btn" onClick={handleUpload}>
-          Upload
+          Upload File
         </button>
       </div>
 
-      {/* 🔄 SPINNER */}
+      {/* 📊 PROGRESS BAR */}
       {loading && (
-        <div className="loader-container">
-          <div className="spinner"></div>
-          <p>Uploading...</p>
+        <div className="progress-container">
+          <div className="progress-bar">
+            <div
+              className="progress-fill"
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
+          <p>{progress}% Uploading...</p>
         </div>
       )}
 
-      {/* ✅ RESULT */}
-      {!loading && result !== "" && (
-        <div
-          style={{
-            marginTop: "15px",
-            padding: "12px",
-            background: "#f8fafc",
-            borderRadius: "10px",
-            display: "flex",
-            alignItems: "center",
-            gap: "15px",
-          }}
-        >
-          <span style={{ color: result === "success" ? "green" : "red" }}>
-            {result === "success" ? "✅" : "❌"} {message}
-          </span>
+    {/* ✅ RESULT */}
+{!loading && result !== "" && (
+  <div className={`result-card ${result}`}>
+    
+    <div className="result-left">
+      <div className={`result-icon ${result}`}>
+        {result === "success" ? "✔" : "✖"}
+      </div>
 
-          <button className="download-btn" onClick={handleDownload}>
-            ⬇ Download Certificate
-          </button>
-        </div>
-      )}
+      <div>
+        <h3 className="result-title">
+          {result === "success" ? "Plan Approved" : "Plan Rejected"}
+        </h3>
+        <p className="result-message">{message}</p>
+      </div>
+    </div>
+
+    <button className="download-btn" onClick={handleDownload}>
+      ⬇ Download Certificate
+    </button>
+  </div>
+)}
     </div>
   );
 };

@@ -3,7 +3,7 @@ import { useState,  } from "react";
 
 import AdminTopBar from "./AdminTopBar";
 import AIUpload from "./AIUpload";
-import GISMonitoring from "./GISMonitoring";
+import GISMonitoringPage from "./pages/GISMonitoringPage";
 import GovernanceDashboard from "./GovernanceDashboard";
 import Dashboard from "./pages/Dashboard";
 const AdminDashboard = () => {
@@ -19,29 +19,6 @@ const [applications, setApplications] = useState([
 const handleAddApplication = (newApp: any) => {
   setApplications((prev) => [...prev, newApp]);
 };
-// const stats = {
-//   approved: applications.filter((a) => a.status === "Approved").length,
-//   pending: applications.filter((a) => a.status === "Pending").length,
-//   violations: applications.filter((a) => a.status === "Violation").length,
-// };
-const handleApprove = (id: number) => {
-  setApplications((prev) =>
-    prev.map((app) =>
-      app.id === id ? { ...app, status: "Approved" } : app
-    )
-  );
-};
-
-const handleReject = (id: number) => {
-  setApplications((prev) =>
-    prev.map((app) =>
-      app.id === id ? { ...app, status: "Violation" } : app
-    )
-  );
-};
-
-
-
 
   return (
     <div>
@@ -49,7 +26,6 @@ const handleReject = (id: number) => {
    <div className="admin-dashboard">
       
   <div className={`sidebar ${open ? "active" : ""}`}>
-  <h2>Admin</h2>
 
   <ul>
     <li onClick={() => {setActivePage("dashboard"); setOpen(false);}  }  className="menu-item">
@@ -77,43 +53,14 @@ const handleReject = (id: number) => {
   </header>
   {activePage === "dashboard" && <Dashboard />}
 
-  {/* DASHBOARD VIEW */}
-  {/* {activePage === "dashboard" && (
-    <>
-      <div className="cards">
-        <div className="card green">
-          <h3>Approved</h3>
-          <p>{stats.approved}</p>
-        </div>
 
-        <div className="card yellow">
-          <h3>Pending</h3>
-          <p>{stats.pending}</p>
-        </div>
-
-        <div className="card red">
-          <h3>Violations</h3>
-          <p>{stats.violations}</p>
-        </div>
-      </div> */}
-
-     
-
-  
-    {/* </> */}
-  {/* )} */}
 
   {/* AI PAGE */}
   {activePage === "ai" && <AIUpload />}
 
-  {activePage === "gis" && (
-  <GISMonitoring
-    applications={applications}
-    onApprove={handleApprove}
-    onReject={handleReject}
-  />
+{activePage === "gis" && <GISMonitoringPage />}
   
-)}
+
 {activePage === "governance" && (
   <GovernanceDashboard
     applications={applications}
