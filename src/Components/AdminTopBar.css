@@ -1,4 +1,5 @@
 /* ===== HEADER SAME AS HOME ===== */
+
 .admin-header {
   display: flex;
   align-items: center;
@@ -8,19 +9,22 @@
 .admin-logo {
   width: 70px;
   margin-right: 10px;
+  font-size: 36px;
 }
 
 .admin-main-title {
   color: green;
   margin: 0;
-  font-size: 22px;
-  font-weight: 600;
+  /* font-size: 20px;          match navbar */
+  /* font-weight: 600; */
+  /* font-family: Arial, sans-serif;  ✅ same font */
 }
 
 .admin-sub-title {
   color: green;
   margin: 0;
-  font-size: 16px;
+  /* font-size: 14px;          match navbar */
+  /* font-family: Arial, sans-serif; */
 }
 
 /* ===== MENU BAR ===== */
@@ -38,8 +42,10 @@
   gap: 25px;
   flex: 1;
 }
-.icons1{
-    margin-left: 100px;
+.icons1 {
+  margin-left: 100px;
+  display: flex;
+  gap: 25px;   /* ✅ same spacing */
 }
 /* WRAPPER */
 .dropdownWrapper {
@@ -95,13 +101,12 @@
 .admin-menu-item {
   background: none;
   border: none;
-  font-size: 16px;
+  font-size: 14px;              /* ✅ match */
   cursor: pointer;
   color: black;
-  padding: 10px 18px;
+  padding: 5px 8px;             /* ✅ match */
+  font-family: Arial, sans-serif;
   transition: 0.3s;
-
-  
 }
 
 /* HOVER */
@@ -135,7 +140,7 @@
 /* 📱 MOBILE PERFECT HEADER FIX */
 @media (max-width: 768px) {
 
-  /* HEADER CENTER */
+  /* HEADER */
   .admin-header {
     flex-direction: column;
     align-items: center;
@@ -149,46 +154,55 @@
 
   .admin-main-title {
     font-size: 16px;
-    line-height: 1.4;
+    /* line-height: 1.4; */
   }
 
   .admin-sub-title {
-    font-size: 13px;
+    font-size: 15px;
   }
 
   /* MENU BAR */
   .admin-menu-bar {
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;   /* 🔥 LEFT ALIGN like Navbar */
+    padding-left: 20px;
   }
 
-  /* HOME ICON CENTER */
-  .admin-home-icon {
-    font-size: 40px;
+  /* LEFT SIDE */
+  .admin-menu-left {
+    flex-direction: column;
+    align-items: flex-start;   /* 🔥 IMPORTANT */
+    width: 100%;
+  }
+
+  /* HOME ICON */
+  .homeWrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;   /* center like screenshot */
     margin: 10px 0;
   }
 
-  /* 🔥 MAIN MENU GRID (IMPORTANT) */
+  .admin-home-icon {
+    font-size: 40px;
+  }
+
   .icons1 {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;   /* ✅ 2 per row */
+    gap: 5px  ;                    /* 🔥 LESS spacing */
     margin-left: 0 !important;
-
-    display: grid;                      /* 🔥 grid layout */
-    grid-template-columns: 1fr 1fr;     /* 2 columns */
-    gap: 15px 30px;                    /* row + column gap */
-
-    justify-items: center;             /* center items */
-    align-items: center;
+    width: 100%;
   }
 
-  /* MENU ITEMS */
   .admin-menu-item {
-    width: auto;
-    padding: 8px;
-    font-size: 15px;
-    text-align: center;
+    width: 100%;
+    text-align: center;               /* ✅ center looks better in 2-column */
+    padding: 6px 5px;                 /* 🔥 reduce height */
+    font-size: 16px;              /* slightly compact */
   }
 
-  /* DROPDOWN CENTER */
+  /* DROPDOWN BUTTON */
   .dropdownWrapper {
     width: 100%;
     display: flex;
@@ -196,30 +210,9 @@
     margin-top: 15px;
   }
 
-  /* DROPDOWN BELOW BUTTON */
   .dropdownMenu {
     position: static;
     transform: none;
     margin-top: 10px;
   }
-  /* HOME WRAPPER */
-.homeWrapper {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin: 10px 0;
 }
-.admin-menu-left {
-  display: flex;
-  flex-direction: column;   /* 🔥 THIS IS THE MAIN FIX */
-  align-items: center;
-}
-.homeWrapper {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
-}
-
-}
-
