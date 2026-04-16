@@ -33,13 +33,13 @@ const handleAddApplication = (newApp: any) => {
 </li>
 
 <li onClick={() => {setActivePage("ai"); setOpen(false);}} className="menu-item">
-  <span>🤖</span> AI-Assisted Automated Scrutiny
+  <span >🤖</span> AI-Assisted Automated Scrutiny
 </li>
 <li onClick={() => {setActivePage("gis"); setOpen(false);}  } className="menu-item">
-  <span>🛰</span> GIS & Satellite Monitoring
+  <span >🛰</span> GIS & Satellite Monitoring
 </li>
 <li onClick={() => {setActivePage("governance"); setOpen(false);}} className="menu-item">
-  <span>🏛</span> Governance Dashboard
+  <span >🏛</span> Governance Dashboard
 </li>
   </ul>
 </div>
