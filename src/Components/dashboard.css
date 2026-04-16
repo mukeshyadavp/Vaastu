@@ -102,6 +102,7 @@
   align-items: center;
 }
 
+
 /* ===== CARDS ===== */
 /* .admin-dashboard .cards {
   display: flex;
@@ -297,7 +298,9 @@
 
 /* ===== MOBILE PERFECT WIDTH FIX ===== */
 @media (max-width: 768px) {
-    
+    .menu-cards{
+  padding-top: 12px !important;
+}
 .upload-btn {
   width: auto !important;
   padding: 6px 14px;

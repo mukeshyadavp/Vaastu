@@ -27,7 +27,7 @@ const handleAddApplication = (newApp: any) => {
       
   <div className={`sidebar ${open ? "active" : ""}`}>
 
-  <ul>
+  <ul className="menu-cards">
     <li onClick={() => {setActivePage("dashboard"); setOpen(false);}  }  className="menu-item">
   <span>🏠</span> Dashboard
 </li>
