@@ -11,40 +11,39 @@ const Dashboard: React.FC = () => {
 
   <div className="db-card db-blue">
     <div className="db-card-content">
-      <div className="db-icon-circle">🔔</div>
       <div>
-        <h2>146</h2>
-        <p>Applications Completed</p>
+       
+        <p  className="db-title">Applications Completed</p>
+         <h2  className="db-value">146</h2>
       </div>
     </div>
   </div>
 
   <div className="db-card db-pink">
     <div className="db-card-content">
-      <div className="db-icon-circle">🔔</div>
       <div>
-        <h2>38</h2>
-        <p>Applications In Progress</p>
+        <p  className="db-title">Applications In Progress</p>
+         <h2  className="db-value">38</h2>
       </div>
     </div>
   </div>
 
   <div className="db-card db-yellow">
     <div className="db-card-content">
-      <div className="db-icon-circle">🔔</div>
       <div>
-        <h2>11</h2>
-        <p>Applications Overdue</p>
+       
+        <p  className="db-title">Applications Overdue</p>
+         <h2  className="db-value">11</h2>
       </div>
     </div>
   </div>
 
   <div className="db-card db-green">
     <div className="db-card-content">
-      <div className="db-icon-circle">🔔</div>
       <div>
-        <h2>87%</h2>
-        <p>Completed Applications</p>
+      
+        <p  className="db-title">Completed Applications</p>
+          <h2  className="db-value">87%</h2>
       </div>
     </div>
   </div>

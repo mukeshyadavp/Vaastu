@@ -11,23 +11,48 @@
 }
 
 .db-card {
-  padding: 15px;
-  border-radius: 10px;
-  color: #333;
-  font-weight: bold;
+  padding: 18px;
+  border-radius: 12px;
+  color: #1e293b;
+  font-weight: 600;
+  background: #ffffff; /* add this */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* add */
+  transition: 0.2s;
+}
+
+.db-card:hover {
+  transform: translateY(-3px);
 }
 
 /* COLORS */
-.db-blue { background: #dbeafe; }
-.db-pink { background: #fbcfe8; }
-.db-yellow { background: #fde68a; }
-.db-green { background: #bbf7d0; }
+.db-blue { background: rgb(86, 228, 128); }
+.db-pink { background: #736eb7; }
+.db-yellow { background: rgb(176, 190, 148); }
+.db-green { background: rgb(0, 166, 255); }
+
+.db-title {
+  font-size: 14px;
+  color: white;
+  margin-bottom: 6px;
+  text-align: center;
+  padding-left: 8px;
+   line-height: 1.3;
+}
+
+.db-value {
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  color: white;
+}
 
 /* ===== CARD CONTENT ===== */
 .db-card-content {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column; /* change */
+  align-items: flex-start; /* change */
+  gap: 6px;
+    align-items: center;  
 }
 
 .db-icon-circle {
@@ -51,8 +76,9 @@
 
 .db-chart-box {
   background: #fff;
-  padding: 15px;
-  border-radius: 10px;
+  padding: 18px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* add */
 }
 
 /* ===== BAR CHART ===== */
@@ -89,6 +115,11 @@
   gap: 20px;
   height: 200px;
   width: 100%;
+}
+.db-chart-box h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #334155;
 }
 
 .db-x-labels {
@@ -247,6 +278,12 @@
     grid-template-columns: 1fr;
   }
 
+   .db-card {
+    width: 100%;          /* 🔥 FIX */
+    padding: 16px;
+    border-radius: 14px;
+  }
+
   .db-card-content {
     flex-direction: row;
   }
@@ -257,6 +294,12 @@
 
   .db-y-axis {
     font-size: 10px;
+  }
+  .db-title{
+    padding-left: 40px;
+  }
+  .db-value{
+    padding-left: 20px;
   }
 }
 
