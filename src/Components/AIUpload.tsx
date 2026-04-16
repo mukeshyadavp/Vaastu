@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import "./AIUpload.css";
 
 const AIUpload = () => {
@@ -7,48 +7,56 @@ const AIUpload = () => {
   const [message, setMessage] = useState("");
   const [progress, setProgress] = useState(0); // ✅ progress state
   const [loading, setLoading] = useState(false);
-
+  const [uploadCount, setUploadCount] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   // 🔥 UPLOAD
-  const handleUpload = () => {
-    if (!file) {
-      setResult("failure");
-      setMessage("Please select a file");
-      return;
-    }
+const handleUpload = () => {
+  if (!file) {
+    setResult("failure");
+    setMessage("Please select a file");
+    return;
+  }
 
-    if (file.size > 2 * 1024 * 1024) {
-      setResult("failure");
-      setMessage("File too large (max 2MB)");
-      return;
-    }
+  if (file.size > 20 * 1024 * 1024) {
+    setResult("failure");
+    setMessage("File too large (max 20MB)");
+    return;
+  }
 
-    setLoading(true);
-    setProgress(0);
-    setResult("");
+  setLoading(true);
+  setProgress(0);
+  setResult("");
 
-    let currentProgress = 0;
+  let currentProgress = 0;
 
-    const interval = setInterval(() => {
-      currentProgress += 10;
-      setProgress(currentProgress);
+  const interval = setInterval(() => {
+    currentProgress += 10;
+    setProgress(currentProgress);
 
-      if (currentProgress >= 100) {
-        clearInterval(interval);
+    if (currentProgress >= 100) {
+      clearInterval(interval);
 
-        const fileName = file.name.toLowerCase();
-
-        if (fileName.includes("2006") || fileName.includes("plan")) {
-          setResult("success");
-          setMessage("Plan Approved");
-        } else {
-          setResult("failure");
-          setMessage("Plan Rejected");
-        }
-
-        setLoading(false);
+      if (uploadCount % 2 === 0) {
+        setResult("success");
+        setMessage("Plan Approved");
+      } else {
+        setResult("failure");
+        setMessage("Plan Rejected");
       }
-    }, 150);
-  };
+
+      setUploadCount((prev) => prev + 1);
+      setLoading(false);
+
+      // Reset after 2 seconds
+      setTimeout(() => {
+        setFile(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+      }, 2000);
+    }
+  }, 150);
+};
 
   // 🔥 DOWNLOAD
   const handleDownload = () => {
@@ -73,7 +81,8 @@ const AIUpload = () => {
         <label className="file-label">
           <input
             type="file"
-            accept=".pdf"
+            accept="*/*"
+            ref={fileInputRef}
             onChange={(e) => {
               if (e.target.files) {
                 setFile(e.target.files[0]);
