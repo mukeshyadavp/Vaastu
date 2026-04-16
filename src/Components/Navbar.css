@@ -701,6 +701,11 @@
     width: 95%;
     padding: 20px;
   }
+  .dropdownMenu{
+    margin-left: -50px;
+  
+    width: 30%;
+  }
 
   /* Title spacing */
   .modalContent h4 {
@@ -765,7 +770,7 @@
   top: 45px;
   right: 0;
   text-align: center;
-
+/* margin-left: -50px; */
   background: white;
   border: 1px solid #ddd;
   border-radius: 8px;
