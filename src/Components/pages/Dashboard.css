@@ -6,7 +6,7 @@
 /* ===== TOP CARDS ===== */
 .db-stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 15px;
 }
 
@@ -50,6 +50,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+    flex-direction: column; 
   justify-content: center;
   gap: 6px;
 }
@@ -294,7 +295,7 @@
   }
 
   .db-card-content {
-    flex-direction: row;
+    flex-direction: column;
   }
 
   .db-x-labels span {
@@ -345,4 +346,121 @@
   .db-value {
     font-size: 18px;
   }
+}
+.db-modal {
+  max-height: 80vh;     /* 🔥 important */
+  overflow-y: auto;     /* scroll only inside modal */
+}
+.db-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.db-modal {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+}
+
+.db-modal table {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+}
+
+.db-modal th, .db-modal td {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Table header center */
+.db-modal th {
+  text-align: center;
+}
+
+/* Table data alignment */
+.db-modal td {
+  text-align: center;
+}
+
+/* Table spacing */
+.db-modal table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.db-modal th,
+.db-modal td {
+  padding: 12px;
+}
+
+/* ID badge */
+.db-id {
+  background: #e0e7ff;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  color: #4f46e5;
+}
+
+/* Name + avatar */
+.db-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.db-avatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* Status */
+.db-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.db-status.approved {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.db-status.pending {
+  background: #fef9c3;
+  color: #92400e;
+}
+
+.db-status.violation {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Close button container */
+.db-modal button {
+  display: block;
+  margin-left: auto;   /* 🔥 this pushes button to right */
+  margin-top: 15px;
+  padding: 8px 16px;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
 }
