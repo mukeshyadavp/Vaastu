@@ -1,0 +1,187 @@
+.gis-page {
+  padding: 20px;
+  min-height: 100vh;
+  background: #f5f7fb;
+}
+
+.gis-title {
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+
+/* GRID */
+.gis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.gis-card {
+  height: 160px;
+  border-radius: 10px;
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.gis-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+/* DETAIL */
+.gis-detail {
+  margin-top: 10px;
+}
+
+.gis-timeline {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.gis-month-card img {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.gis-alert {
+  background: black;
+  color: white;
+  font-size: 12px;
+  padding: 5px;
+  margin-top: 5px;
+  border-radius: 5px;
+}
+
+.gis-back {
+  margin-top: 20px;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+
+.gis-map-section {
+  margin: 15px 0;
+  width: 50%;
+}
+
+.blink-marker {
+  width: 10px;
+  height: 10px;
+  background: red;
+  border-radius: 50%;
+  animation: blink 1s infinite;
+  border: 2px solid white;
+}
+
+@keyframes blink {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.6); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+
+/* ================= TABLET (769px - 1024px) ================= */
+@media (min-width: 769px) and (max-width: 1024px) {
+
+  .gis-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .gis-timeline {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .gis-map-section {
+    width: 70%;
+  }
+
+  .gis-month-card img {
+    height: 140px;
+  }
+}
+
+
+/* ================= MOBILE (≤ 768px) ================= */
+@media (max-width: 768px) {
+
+  .gis-page {
+    padding: 12px;
+  }
+
+  .gis-title {
+    font-size: 18px;
+    text-align: center;
+  }
+
+  /* BUILDING GRID → SINGLE COLUMN */
+  .gis-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .gis-card {
+    height: 140px;
+  }
+
+  /* DETAIL VIEW */
+  .gis-detail {
+    margin-top: 5px;
+  }
+
+  /* MAP FULL WIDTH */
+  .gis-map-section {
+    width: 100%;
+  }
+
+  /* TIMELINE → 2 COLUMNS */
+  .gis-timeline {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .gis-month-card img {
+    height: 110px;
+  }
+
+  .gis-back {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+
+/* ================= EXTRA SMALL (≤ 480px) ================= */
+@media (max-width: 480px) {
+
+  .gis-title {
+    font-size: 16px;
+  }
+
+  .gis-card {
+    height: 120px;
+  }
+
+  .gis-timeline {
+    grid-template-columns: 1fr;
+  }
+
+  .gis-month-card img {
+    height: 100px;
+  }
+
+  .gis-back {
+    padding: 8px;
+    font-size: 14px;
+  }
+}
