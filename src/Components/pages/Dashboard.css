@@ -35,12 +35,11 @@
   color: white;
   margin-bottom: 6px;
   text-align: center;
-  padding-left: 8px;
-   line-height: 1.3;
+  line-height: 1.3;
 }
 
 .db-value {
-  font-size: 15px;
+  font-size: 22px;
   font-weight: 700;
   text-align: center;
   color: white;
@@ -49,10 +48,10 @@
 /* ===== CARD CONTENT ===== */
 .db-card-content {
   display: flex;
-  flex-direction: column; /* change */
-  align-items: flex-start; /* change */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 6px;
-    align-items: center;  
 }
 
 .db-icon-circle {
@@ -305,12 +304,7 @@
   .db-y-axis {
     font-size: 10px;
   }
-  .db-title{
-    padding-left: 52px;
-  }
-  .db-value{
-    padding-left: 30px;
-  }
+
 }
 
 /* ========================= */
@@ -337,3 +331,18 @@
   }
 }
 
+@media (max-width: 480px) {
+
+  .db-card-content {
+    align-items: center;
+    text-align: center;
+  }
+
+  .db-title {
+    font-size: 12px;
+  }
+
+  .db-value {
+    font-size: 18px;
+  }
+}
