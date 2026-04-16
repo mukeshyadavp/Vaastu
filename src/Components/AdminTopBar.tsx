@@ -42,7 +42,7 @@ const AdminTopBar = () => {
             {/* 🔥 MONITOR BUTTON */}
             <button 
               className="admin-menu-item" 
-              onClick={() => setIsMonitorOpen(true)}
+              // onClick={() => setIsMonitorOpen(true)}
             >
               Monitor ▼
             </button>

@@ -39,6 +39,7 @@
 /* DETAIL */
 .gis-detail {
   margin-top: 10px;
+  position: relative;
 }
 
 .gis-timeline {
@@ -64,15 +65,36 @@
 }
 
 .gis-back {
-  margin-top: 20px;
-  padding: 10px 15px;
+  position: absolute;
+  top: -55px;
+  right: 15px;
+  padding: 8px 12px;
   cursor: pointer;
+  background: #296333;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  z-index: 10;
 }
-
 
 .gis-map-section {
   margin: 15px 0;
   width: 50%;
+  /* margin-left: 20%; */
+align-items: center;  
+display: flex;  
+}
+
+.gis-map-section {
+  margin: 15px 0;
+  width: 80%;
+  display: flex;
+  justify-content: center;
+}
+
+.gis-map-section .leaflet-container {
+  width: 70% !important;
+  border-radius: 12px;
 }
 
 .blink-marker {
@@ -180,8 +202,19 @@
     height: 100px;
   }
 
+@media (max-width: 768px) {
   .gis-back {
-    padding: 8px;
-    font-size: 14px;
+    position: static;     
+    width: 100%;         
+    margin-top: 15px;
+    display: block;
+    text-align: center;
+  }
+}
+}
+
+@media (max-width: 768px) {
+  .gis-map-section .leaflet-container {
+    width: 100% !important;
   }
 }

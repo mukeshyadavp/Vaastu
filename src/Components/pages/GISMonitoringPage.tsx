@@ -6,14 +6,22 @@ import img2 from "../../assets/feb.jfif";
 import img1 from "../../assets/empty land.webp";
 import img3 from "../../assets/march.png";
 import img4 from "../../assets/april.webp";
-import img21 from "../../assets/building2-1.webp";
+// import img21 from "../../assets/building2-1.webp";
 import img23 from "../../assets/Image2-3.jfif";
 import img31 from "../../assets/building3-1.webp";
 import img41 from "../../assets/building4-1.jfif";
+import monitor1 from "../../assets/monitor1.jpg";
+import monitor2 from "../../assets/monitor2.jpg";
+import monitor3 from "../../assets/monitor3.png";
+import monitor4 from "../../assets/monitor4.png";
+import monitor5 from "../../assets/monitor5.png";
+import monitor6 from "../../assets/monitor6.png";         
+
 
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+// import { i } from "framer-motion/client";
 
 type Building = {
   id: number;
@@ -42,9 +50,13 @@ const buildingDataMap: Record<number, BuildingItem[]> = {
     { label: "Stage 4", img: img4, status: "clear" },
   ],
   2: [
-    { label: "Stage 1", img: img21, status: "clear" },
-    { label: "Stage 2", img: img2, status: "clear" },
-    { label: "Stage 3", img: img23, status: "violation" },
+    { label: "Stage 1", img: monitor1, status: "clear" },
+    { label: "Stage 2", img: monitor2, status: "clear" },
+    { label: "Stage 3", img: monitor3, status: "violation" },
+    { label: "Stage 4", img: monitor4, status: "clear" },
+    { label: "Stage 5", img: monitor5, status: "clear" },
+    { label: "Stage 6", img: monitor6, status: "clear" },
+    
   ],
   3: [
     { label: "Phase 1", img: img31, status: "clear" },
