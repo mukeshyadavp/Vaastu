@@ -14,7 +14,7 @@ const Dashboard: React.FC = () => {
       <div className="db-icon-circle">🔔</div>
       <div>
         <h2>146</h2>
-        <p>Items Completed</p>
+        <p>Applications Completed</p>
       </div>
     </div>
   </div>
@@ -24,7 +24,7 @@ const Dashboard: React.FC = () => {
       <div className="db-icon-circle">🔔</div>
       <div>
         <h2>38</h2>
-        <p>Items In Progress</p>
+        <p>Applications In Progress</p>
       </div>
     </div>
   </div>
@@ -34,7 +34,7 @@ const Dashboard: React.FC = () => {
       <div className="db-icon-circle">🔔</div>
       <div>
         <h2>11</h2>
-        <p>Items Overdue</p>
+        <p>Applications Overdue</p>
       </div>
     </div>
   </div>
@@ -44,7 +44,7 @@ const Dashboard: React.FC = () => {
       <div className="db-icon-circle">🔔</div>
       <div>
         <h2>87%</h2>
-        <p>Completed Requests</p>
+        <p>Completed Applications</p>
       </div>
     </div>
   </div>
@@ -56,7 +56,7 @@ const Dashboard: React.FC = () => {
         {/* Timesheet Bar Chart */}
      
 <div className="db-chart-box">
-  <h4>Timesheet management</h4>
+  <h4>Application management</h4>
 
   <div className="db-timesheet-wrapper">
     
@@ -89,7 +89,7 @@ const Dashboard: React.FC = () => {
 
         {/* Donut Chart */}
         <div className="db-chart-box">
-          <h4>Requests Management</h4>
+          <h4>Application Management</h4>
           <div className="db-donut"></div>
 
           <div className="db-legend">
@@ -113,7 +113,7 @@ const Dashboard: React.FC = () => {
 
         {/* Progress Bars */}
         <div className="db-chart-box">
-          <h4>Requests Tracking</h4>
+          <h4>Application Tracking</h4>
 
           <div className="db-progress-item">
             <span>1-30 Days</span>
