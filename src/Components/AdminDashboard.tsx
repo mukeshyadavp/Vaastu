@@ -12,6 +12,7 @@ const [open, setOpen] = useState(false);
 const [activePage, setActivePage] = useState("dashboard");
 const [bpOpen, setBpOpen] = useState<boolean>(false);
 const [formOpen, setFormOpen] = useState<boolean>(false);
+const [applyOpen, setApplyOpen] = useState(false);
 
 const [applications, setApplications] = useState([
   { id: 101, name: "Ramesh", status: "Pending", lat: 17.385, lng: 78.4867 },
@@ -26,13 +27,16 @@ const handleAddApplication = (newApp: any) => {
     <div>
         {/* <AdminTopBar /> */}
      <Navbar
-        open={open}
-        setOpen={setOpen}
-        bpOpen={bpOpen}
-        setBpOpen={setBpOpen}
-        formOpen={formOpen}
-        setFormOpen={setFormOpen}
-      />
+  open={open}
+  setOpen={setOpen}
+  bpOpen={bpOpen}
+  setBpOpen={setBpOpen}
+  formOpen={formOpen}
+  setFormOpen={setFormOpen}
+
+  applyOpen={applyOpen}        // ✅ ADD THIS
+  setApplyOpen={setApplyOpen}  // ✅ ADD THIS
+/>
    <div className="admin-dashboard">
       
   <div className={`sidebar ${open ? "active" : ""}`}>

@@ -33,15 +33,19 @@ type NavbarProps = {
   setBpOpen: React.Dispatch<React.SetStateAction<boolean>>;
   formOpen: boolean;
   setFormOpen: React.Dispatch<React.SetStateAction<boolean>>;
+
+    applyOpen: boolean;              // ✅ ADD
+  setApplyOpen: React.Dispatch<React.SetStateAction<boolean>>; // ✅ ADD
 };
 
 const Navbar: React.FC<NavbarProps> = ({
   open,
-  setOpen,
   bpOpen,
   setBpOpen,
   formOpen,
   setFormOpen,
+    applyOpen,        // ✅ ADD
+  setApplyOpen,     // ✅ ADD
 }) => {
   const [type, setType] = useState("");
   const [step, setStep] = useState(1);
@@ -203,7 +207,7 @@ const Navbar: React.FC<NavbarProps> = ({
       <hr />
 
       {/* ===== Apply Modal ===== */}
-      {open && (
+  {applyOpen && (
         <div className="modalOverlay">
           <div className="modal">
             <div className="modalHeader">
@@ -211,7 +215,7 @@ const Navbar: React.FC<NavbarProps> = ({
 
               <span
                 className="closeBtn"
-                onClick={() => setOpen(false)}
+            onClick={() => setApplyOpen(false)}
               >
                 ✖
               </span>
@@ -221,7 +225,7 @@ const Navbar: React.FC<NavbarProps> = ({
               <p
                 className="active"
                 onClick={() => {
-                  setOpen(false);
+             setApplyOpen(false);
                   setBpOpen(true);
                 }}
               >
@@ -309,7 +313,7 @@ const Navbar: React.FC<NavbarProps> = ({
         <div
           className="modalOverlay"
           onClick={() => {
-            setOpen(false);
+          setApplyOpen(false);
             setBpOpen(false);
             setFormOpen(false);
           }}

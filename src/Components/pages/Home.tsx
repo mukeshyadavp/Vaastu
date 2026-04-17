@@ -12,6 +12,7 @@ const Home = () => {
   const [bpOpen, setBpOpen] = useState<boolean>(false);
   const [formOpen, setFormOpen] = useState<boolean>(false);
   const [monitorOpen, setMonitorOpen] = useState(false);
+  const [applyOpen, setApplyOpen] = useState(false);
 
   return (
     <div>
@@ -22,11 +23,13 @@ const Home = () => {
         setBpOpen={setBpOpen}
         formOpen={formOpen}
         setFormOpen={setFormOpen}
+          applyOpen={applyOpen}         // ✅ ADD
+  setApplyOpen={setApplyOpen}   // ✅ ADD
       />
       <HeroSlider /> 
 
       <HeroCards
-        setOpen={setOpen}
+        setOpen={setApplyOpen} 
        setBpOpen={setMonitorOpen} 
       />
       {monitorOpen && (
