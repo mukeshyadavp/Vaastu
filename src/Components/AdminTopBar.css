@@ -312,3 +312,25 @@
     margin-top: 10px;
   }
 }
+
+/* 🔥 375px and ABOVE: 3 PER ROW */
+@media (min-width: 375px) and (max-width: 768px) {
+  .icons1 {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 1fr;  /* ✅ 3 per row */
+    gap: 8px;
+    width: 100%;
+    justify-items: center;
+  }
+}
+
+/* 🔥 BELOW 375px: 2 PER ROW */
+@media (max-width: 374px) {
+  .icons1 {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;      /* ✅ 2 per row */
+    gap: 5px;
+    width: 100%;
+    justify-items: center;
+  }
+}
