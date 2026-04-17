@@ -7,7 +7,6 @@ import "leaflet/dist/leaflet.css";
 import type { LatLngExpression } from "leaflet";
 import { useNavigate } from "react-router-dom";
 
-
 const MapComponent = () => {
   const position: LatLngExpression = [17.385, 78.4867];
   return (
@@ -121,6 +120,7 @@ useEffect(() => {
           <button className="navBtn">SEARCH ▼</button>
           <button className="navBtn">COMPLAINTS ▼</button>
           <button className="navBtn">LOGIN ▼</button>
+          
         </div>
    <div className="dropdownWrapper">
 

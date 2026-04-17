@@ -1,15 +1,18 @@
 import "./dashboard.css";
 import { useState,  } from "react";
 
-import AdminTopBar from "./AdminTopBar";
+// import AdminTopBar from "./AdminTopBar";
 import AIUpload from "./AIUpload";
 import GISMonitoringPage from "./pages/GISMonitoringPage";
 import GovernanceDashboard from "./GovernanceDashboard";
 import Dashboard from "./pages/Dashboard";
+import Navbar from "./Navbar";
 const AdminDashboard = () => {
-  const [open, setOpen] = useState(false);
+const [open, setOpen] = useState(false);
 
 const [activePage, setActivePage] = useState("dashboard");
+const [bpOpen, setBpOpen] = useState<boolean>(false);
+const [formOpen, setFormOpen] = useState<boolean>(false);
 
 const [applications, setApplications] = useState([
   { id: 101, name: "Ramesh", status: "Pending", lat: 17.385, lng: 78.4867 },
@@ -22,7 +25,15 @@ const handleAddApplication = (newApp: any) => {
 
   return (
     <div>
-        <AdminTopBar />
+        {/* <AdminTopBar /> */}
+     <Navbar
+        open={open}
+        setOpen={setOpen}
+        bpOpen={bpOpen}
+        setBpOpen={setBpOpen}
+        formOpen={formOpen}
+        setFormOpen={setFormOpen}
+      />
    <div className="admin-dashboard">
       
   <div className={`sidebar ${open ? "active" : ""}`}>

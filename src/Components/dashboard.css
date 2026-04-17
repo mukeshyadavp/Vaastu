@@ -788,3 +788,229 @@ margin-left: 90px;
   background: rgba(0,0,0,0.4);
   z-index: 999;
 }
+ /* ===== HEADER SAME AS HOME ===== */
+.admin-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+}
+
+.admin-logo {
+  width: 70px;
+  margin-right: 10px;
+}
+
+.admin-main-title {
+  color: green;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.admin-sub-title {
+  color: green;
+  margin: 0;
+  font-size: 16px;
+}
+
+/* ===== MENU BAR ===== */
+.admin-menu-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+}
+
+/* LEFT SIDE */
+.admin-menu-left {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  flex: 1;
+}
+.icons1{
+    margin-left: 100px;
+}
+/* WRAPPER */
+.dropdownWrapper {
+  position: relative;
+  display: inline-block;   /* 🔥 THIS FIX */
+}
+
+/* DROPDOWN */
+.dropdownMenu {
+  position: absolute;
+  top: 110%;              /* 🔥 button kinda */
+  left: 50%;
+  transform: translateX(-50%);
+
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  overflow: hidden;
+  z-index: 1000;
+
+  min-width: 140px;
+  text-align: center;
+}
+
+/* ITEMS */
+.dropdownMenu p {
+  padding: 10px 15px;
+  margin: 0;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+/* HOVER */
+.dropdownMenu p:hover {
+  background: #f1f5f9;
+  color: #2e7d32;
+}
+
+/* HOME ICON */
+.admin-home-icon {
+  font-size: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+/* MENU ITEMS */
+.admin-menu-item {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: black;
+  padding: 10px 18px;
+  transition: 0.3s;
+
+  
+}
+
+/* HOVER */
+.admin-menu-item:hover {
+  color: #2e7d32;
+  border-bottom: 2px solid #2e7d32;
+}
+
+/* RIGHT SIDE */
+.admin-menu-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* BACK BUTTON */
+.admin-back-btn {
+  background: #2e7d32;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.admin-back-btn:hover {
+  background: #1b5e20;
+}
+
+/* 📱 MOBILE PERFECT HEADER FIX */
+@media (max-width: 768px) {
+
+  /* HEADER CENTER */
+  .admin-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .admin-logo {
+    width: 80px;
+    margin-bottom: 10px;
+  }
+
+  .admin-main-title {
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  .admin-sub-title {
+    font-size: 13px;
+  }
+
+  /* MENU BAR */
+  .admin-menu-bar {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* HOME ICON CENTER */
+  .admin-home-icon {
+    font-size: 40px;
+    margin: 10px 0;
+  }
+
+  /* 🔥 MAIN MENU GRID (IMPORTANT) */
+  .icons1 {
+    margin-left: 0 !important;
+
+    display: grid;                      /* 🔥 grid layout */
+    grid-template-columns: 1fr 1fr;     /* 2 columns */
+    gap: 15px 30px;                    /* row + column gap */
+
+    justify-items: center;             /* center items */
+    align-items: center;
+  }
+
+  /* MENU ITEMS */
+  .admin-menu-item {
+    width: auto;
+    padding: 8px;
+    font-size: 15px;
+    text-align: center;
+  }
+
+  /* DROPDOWN CENTER */
+  .dropdownWrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+  }
+
+  /* DROPDOWN BELOW BUTTON */
+  .dropdownMenu {
+    position: static;
+    transform: none;
+    margin-top: 10px;
+  }
+  /* HOME WRAPPER */
+.homeWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+}
+.admin-menu-left {
+  display: flex;
+  flex-direction: column;   /* 🔥 THIS IS THE MAIN FIX */
+  align-items: center;
+}
+.homeWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+}
+
+
