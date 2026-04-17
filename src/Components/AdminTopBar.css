@@ -32,7 +32,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
+  padding: 10px 10px 10px 0; /* 🔥 REMOVED LEFT PADDING */
 }
 
 /* LEFT SIDE */
@@ -43,9 +43,9 @@
   flex: 1;
 }
 .icons1 {
-  margin-left: 100px;
+  margin-left: 0 !important; /* 🔥 REMOVED 100px margin */
   display: flex;
-  gap: 25px;   /* ✅ same spacing */
+  gap: 25px;
 }
 /* WRAPPER */
 .dropdownWrapper {
@@ -200,6 +200,102 @@
     text-align: center;               /* ✅ center looks better in 2-column */
     padding: 6px 5px;                 /* 🔥 reduce height */
     font-size: 16px;              /* slightly compact */
+  }
+
+  /* DROPDOWN BUTTON */
+  .dropdownWrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+  }
+
+  .dropdownMenu {
+    position: static;
+    transform: none;
+    margin-top: 10px;
+  }
+}
+
+
+
+/* 📱 MOBILE PERFECT HEADER FIX */
+@media (max-width: 768px) {
+  /* HEADER */
+  .admin-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .admin-logo {
+    width: 80px;
+    margin-bottom: 10px;
+  }
+
+  .admin-main-title {
+    font-size: 16px;
+  }
+
+  .admin-sub-title {
+    font-size: 15px;
+  }
+
+  /* MENU BAR */
+  .admin-menu-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-left: 20px;
+  }
+
+  /* LEFT SIDE */
+  .admin-menu-left {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  /* HOME ICON */
+  .homeWrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+  }
+
+  .admin-home-icon {
+    font-size: 40px;
+  }
+
+  /* 🔥 400px ABOVE: 3 PER ROW */
+  @media (min-width: 401px) and (max-width: 768px) {
+    .icons1 {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr 1fr;  /* ✅ 3 PER ROW */
+      gap: 8px;                            /* 🔥 good spacing for 3 items */
+      margin-left: 0 !important;
+      width: 100%;
+      justify-items: center;
+    }
+  }
+
+  /* 🔥 400px BELOW: 2 PER ROW */
+  @media (max-width: 400px) {
+    .icons1 {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr;      /* ✅ 2 PER ROW */
+      gap: 5px;                            /* 🔥 tighter spacing */
+      margin-left: 0 !important;
+      width: 100%;
+      justify-items: center;
+    }
+  }
+
+  .admin-menu-item {
+    width: 100%;
+    text-align: center;
+    padding: 6px 5px;
+    font-size: 16px;
   }
 
   /* DROPDOWN BUTTON */
