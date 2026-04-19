@@ -53,6 +53,7 @@
   top: 20px;
   left: 20px;
   z-index: 2;
+  height: auto;
 
   width: 65%;
   background: rgba(255, 255, 255, 0.95);

@@ -5,7 +5,10 @@
   border: 1px solid #e5e7eb;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
 }
-
+.modal-btn.secondary {
+  margin-left: auto;
+  display: block;
+}
 /* topbar */
 .table-topbar {
   display: flex;
@@ -372,7 +375,7 @@
 }
 
 .modal-btn {
-  min-width: 95px;
+  min-width: auto;
   height: 38px;
   border: none;
   border-radius: 10px;
@@ -393,13 +396,18 @@
 }
 
 .modal-btn.secondary {
-  background: #f3f4f6;
+  background: #3b82f6;
   color: #111827;
+  height: 30px;
+  margin-top: 14px;
+
+  
+  width: auto;
 }
 
-.modal-btn.secondary:hover {
+/* .modal-btn.secondary:hover {
   background: #e5e7eb;
-}
+} */
 
 /* animations */
 @keyframes fadeIn {
