@@ -1,34 +1,36 @@
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory, send_file
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
-from config import Config
+from datetime import datetime
 import os
+import uuid
+
 from ai.auto_dcr import run_auto_dcr_scrutiny
 from ai.satellite_ai import run_satellite_change_detection
 from ai.geo_validation import validate_gps_lock
-from werkzeug.utils import secure_filename
-from flask import send_file
 from ai.compliance_pdf import generate_compliance_pdf
-from datetime import datetime
-import uuid
+from ai.cad_extractor import extract_dxf_measurements
+
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 REPORT_FOLDER = os.path.join(BASE_DIR, "generated_reports")
+STATIC_FOLDER = os.path.join(BASE_DIR, "static")
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(REPORT_FOLDER, exist_ok=True)
+os.makedirs(STATIC_FOLDER, exist_ok=True)
+
+
 app = Flask(
     __name__,
-    static_folder=os.path.join(BASE_DIR, "static"),
-    static_url_path=""
-)
-app = Flask(
-    __name__,
-    static_folder="static",
+    static_folder=STATIC_FOLDER,
     static_url_path=""
 )
 
-app.config.from_object(Config)
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
 
 CORS(
     app,
@@ -43,7 +45,6 @@ CORS(
     supports_credentials=True
 )
 
-os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 applications = [
     {
@@ -63,15 +64,21 @@ applications = [
 ]
 
 
-# ── API Routes ────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────
+# Health
+# ─────────────────────────────────────────────
 
 @app.route("/api/health", methods=["GET"])
 def health_check():
     return jsonify({
-        "status": "success",
+        "success": True,
         "message": "Backend connected successfully"
     })
 
+
+# ─────────────────────────────────────────────
+# Applications
+# ─────────────────────────────────────────────
 
 @app.route("/api/applications", methods=["GET"])
 def get_applications():
@@ -122,6 +129,7 @@ def approve_application(application_id):
     for app_item in applications:
         if app_item["id"] == application_id:
             app_item["status"] = "Approved"
+
             return jsonify({
                 "success": True,
                 "message": "Application approved",
@@ -139,6 +147,7 @@ def reject_application(application_id):
     for app_item in applications:
         if app_item["id"] == application_id:
             app_item["status"] = "Rejected"
+
             return jsonify({
                 "success": True,
                 "message": "Application rejected",
@@ -150,6 +159,10 @@ def reject_application(application_id):
         "message": "Application not found"
     }), 404
 
+
+# ─────────────────────────────────────────────
+# General File Upload
+# ─────────────────────────────────────────────
 
 @app.route("/api/upload", methods=["POST"])
 def upload_file():
@@ -169,8 +182,8 @@ def upload_file():
 
     filename = secure_filename(file.filename)
     unique_filename = f"{uuid.uuid4()}_{filename}"
-
     file_path = os.path.join(app.config["UPLOAD_FOLDER"], unique_filename)
+
     file.save(file_path)
 
     return jsonify({
@@ -178,6 +191,11 @@ def upload_file():
         "message": "File uploaded successfully",
         "filename": unique_filename
     })
+
+
+# ─────────────────────────────────────────────
+# AI Auto-DCR + Compliance PDF
+# ─────────────────────────────────────────────
 
 @app.route("/api/ai/auto-dcr", methods=["POST"])
 def ai_auto_dcr():
@@ -204,31 +222,69 @@ def ai_auto_dcr():
 
     file.save(file_path)
 
-    # Run AI scrutiny
-    result = run_auto_dcr_scrutiny(file_path)
+    submitted_data = request.form.to_dict()
 
-    # Generate PDF for BOTH pass and fail
+    file_ext = os.path.splitext(filename)[1].lower()
+
+    if file_ext == ".dxf":
+        try:
+            cad_measurements = extract_dxf_measurements(file_path)
+
+            floors = int(float(submitted_data.get("floors", 1)))
+            builtup_area_ground = float(cad_measurements["builtupAreaGround"])
+
+            submitted_data.update({
+                "plotArea": cad_measurements["plotArea"],
+                "builtupArea": builtup_area_ground * floors,
+                "frontSetback": cad_measurements["frontSetback"],
+                "rearSetback": cad_measurements["rearSetback"],
+                "side1Setback": cad_measurements["side1Setback"],
+                "side2Setback": cad_measurements["side2Setback"],
+            })
+
+        except Exception as error:
+            return jsonify({
+                "success": False,
+                "message": f"DXF extraction failed: {str(error)}"
+            }), 400
+
+    try:
+        result = run_auto_dcr_scrutiny(file_path, submitted_data)
+    except ValueError as error:
+        return jsonify({
+            "success": False,
+            "message": str(error)
+        }), 400
+    except Exception as error:
+        return jsonify({
+            "success": False,
+            "message": f"Auto-DCR scrutiny failed: {str(error)}"
+        }), 500
+
     application_no = "AP-VAASTU-" + datetime.now().strftime("%Y%m%d%H%M%S")
     pdf_filename = f"{application_no}-Compliance-Report.pdf"
     pdf_path = os.path.join(REPORT_FOLDER, pdf_filename)
 
     application_data = {
         "applicationNo": application_no,
-        "buildingType": request.form.get("buildingType", "Residential"),
-        "floors": int(request.form.get("floors", 2)),
-        "height": float(request.form.get("height", 7.0)),
-        "classification": request.form.get("classification", "Non-High-Rise"),
+        "buildingType": submitted_data.get("buildingType", "Residential"),
+        "floors": int(float(submitted_data.get("floors", 2))),
+        "height": float(submitted_data.get("height", 7.0)),
+        "classification": submitted_data.get("classification", "Non-High-Rise"),
     }
 
-    pdf_result = generate_compliance_pdf(
-        output_path=pdf_path,
-        auto_dcr_result=result,
-        application_data=application_data
-    )
+    try:
+        pdf_result = generate_compliance_pdf(
+            output_path=pdf_path,
+            auto_dcr_result=result,
+            application_data=application_data
+        )
+    except Exception as error:
+        return jsonify({
+            "success": False,
+            "message": f"Compliance PDF generation failed: {str(error)}"
+        }), 500
 
-    # IMPORTANT:
-    # always return success=True because AI process completed
-    # compliance pass/fail is inside result.status
     return jsonify({
         "success": True,
         "message": "AI Auto-DCR scrutiny completed",
@@ -240,9 +296,12 @@ def ai_auto_dcr():
             "downloadUrl": f"/api/reports/{pdf_filename}"
         }
     }), 200
+
+
 @app.route("/api/reports/<filename>", methods=["GET"])
 def download_report(filename):
-    file_path = os.path.join(REPORT_FOLDER, filename)
+    safe_filename = secure_filename(filename)
+    file_path = os.path.join(REPORT_FOLDER, safe_filename)
 
     if not os.path.exists(file_path):
         return jsonify({
@@ -253,9 +312,14 @@ def download_report(filename):
     return send_file(
         file_path,
         as_attachment=True,
-        download_name=filename,
+        download_name=safe_filename,
         mimetype="application/pdf"
     )
+
+
+# ─────────────────────────────────────────────
+# Satellite AI
+# ─────────────────────────────────────────────
 
 @app.route("/api/ai/satellite-scan", methods=["POST"])
 def ai_satellite_scan():
@@ -268,9 +332,19 @@ def ai_satellite_scan():
     })
 
 
+# ─────────────────────────────────────────────
+# GPS Validation
+# ─────────────────────────────────────────────
+
 @app.route("/api/field/validate-gps", methods=["POST"])
 def field_validate_gps():
     data = request.get_json()
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "Request body is required"
+        }), 400
 
     required_fields = [
         "userLat",
@@ -299,21 +373,45 @@ def field_validate_gps():
         "result": result
     })
 
-# ── Serve React App (production) ──────────────────────────────────────────────
+
+# ─────────────────────────────────────────────
+# Serve React App
+# ─────────────────────────────────────────────
 
 @app.route("/")
 def serve_root():
+    index_path = os.path.join(app.static_folder, "index.html")
+
+    if not os.path.exists(index_path):
+        return jsonify({
+            "success": False,
+            "message": "React build not found. Run npm run build first."
+        }), 404
+
     return send_from_directory(app.static_folder, "index.html")
 
 
 @app.route("/<path:path>")
 def serve_react(path):
     file_path = os.path.join(app.static_folder, path)
+
     if os.path.exists(file_path):
         return send_from_directory(app.static_folder, path)
+
+    index_path = os.path.join(app.static_folder, "index.html")
+
+    if not os.path.exists(index_path):
+        return jsonify({
+            "success": False,
+            "message": "React build not found. Run npm run build first."
+        }), 404
+
     return send_from_directory(app.static_folder, "index.html")
 
-# ── Error Handlers ────────────────────────────────────────────────────────────
+
+# ─────────────────────────────────────────────
+# Error Handlers
+# ─────────────────────────────────────────────
 
 @app.errorhandler(404)
 def not_found(error):
@@ -332,8 +430,10 @@ def internal_error(error):
 
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+
     app.run(
         host="0.0.0.0",
-        port=5000,
+        port=port,
         debug=True
     )
