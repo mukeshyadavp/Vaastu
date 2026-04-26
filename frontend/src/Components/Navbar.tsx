@@ -27,6 +27,7 @@ const MapComponent = () => {
 };
 
 type NavbarProps = {
+  fetchApplications: () => void;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   bpOpen: boolean;
@@ -46,6 +47,7 @@ const Navbar: React.FC<NavbarProps> = ({
   setFormOpen,
     applyOpen,        // ✅ ADD
   setApplyOpen,     // ✅ ADD
+  fetchApplications,
 }) => {
   const [type, setType] = useState("");
   const [step, setStep] = useState(1);
@@ -59,6 +61,7 @@ const Navbar: React.FC<NavbarProps> = ({
   const [rear, setRear] = useState("");
 
   const [survey, setSurvey] = useState("");
+  const [applicantName, setApplicantName] = useState("");
   const [plotArea, setPlotArea] = useState("");
   const [roadWidth, setRoadWidth] = useState("");
   const [landType, setLandType] = useState("");
@@ -107,6 +110,31 @@ const Navbar: React.FC<NavbarProps> = ({
       setResult("failure");
     }
   };
+
+  const submitApplication = async () => {
+  try {
+    const newData = {
+   applicantName: applicantName || "New Applicant",
+      location: "Auto Location",
+      plotSize: plotArea || "N/A",
+    };
+
+    await fetch("http://localhost:5000/api/applications", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newData),
+    });
+
+    alert("Application Submitted ✅");
+
+    fetchApplications(); // 🔥 refresh table
+
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   /* ===== Disable Background Scroll ===== */
   useEffect(() => {
@@ -212,6 +240,7 @@ const Navbar: React.FC<NavbarProps> = ({
           <div className="modal">
             <div className="modalHeader">
               <h2>Apply For</h2>
+
 
               <span
                 className="closeBtn"
@@ -365,7 +394,11 @@ const Navbar: React.FC<NavbarProps> = ({
                 <h2>Personal Information</h2>
 
                 <div className="formGrid">
-                  <input placeholder="Applicant Full Name" />
+                <input
+  placeholder="Applicant Full Name"
+  value={applicantName}
+  onChange={(e) => setApplicantName(e.target.value)}
+/>
                   <input placeholder="Relationship" />
                   <input placeholder="Aadhaar Number" />
                   <input placeholder="Mobile Number" />
@@ -656,14 +689,15 @@ const Navbar: React.FC<NavbarProps> = ({
                     ‹ Back
                   </button>
 
-                  <button
-                    className="nextBtn"
-                    onClick={() =>
-                      setStep(6)
-                    }
-                  >
-                    Submit
-                  </button>
+  <button
+  className="nextBtn"
+  onClick={() => {
+    submitApplication(); // 🔥 POST call
+    setStep(6);
+  }}
+>
+  Submit
+</button>
                 </div>
               </>
             )}
