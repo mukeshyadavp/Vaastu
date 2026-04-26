@@ -2,7 +2,7 @@
 import "./Dashboard.css";
 type CardType = "completed" | "progress" | "overdue" | "percentage";
 import React, { useState, useEffect } from "react";
-const Dashboard: React.FC = () => {
+const Dashboard: React.FC<{ applications: any[] }> = ({ applications }) => {
 const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
 useEffect(() => {
   if (selectedCard) {
@@ -25,39 +25,55 @@ const getTitle = () => {
     default: return "";
   }
 };
-const dataMap: Record<
-  "completed" | "progress" | "overdue",
-  { id: number; name: string; status: string }[]
-> = {
-  completed: [
-    { id: 101, name: "Ramesh", status: "Approved" },
-    { id: 102, name: "Suresh", status: "Approved" }
-  ],
-  progress: [
-    { id: 201, name: "Kiran", status: "Pending" }
-  ],
-  overdue: [
-    { id: 301, name: "Naresh", status: "Violation" }
-  ]
-};
-const getData = () => {
-  if (selectedCard === "percentage") return allData;
-  return dataMap[selectedCard as "completed" | "progress" | "overdue"];
-};
-const allData = [
-  ...dataMap.completed,
-  ...dataMap.progress,
-  ...dataMap.overdue
-];
-// ✅ ADD THIS ALSO
-const total =
-  dataMap.completed.length +
-  dataMap.progress.length +
-  dataMap.overdue.length;
+// const dataMap: Record<
+//   "completed" | "progress" | "overdue",
+//   { id: number; name: string; status: string }[]
+// > = {
+//   completed: [
+//     { id: 101, name: "Ramesh", status: "Approved" },
+//     { id: 102, name: "Suresh", status: "Approved" }
+//   ],
+//   progress: [
+//     { id: 201, name: "Kiran", status: "Pending" }
+//   ],
+//   overdue: [
+//     { id: 301, name: "Naresh", status: "Violation" }
+//   ]
+// };
+// const getData = () => {
+//   if (selectedCard === "percentage") return allData;
+//   return dataMap[selectedCard as "completed" | "progress" | "overdue"];
+// };
+// const allData = [
+//   ...dataMap.completed,
+//   ...dataMap.progress,
+//   ...dataMap.overdue
+// ];
 
-const percentage = Math.round(
-  (dataMap.completed.length / total) * 100
+const completed = applications.filter(
+  (app) => app.status === "Approved"
 );
+
+const progress = applications.filter(
+  (app) => app.status === "Pending"
+);
+
+const overdue = applications.filter(
+  (app) => app.status === "Rejected"
+);
+
+const getData = () => {
+  if (selectedCard === "completed") return completed;
+  if (selectedCard === "progress") return progress;
+  if (selectedCard === "overdue") return overdue;
+  if (selectedCard === "percentage") return applications;
+  return [];
+};
+// ✅ ADD THIS ALSO
+const total = applications.length;
+
+const percentage =
+  total > 0 ? Math.round((completed.length / total) * 100) : 0;
 
   return (
     <div className="db-dashboard-container">
@@ -70,7 +86,7 @@ const percentage = Math.round(
     style={{ cursor: "pointer" }}>
     <div className="db-card-content">
       <p className="db-title">Applications Completed</p>
-     <h2 className="db-value">{dataMap.completed.length}</h2>
+     <h2 className="db-value">{completed.length}</h2>
     </div>
   </div>
 
@@ -79,7 +95,7 @@ const percentage = Math.round(
     style={{ cursor: "pointer" }}>
     <div className="db-card-content">
       <p className="db-title">Applications In Progress</p>
-    <h2 className="db-value">{dataMap.progress.length}</h2>
+    <h2 className="db-value">{progress.length}</h2>
     </div>
   </div>
 
@@ -88,7 +104,7 @@ const percentage = Math.round(
     style={{ cursor: "pointer" }}>
     <div className="db-card-content">
       <p className="db-title">Applications Overdue</p>
-<h2 className="db-value">{dataMap.overdue.length}</h2>
+<h2 className="db-value">{overdue.length}</h2>
     </div>
   </div>
 
