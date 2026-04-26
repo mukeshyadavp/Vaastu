@@ -151,7 +151,9 @@ const handleAddApplication = (newApp: Application) => {    setApplications((prev
             </button>
           </header>
 
-          {activePage === "dashboard" && <Dashboard />}
+        {activePage === "dashboard" && (
+  <Dashboard applications={applications} />
+)}
           {activePage === "ai" && <AIUpload />}
           {activePage === "gis" && <GISMonitoringPage />}
 
