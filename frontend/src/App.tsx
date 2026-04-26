@@ -11,7 +11,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
         <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/dashboard" element={<Dashboard applications={[]} />} />
       </Routes>
 
       <ChatbotWidget />
