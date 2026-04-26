@@ -5,7 +5,12 @@ services:
     plan: free
     region: oregon
 
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+
     buildCommand: |
+      pip install --upgrade pip
       pip install -r backend/requirements.txt
       npm install
       npm run build
