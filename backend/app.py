@@ -3,9 +3,20 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from config import Config
 import os
+from ai.auto_dcr import run_auto_dcr_scrutiny
+from ai.satellite_ai import run_satellite_change_detection
+from ai.geo_validation import validate_gps_lock
+from werkzeug.utils import secure_filename
+from flask import send_file
+from ai.compliance_pdf import generate_compliance_pdf
+from datetime import datetime
 import uuid
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
+REPORT_FOLDER = os.path.join(BASE_DIR, "generated_reports")
 
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(REPORT_FOLDER, exist_ok=True)
 app = Flask(
     __name__,
     static_folder=os.path.join(BASE_DIR, "static"),
@@ -168,6 +179,118 @@ def upload_file():
         "filename": unique_filename
     })
 
+@app.route("/api/ai/auto-dcr", methods=["POST"])
+def ai_auto_dcr():
+    if "file" not in request.files:
+        return jsonify({
+            "success": False,
+            "message": "Building plan file is required"
+        }), 400
+
+    file = request.files["file"]
+
+    if file.filename == "":
+        return jsonify({
+            "success": False,
+            "message": "No file selected"
+        }), 400
+
+    filename = secure_filename(file.filename)
+    unique_filename = f"{uuid.uuid4()}_{filename}"
+    file_path = os.path.join(app.config["UPLOAD_FOLDER"], unique_filename)
+
+    file.save(file_path)
+
+    result = run_auto_dcr_scrutiny(file_path)
+
+    application_no = "AP-VAASTU-" + datetime.now().strftime("%Y%m%d%H%M%S")
+    pdf_filename = f"{application_no}-Compliance-Report.pdf"
+    pdf_path = os.path.join(REPORT_FOLDER, pdf_filename)
+
+    application_data = {
+        "applicationNo": application_no,
+        "buildingType": request.form.get("buildingType", "Residential"),
+        "floors": int(request.form.get("floors", 2)),
+        "height": float(request.form.get("height", 7.0)),
+        "classification": request.form.get("classification", "Non-High-Rise"),
+    }
+
+    pdf_result = generate_compliance_pdf(
+        output_path=pdf_path,
+        auto_dcr_result=result,
+        application_data=application_data
+    )
+
+    return jsonify({
+        "success": True,
+        "message": "AI Auto-DCR scrutiny completed",
+        "filename": unique_filename,
+        "result": result,
+        "pdf": {
+            "applicationNo": pdf_result["applicationNo"],
+            "status": pdf_result["status"],
+            "downloadUrl": f"/api/reports/{pdf_filename}"
+        }
+    })
+
+@app.route("/api/reports/<filename>", methods=["GET"])
+def download_report(filename):
+    file_path = os.path.join(REPORT_FOLDER, filename)
+
+    if not os.path.exists(file_path):
+        return jsonify({
+            "success": False,
+            "message": "Report not found"
+        }), 404
+
+    return send_file(
+        file_path,
+        as_attachment=True,
+        download_name=filename,
+        mimetype="application/pdf"
+    )
+
+@app.route("/api/ai/satellite-scan", methods=["POST"])
+def ai_satellite_scan():
+    result = run_satellite_change_detection()
+
+    return jsonify({
+        "success": True,
+        "message": "Satellite change detection completed",
+        "result": result
+    })
+
+
+@app.route("/api/field/validate-gps", methods=["POST"])
+def field_validate_gps():
+    data = request.get_json()
+
+    required_fields = [
+        "userLat",
+        "userLng",
+        "alertLat",
+        "alertLng"
+    ]
+
+    for field in required_fields:
+        if field not in data:
+            return jsonify({
+                "success": False,
+                "message": f"{field} is required"
+            }), 400
+
+    result = validate_gps_lock(
+        float(data["userLat"]),
+        float(data["userLng"]),
+        float(data["alertLat"]),
+        float(data["alertLng"]),
+        50
+    )
+
+    return jsonify({
+        "success": True,
+        "result": result
+    })
 
 # ── Serve React App (production) ──────────────────────────────────────────────
 
