@@ -26,7 +26,6 @@ async function handleResponse<T>(
 
 export async function apiGet<T>(endpoint: string): Promise<T> {
   const response = await fetch(apiUrl(endpoint));
-
   return handleResponse<T>(response, "API GET request failed");
 }
 
@@ -74,16 +73,40 @@ export type AutoDcrViolation = {
   required: string;
   found: string;
   message: string;
+  suggestion?: string;
+  reference?: string;
+};
+
+export type AutoDcrCheck = {
+  rule: string;
+  status: "PASSED" | "FAILED";
+  submitted: number;
+  required: number;
+  unit: string;
+  reference: string;
+  message: string;
+  suggestion: string;
 };
 
 export type AutoDcrResult = {
   engine: string;
   status: "PASSED" | "FAILED";
   isCompliant: boolean;
+  checks?: AutoDcrCheck[];
+  summary?: {
+    passed: number;
+    warnings: number;
+    violations: number;
+    totalChecks: number;
+  };
   measurements: Record<string, number>;
   rules: Record<string, number>;
   violations: AutoDcrViolation[];
   recommendation: string;
+  applicationDetails?: {
+    buildingType: string;
+    classification: string;
+  };
 };
 
 export type AutoDcrResponse = {
@@ -103,6 +126,20 @@ export type AutoDcrMeta = {
   floors?: number;
   height?: number;
   classification?: string;
+
+  plotArea?: number;
+  builtupArea?: number;
+  frontSetback?: number;
+  rearSetback?: number;
+  side1Setback?: number;
+  side2Setback?: number;
+  roadWidth?: number;
+  parkingPercent?: number;
+  roomArea?: number;
+  roomWidth?: number;
+  kitchenArea?: number;
+  rainWaterHarvesting?: boolean;
+  fireNoc?: boolean;
 };
 
 export function runAutoDcr(
@@ -113,13 +150,35 @@ export function runAutoDcr(
   return new Promise((resolve, reject) => {
     const formData = new FormData();
 
-    console.log("Running Auto-DCR with file:", file.name, "and meta:", meta);
-
     formData.append("file", file);
+
     formData.append("buildingType", meta.buildingType || "Residential");
-    formData.append("floors", String(meta.floors || 2));
-    formData.append("height", String(meta.height || 7.0));
+    formData.append("floors", String(meta.floors ?? 2));
+    formData.append("height", String(meta.height ?? 7.0));
     formData.append("classification", meta.classification || "Non-High-Rise");
+
+    formData.append("plotArea", String(meta.plotArea ?? 300));
+    formData.append("builtupArea", String(meta.builtupArea ?? 300));
+    formData.append("frontSetback", String(meta.frontSetback ?? 3.5));
+    formData.append("rearSetback", String(meta.rearSetback ?? 2.5));
+    formData.append("side1Setback", String(meta.side1Setback ?? 2.0));
+    formData.append("side2Setback", String(meta.side2Setback ?? 2.0));
+    formData.append("roadWidth", String(meta.roadWidth ?? 9));
+    formData.append("parkingPercent", String(meta.parkingPercent ?? 40));
+    formData.append("roomArea", String(meta.roomArea ?? 12));
+    formData.append("roomWidth", String(meta.roomWidth ?? 3));
+    formData.append("kitchenArea", String(meta.kitchenArea ?? 6));
+    formData.append(
+      "rainWaterHarvesting",
+      String(meta.rainWaterHarvesting ?? true)
+    );
+    formData.append("fireNoc", String(meta.fireNoc ?? false));
+
+    console.log("Running Auto-DCR:", {
+      file: file.name,
+      meta,
+      url: apiUrl("/api/ai/auto-dcr"),
+    });
 
     const xhr = new XMLHttpRequest();
 
@@ -151,9 +210,7 @@ export function runAutoDcr(
       try {
         if (xhr.status >= 200 && xhr.status < 300) {
           onProgress?.(100);
-
-          const data = JSON.parse(xhr.responseText) as AutoDcrResponse;
-          resolve(data);
+          resolve(JSON.parse(xhr.responseText) as AutoDcrResponse);
           return;
         }
 
