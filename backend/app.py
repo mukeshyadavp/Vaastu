@@ -1,11 +1,16 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from config import Config
 import os
 import uuid
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_folder="static",
+    static_url_path=""
+)
+
 app.config.from_object(Config)
 
 CORS(
@@ -41,44 +46,7 @@ applications = [
 ]
 
 
-from flask import Flask, send_from_directory, jsonify
-from flask_cors import CORS
-import os
-
-app = Flask(
-    __name__,
-    static_folder="static",
-    static_url_path=""
-)
-
-CORS(app)
-
-# API routes
-@app.route("/api/health")
-def health():
-    return jsonify({
-        "success": True,
-        "message": "Backend Working"
-    })
-
-# Serve React app
-@app.route("/")
-def serve_root():
-    return send_from_directory(app.static_folder, "index.html")
-
-@app.route("/<path:path>")
-def serve_react(path):
-    file_path = os.path.join(app.static_folder, path)
-
-    if os.path.exists(file_path):
-        return send_from_directory(app.static_folder, path)
-
-    return send_from_directory(app.static_folder, "index.html")
-
-
-if __name__ == "__main__":
-    app.run(debug=True, port=5000)
-
+# ── API Routes ────────────────────────────────────────────────────────────────
 
 @app.route("/api/health", methods=["GET"])
 def health_check():
@@ -194,6 +162,23 @@ def upload_file():
         "filename": unique_filename
     })
 
+
+# ── Serve React App (production) ──────────────────────────────────────────────
+
+@app.route("/")
+def serve_root():
+    return send_from_directory(app.static_folder, "index.html")
+
+
+@app.route("/<path:path>")
+def serve_react(path):
+    file_path = os.path.join(app.static_folder, path)
+    if os.path.exists(file_path):
+        return send_from_directory(app.static_folder, path)
+    return send_from_directory(app.static_folder, "index.html")
+
+
+# ── Error Handlers ────────────────────────────────────────────────────────────
 
 @app.errorhandler(404)
 def not_found(error):
