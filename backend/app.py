@@ -181,6 +181,9 @@ def upload_file():
 
 @app.route("/api/ai/auto-dcr", methods=["POST"])
 def ai_auto_dcr():
+    print("FILES:", request.files)
+    print("FORM:", request.form)
+
     if "file" not in request.files:
         return jsonify({
             "success": False,
@@ -201,8 +204,10 @@ def ai_auto_dcr():
 
     file.save(file_path)
 
+    # Run AI scrutiny
     result = run_auto_dcr_scrutiny(file_path)
 
+    # Generate PDF for BOTH pass and fail
     application_no = "AP-VAASTU-" + datetime.now().strftime("%Y%m%d%H%M%S")
     pdf_filename = f"{application_no}-Compliance-Report.pdf"
     pdf_path = os.path.join(REPORT_FOLDER, pdf_filename)
@@ -221,6 +226,9 @@ def ai_auto_dcr():
         application_data=application_data
     )
 
+    # IMPORTANT:
+    # always return success=True because AI process completed
+    # compliance pass/fail is inside result.status
     return jsonify({
         "success": True,
         "message": "AI Auto-DCR scrutiny completed",
@@ -231,8 +239,7 @@ def ai_auto_dcr():
             "status": pdf_result["status"],
             "downloadUrl": f"/api/reports/{pdf_filename}"
         }
-    })
-
+    }), 200
 @app.route("/api/reports/<filename>", methods=["GET"])
 def download_report(filename):
     file_path = os.path.join(REPORT_FOLDER, filename)
