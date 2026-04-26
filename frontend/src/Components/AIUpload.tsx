@@ -38,89 +38,87 @@ const AIUpload = () => {
     setViolations([]);
   };
 
-  const handleUpload = async () => {
-    console.log("Selected file:", file);
-    if (!file) {
-      setResult("failure");
-      setMessage("Please select a file");
-      return;
-    }
+ const handleUpload = async () => {
+  if (!file) {
+    setResult("failure");
+    setMessage("Please select a file");
+    return;
+  }
 
-    if (file.size > 20 * 1024 * 1024) {
-      setResult("failure");
-      setMessage("File too large. Maximum allowed size is 20MB");
-      return;
-    }
+  if (file.size > 20 * 1024 * 1024) {
+    setResult("failure");
+    setMessage("File too large. Maximum allowed size is 20MB");
+    return;
+  }
 
-    setLoading(true);
-    resetResult();
-    setProgress(1);
+  setLoading(true);
+  resetResult();
+  setProgress(1);
 
-    try {
-      const data = await runAutoDcr(
-        file,
-        {
-          buildingType: "Residential",
-          floors: 2,
-          height: 7.0,
-          classification: "Non-High-Rise",
-        },
-        (uploadProgress) => {
-          setProgress(uploadProgress);
-        }
-      );
+  try {
+    const data = await runAutoDcr(
+      file,
+      {
+        buildingType: "Residential",
+        floors: 2,
+        height: 7.0,
+        classification: "Non-High-Rise",
+      },
+      (uploadProgress) => {
+        setProgress(uploadProgress);
+      }
+    );
 
-      const isCompliant = data.result.isCompliant;
+    const isCompliant = data.result.isCompliant;
 
-      setResult(isCompliant ? "success" : "failure");
+    setResult(isCompliant ? "success" : "failure");
+    setMessage(
+      isCompliant
+        ? "Plan Approved. Compliance certificate generated successfully."
+        : "Plan Rejected. Non-compliance report generated successfully."
+    );
 
-      setMessage(
-        isCompliant
-          ? "Plan Approved. Compliance certificate generated successfully."
-          : "Plan Rejected. Non-compliance report generated successfully."
-      );
+    // IMPORTANT: set for BOTH pass and fail
+    setPdfUrl(data.pdf.downloadUrl);
+    setApplicationNo(data.pdf.applicationNo);
+    setViolations(data.result.violations || []);
 
-      setPdfUrl(data.pdf.downloadUrl);
-      setApplicationNo(data.pdf.applicationNo);
-      setViolations(data.result.violations || []);
+    setTimeout(() => {
+      resetFileInput();
+    }, 1500);
+  } catch (error) {
+    setProgress(0);
+    setResult("failure");
+    setMessage(
+      error instanceof Error
+        ? error.message
+        : "Upload failed. Please check Flask server and try again."
+    );
+    setPdfUrl("");
+    setApplicationNo("");
+    setViolations([]);
+  } finally {
+    setLoading(false);
+  }
+};
+const handleDownload = () => {
+  if (!pdfUrl) {
+    setMessage("PDF is not available yet");
+    return;
+  }
 
-      setTimeout(() => {
-        resetFileInput();
-      }, 1500);
-    } catch (error) {
-      setProgress(0);
-      setResult("failure");
-      setMessage(
-        error instanceof Error
-          ? error.message
-          : "Upload failed. Please check Flask server and try again."
-      );
-      setPdfUrl("");
-      setApplicationNo("");
-      setViolations([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const link = document.createElement("a");
 
-  const handleDownload = () => {
-    if (!pdfUrl) {
-      setMessage("PDF is not available yet");
-      return;
-    }
+  link.href = getReportDownloadUrl(pdfUrl);
+  link.download =
+    result === "success"
+      ? `${applicationNo}-Approved-Compliance.pdf`
+      : `${applicationNo}-Rejected-Compliance.pdf`;
 
-    const link = document.createElement("a");
-
-    link.href = getReportDownloadUrl(pdfUrl);
-    link.download =
-      result === "success"
-        ? `${applicationNo}-Approved-Compliance.pdf`
-        : `${applicationNo}-Rejected-Compliance.pdf`;
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 
   return (
     <div className="upload-section">
