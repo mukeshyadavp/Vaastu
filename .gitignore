@@ -7,15 +7,42 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Node
 node_modules
 dist
 dist-ssr
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+venv/
+env/
+.venv/
+
+# Flask database
+backend/*.db
+
+# Uploads (keep folder only)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Static build files (keep folder only)
+backend/static/*
+!backend/static/.gitkeep
+
+# Environment
+.env
 *.local
+
+# Lock files
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
 lerna-lock.yaml
-# Editor directories and files
+
+# IDE / OS
 .vscode/*
 !.vscode/extensions.json
 .idea
