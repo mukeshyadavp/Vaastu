@@ -54,11 +54,18 @@ const AIUpload = () => {
   };
 
   const isPdfFile = (selectedFile: File) => {
-    return selectedFile.type.includes("pdf");
+    return (
+      selectedFile.type.includes("pdf") ||
+      selectedFile.name.toLowerCase().endsWith(".pdf")
+    );
   };
 
   const isDxfFile = (selectedFile: File) => {
     return selectedFile.name.toLowerCase().endsWith(".dxf");
+  };
+
+  const isDwgFile = (selectedFile: File) => {
+    return selectedFile.name.toLowerCase().endsWith(".dwg");
   };
 
   const handleFileChange = async (selectedFile: File) => {
@@ -90,6 +97,12 @@ const AIUpload = () => {
         setFilePreviewUrl("");
         return;
       }
+    }
+
+    if (isDwgFile(selectedFile)) {
+      console.warn("DWG preview is disabled on Render free. Showing CAD fallback.");
+      setFilePreviewUrl("");
+      return;
     }
 
     setFilePreviewUrl("");
@@ -197,6 +210,7 @@ const AIUpload = () => {
         inputRef={fileInputRef}
         buttonText="Run AI Scrutiny"
         loadingButtonText="AI Scanning..."
+        uploadSubtext="DXF preview supported. DWG can be uploaded but preview is disabled on Render free."
         onFileChange={handleFileChange}
         onRun={handleUpload}
       />

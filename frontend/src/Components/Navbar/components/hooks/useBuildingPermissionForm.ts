@@ -76,11 +76,18 @@ export const useBuildingPermissionForm = ({
   };
 
   const isPdfFile = (selectedFile: File) => {
-    return selectedFile.type.includes("pdf");
+    return (
+      selectedFile.type.includes("pdf") ||
+      selectedFile.name.toLowerCase().endsWith(".pdf")
+    );
   };
 
   const isDxfFile = (selectedFile: File) => {
     return selectedFile.name.toLowerCase().endsWith(".dxf");
+  };
+
+  const isDwgFile = (selectedFile: File) => {
+    return selectedFile.name.toLowerCase().endsWith(".dwg");
   };
 
   const searchMapLocation = async () => {
@@ -163,6 +170,12 @@ export const useBuildingPermissionForm = ({
         setPreviewLoading(false);
       }
 
+      return;
+    }
+
+    if (isDwgFile(selectedFile)) {
+      console.warn("DWG preview is disabled on Render free. Showing CAD fallback.");
+      setFilePreviewUrl("");
       return;
     }
 

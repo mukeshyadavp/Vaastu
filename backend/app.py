@@ -1,12 +1,17 @@
+import os
+
+# Must be set before any matplotlib/CAD preview import happens
+os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
+os.makedirs("/tmp/matplotlib", exist_ok=True)
+
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flasgger import Swagger
 from dotenv import load_dotenv
-import os
+from sqlalchemy import text
 
 from extensions import db
 from routes import register_routes
-from sqlalchemy import text
 
 # Import models so db.create_all() can detect tables
 from models.application import Application  # noqa: F401
@@ -19,10 +24,12 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 REPORT_FOLDER = os.path.join(BASE_DIR, "generated_reports")
 STATIC_FOLDER = os.path.join(BASE_DIR, "static")
+PREVIEW_FOLDER = os.path.join(BASE_DIR, "generated_previews")
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(REPORT_FOLDER, exist_ok=True)
 os.makedirs(STATIC_FOLDER, exist_ok=True)
+os.makedirs(PREVIEW_FOLDER, exist_ok=True)
 
 
 def get_database_url():
@@ -46,9 +53,9 @@ def create_app():
     app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
     app.config["REPORT_FOLDER"] = REPORT_FOLDER
     app.config["STATIC_FOLDER"] = STATIC_FOLDER
+    app.config["PREVIEW_FOLDER"] = PREVIEW_FOLDER
     app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
 
-    # PostgreSQL / SQLite database config
     app.config["SQLALCHEMY_DATABASE_URI"] = get_database_url()
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
@@ -136,9 +143,13 @@ def create_app():
             db.session.commit()
 
             print("Database connected successfully")
-            print(f"Database URI: {app.config['SQLALCHEMY_DATABASE_URI'].split('@')[-1]}")
+            print(
+                "Database URI:",
+                app.config["SQLALCHEMY_DATABASE_URI"].split("@")[-1],
+            )
 
         except Exception as error:
+            db.session.rollback()
             print("Database connection failed")
             print(f"Error: {str(error)}")
 
@@ -154,5 +165,5 @@ if __name__ == "__main__":
     app.run(
         host="0.0.0.0",
         port=port,
-        debug=True,
+        debug=False,
     )

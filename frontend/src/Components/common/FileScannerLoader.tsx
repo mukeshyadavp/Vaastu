@@ -10,6 +10,7 @@ const FileScannerLoader: React.FC<FileScannerLoaderProps> = ({
   variant = "upload",
 }) => {
   const fileName = file?.name || "";
+
   const isPdfFile =
     Boolean(filePreviewUrl) &&
     (file?.type.includes("pdf") || fileName.toLowerCase().endsWith(".pdf"));
