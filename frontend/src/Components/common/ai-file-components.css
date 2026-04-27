@@ -3,15 +3,16 @@
 ================================ */
 .generic-upload-section {
   background: #ffffff;
-  padding: 20px;
-  border-radius: 14px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+  min-height: 520px;
 }
 
 .generic-upload-section h2 {
-  margin: 0 0 16px;
-  font-size: 20px;
-  font-weight: 700;
+  margin: 0 0 24px;
+  font-size: 22px;
+  font-weight: 800;
   color: #0f172a;
 }
 
@@ -20,14 +21,16 @@
 ================================ */
 .upload-area-wrapper {
   position: relative;
-  border-radius: 14px;
+  border-radius: 18px;
   overflow: hidden;
+  min-height: 385px;
 }
 
 .upload-box {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 18px;
+  min-height: 385px;
 }
 
 .file-label input {
@@ -36,12 +39,17 @@
 
 .file-label {
   border: 2px dashed #cbd5f5;
-  border-radius: 12px;
-  padding: 25px;
+  border-radius: 16px;
+  padding: 30px;
   text-align: center;
   cursor: pointer;
   transition: all 0.25s ease;
   background: #f8fafc;
+  min-height: 285px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .file-label:hover {
@@ -53,39 +61,43 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
+  max-width: 100%;
 }
 
 .upload-icon {
   margin: 0;
-  font-size: 30px;
+  font-size: 38px;
 }
 
 .upload-text {
   margin: 0;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   color: #1e293b;
   word-break: break-word;
+  text-align: center;
 }
 
 .upload-subtext {
-  font-size: 12px;
+  font-size: 13px;
   color: #64748b;
+  text-align: center;
 }
 
 /* ===============================
    Upload Button
 ================================ */
 .upload-btn {
-  margin-top: 4px;
+  margin-top: 0;
   background: #2563eb;
   color: white;
   border: none;
-  padding: 11px 14px;
-  border-radius: 8px;
+  padding: 15px 18px;
+  border-radius: 12px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 15px;
   transition: 0.2s ease;
 }
 
@@ -108,9 +120,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(15, 23, 42, 0.1);
-  backdrop-filter: blur(1px);
-  border-radius: 14px;
+  min-height: 385px;
+  background: rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(1.5px);
+  border-radius: 18px;
   animation: overlayFadeIn 0.22s ease;
   pointer-events: all;
 }
@@ -129,28 +142,28 @@
    Uploaded File Thumbnail Scanner
 ================================ */
 .file-scan-loader {
-  width: 170px;
-  height: 205px;
-  padding: 10px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.9);
+  width: 260px;
+  height: 315px;
+  padding: 12px;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(191, 219, 254, 0.95);
   box-shadow:
-    0 20px 45px rgba(15, 23, 42, 0.22),
+    0 24px 55px rgba(15, 23, 42, 0.25),
     inset 0 1px 0 rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
 }
 
 .result-file-loader {
-  width: 190px;
-  height: 230px;
+  width: 285px;
+  height: 345px;
 }
 
 .file-scan-card {
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 18px;
+  border-radius: 22px;
   overflow: hidden;
   background: linear-gradient(135deg, #eff6ff, #ffffff);
   border: 1px solid #bfdbfe;
@@ -177,26 +190,26 @@
     linear-gradient(90deg, rgba(37, 99, 235, 0.08) 1px, transparent 1px),
     linear-gradient(rgba(37, 99, 235, 0.08) 1px, transparent 1px),
     linear-gradient(135deg, #f8fafc, #eff6ff);
-  background-size: 12px 12px, 12px 12px, 100% 100%;
+  background-size: 14px 14px, 14px 14px, 100% 100%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .file-scan-fallback span {
-  width: 64px;
-  height: 64px;
-  border-radius: 18px;
+  width: 90px;
+  height: 90px;
+  border-radius: 26px;
   background: #ffffff;
   border: 2px solid #2563eb;
   color: #2563eb;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 28px;
   font-weight: 900;
   letter-spacing: 1px;
-  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.18);
+  box-shadow: 0 14px 32px rgba(37, 99, 235, 0.2);
 }
 
 .file-scan-overlay-grid {
@@ -205,7 +218,7 @@
   background:
     linear-gradient(90deg, rgba(37, 99, 235, 0.16) 1px, transparent 1px),
     linear-gradient(rgba(37, 99, 235, 0.16) 1px, transparent 1px);
-  background-size: 14px 14px;
+  background-size: 18px 18px;
   z-index: 2;
   pointer-events: none;
   mix-blend-mode: multiply;
@@ -215,13 +228,13 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: -55px;
-  height: 55px;
+  top: -75px;
+  height: 75px;
   background: linear-gradient(
     180deg,
     rgba(34, 197, 94, 0),
     rgba(34, 197, 94, 0.16),
-    rgba(59, 130, 246, 0.3),
+    rgba(59, 130, 246, 0.32),
     rgba(34, 197, 94, 0)
   );
   z-index: 5;
@@ -231,10 +244,10 @@
 
 .file-scan-line {
   position: absolute;
-  left: 8px;
-  right: 8px;
-  top: 12px;
-  height: 3px;
+  left: 10px;
+  right: 10px;
+  top: 14px;
+  height: 4px;
   border-radius: 999px;
   background: linear-gradient(
     90deg,
@@ -245,8 +258,8 @@
     transparent
   );
   box-shadow:
-    0 0 14px rgba(34, 197, 94, 0.9),
-    0 0 26px rgba(59, 130, 246, 0.55);
+    0 0 16px rgba(34, 197, 94, 0.9),
+    0 0 28px rgba(59, 130, 246, 0.55);
   z-index: 6;
   animation: uploadedFileScanLine 2s ease-in-out infinite;
   pointer-events: none;
@@ -254,39 +267,39 @@
 
 .file-scan-corner {
   position: absolute;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   border-color: #22c55e;
   z-index: 7;
   pointer-events: none;
 }
 
 .file-scan-corner.top-left {
-  top: 10px;
-  left: 10px;
-  border-top: 3px solid;
-  border-left: 3px solid;
+  top: 12px;
+  left: 12px;
+  border-top: 4px solid;
+  border-left: 4px solid;
 }
 
 .file-scan-corner.top-right {
-  top: 10px;
-  right: 10px;
-  border-top: 3px solid;
-  border-right: 3px solid;
+  top: 12px;
+  right: 12px;
+  border-top: 4px solid;
+  border-right: 4px solid;
 }
 
 .file-scan-corner.bottom-left {
-  bottom: 10px;
-  left: 10px;
-  border-bottom: 3px solid;
-  border-left: 3px solid;
+  bottom: 12px;
+  left: 12px;
+  border-bottom: 4px solid;
+  border-left: 4px solid;
 }
 
 .file-scan-corner.bottom-right {
-  bottom: 10px;
-  right: 10px;
-  border-bottom: 3px solid;
-  border-right: 3px solid;
+  bottom: 12px;
+  right: 12px;
+  border-bottom: 4px solid;
+  border-right: 4px solid;
 }
 
 @keyframes uploadedFileScanBand {
@@ -295,7 +308,7 @@
   }
 
   50% {
-    transform: translateY(255px);
+    transform: translateY(390px);
   }
 
   100% {
@@ -305,15 +318,15 @@
 
 @keyframes uploadedFileScanLine {
   0% {
-    top: 12px;
+    top: 14px;
   }
 
   50% {
-    top: calc(100% - 16px);
+    top: calc(100% - 18px);
   }
 
   100% {
-    top: 12px;
+    top: 14px;
   }
 }
 
@@ -322,11 +335,11 @@
 ================================ */
 .result-wrapper {
   position: relative;
-  min-height: 230px;
+  min-height: 380px;
 }
 
 .result-loader-card {
-  min-height: 230px;
+  min-height: 380px;
   border-radius: 18px;
   background: rgba(248, 250, 252, 0.95);
   border: 1px solid #e5e7eb;
@@ -435,109 +448,6 @@
 }
 
 /* ===============================
-   Violation List
-================================ */
-.violation-list {
-  margin-top: 18px;
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
-  border-radius: 16px;
-  padding: 18px;
-}
-
-.violation-list h3 {
-  margin: 0 0 14px;
-  color: #9a3412;
-  font-size: 17px;
-  font-weight: 800;
-}
-
-.violation-item {
-  background: #ffffff;
-  border: 1px solid #fed7aa;
-  border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 12px;
-}
-
-.violation-item:last-child {
-  margin-bottom: 0;
-}
-
-.violation-item strong {
-  color: #c2410c;
-  display: block;
-  margin-bottom: 6px;
-}
-
-.violation-item p {
-  margin: 0 0 6px;
-  color: #7c2d12;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.violation-item span {
-  color: #9a3412;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-/* ===============================
-   Mobile Responsive
-================================ */
-@media (max-width: 768px) {
-  .generic-upload-section {
-    padding: 14px;
-  }
-
-  .generic-upload-section h2 {
-    font-size: 18px;
-  }
-
-  .upload-box {
-    gap: 10px;
-  }
-
-  .file-label {
-    padding: 18px;
-  }
-
-  .upload-text {
-    font-size: 13px;
-    text-align: center;
-  }
-
-  .upload-btn {
-    width: 100%;
-    padding: 12px;
-    font-size: 14px;
-  }
-
-  .file-scan-loader {
-    width: 145px;
-    height: 175px;
-  }
-
-  .result-file-loader {
-    width: 155px;
-    height: 185px;
-  }
-
-  .result-card {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .result-left {
-    width: 100%;
-  }
-
-  .download-btn {
-    width: 100%;
-  }
-}
-/* ===============================
    Compliance Passed List
 ================================ */
 .compliance-list {
@@ -592,4 +502,124 @@
   margin-top: 6px;
   color: #64748b;
   font-size: 12px;
+}
+
+/* ===============================
+   Violation List
+================================ */
+.violation-list {
+  margin-top: 18px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.violation-list h3 {
+  margin: 0 0 14px;
+  color: #9a3412;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.violation-item {
+  background: #ffffff;
+  border: 1px solid #fed7aa;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.violation-item:last-child {
+  margin-bottom: 0;
+}
+
+.violation-item strong {
+  color: #c2410c;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.violation-item p {
+  margin: 0 0 6px;
+  color: #7c2d12;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.violation-item span {
+  color: #9a3412;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ===============================
+   Mobile Responsive
+================================ */
+@media (max-width: 768px) {
+  .generic-upload-section {
+    padding: 16px;
+    min-height: 410px;
+  }
+
+  .generic-upload-section h2 {
+    font-size: 18px;
+  }
+
+  .upload-area-wrapper,
+  .upload-box,
+  .upload-loader-overlay {
+    min-height: 320px;
+  }
+
+  .upload-box {
+    gap: 12px;
+  }
+
+  .file-label {
+    padding: 20px;
+    min-height: 220px;
+  }
+
+  .upload-text {
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .upload-btn {
+    width: 100%;
+    padding: 13px;
+    font-size: 14px;
+  }
+
+  .file-scan-loader {
+    width: 200px;
+    height: 245px;
+  }
+
+  .result-file-loader {
+    width: 220px;
+    height: 270px;
+  }
+
+  .result-wrapper {
+    min-height: 300px;
+  }
+
+  .result-loader-card {
+    min-height: 300px;
+  }
+
+  .result-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .result-left {
+    width: 100%;
+  }
+
+  .download-btn {
+    width: 100%;
+  }
 }
