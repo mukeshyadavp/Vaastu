@@ -78,6 +78,7 @@ const onReject = async (id: number) => {    try {
       console.error(err);
     }
   };
+  
 
   // ✅ KEEP EXISTING (not removing)
 const handleAddApplication = (newApp: Application) => {    setApplications((prev) => [...prev, newApp]);
