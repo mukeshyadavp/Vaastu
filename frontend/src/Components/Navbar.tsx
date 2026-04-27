@@ -119,13 +119,12 @@ const Navbar: React.FC<NavbarProps> = ({
       plotSize: plotArea || "N/A",
     };
 
-    const response:any = await apiPost("api/applications", newData);
-    if( response.ok) {
-    alert("Application Submitted ✅");
+  const response = await apiPost("api/applications", newData);
 
-    fetchApplications(); // 🔥 refresh table
-
-  } else {
+if (response) {
+  alert("Application Submitted ✅");
+  fetchApplications(); // 🔥 VERY IMPORTANT
+} else {
     console.error("Failed to submit application");
   }} catch (error) {
     console.error("Error submitting application:", error);

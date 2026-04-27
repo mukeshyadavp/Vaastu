@@ -51,15 +51,15 @@ const getTitle = () => {
 // ];
 
 const completed = applications.filter(
-  (app) => app.status === "Approved"
+  (app) => app.status?.toLowerCase() === "approved"
 );
 
 const progress = applications.filter(
-  (app) => app.status === "Pending"
+  (app) => app.status?.toLowerCase() === "pending"
 );
 
 const overdue = applications.filter(
-  (app) => app.status === "Rejected"
+  (app) => app.status?.toLowerCase() === "rejected"
 );
 
 const getData = () => {
