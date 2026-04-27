@@ -34,6 +34,6 @@ jobs:
           application_name: ${{ secrets.EB_APPLICATION_NAME }}
           environment_name: ${{ secrets.EB_ENVIRONMENT_NAME }}
           region: ${{ secrets.AWS_REGION }}
-          version_label: vaastu-${{ github.sha }}
+          version_label: vaastu-${{ github.sha }}-${{ github.run_number }}-${{ github.run_attempt }}
           deployment_package: vaastu-deploy.zip
           wait_for_deployment: true
