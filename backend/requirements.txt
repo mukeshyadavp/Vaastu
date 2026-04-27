@@ -13,3 +13,5 @@ ezdxf==1.3.4
 
 # OpenAI / ChatGPT integration
 openai==2.12.0
+
+psycopg2-2.9.12
