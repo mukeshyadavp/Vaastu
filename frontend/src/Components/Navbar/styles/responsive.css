@@ -18,8 +18,9 @@
 
   .menuBar {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center; /* 🔥 center fix */
     gap: 10px;
+    width: 100%;
   }
 
   .menuItems {
@@ -28,10 +29,26 @@
     justify-content: center;
   }
 
-  .dropdownMenu {
-    right: auto;
-    left: 0;
+  /* ✅ NEW FIX START */
+  .dropdownWrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    position: relative;
   }
+
+  .admin-back-btn {
+    width: 120px;
+    text-align: center;
+  }
+
+  .dropdownMenu {
+    position: absolute;
+    top: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  /* ✅ NEW FIX END */
 
   .modal,
   .largeModal {
