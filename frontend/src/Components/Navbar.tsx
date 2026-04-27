@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import type { LatLngExpression } from "leaflet";
 import { useNavigate, useLocation } from "react-router-dom";
-
+import { apiPost } from "../Services/api";
 const MapComponent = () => {
   const position: LatLngExpression = [17.385, 78.4867];
 
@@ -119,20 +119,14 @@ const Navbar: React.FC<NavbarProps> = ({
       plotSize: plotArea || "N/A",
     };
 
-    await fetch("http://localhost:5000/api/applications", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newData),
-    });
-
+    const response:any = await apiPost("api/applications", newData);
+    if( response.ok) {
     alert("Application Submitted ✅");
 
     fetchApplications(); // 🔥 refresh table
 
-  } catch (err) {
-    console.error(err);
+  } else {
+    console.error("Failed to submit application");
   }
 };
 
