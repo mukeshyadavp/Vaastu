@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import logo from "../assets/logo.png";
 import "./Navbar.css";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
@@ -132,15 +132,31 @@ const [longitude, setLongitude] = useState("");
 const [searchLocation, setSearchLocation] = useState("");
   const [roadWidth, setRoadWidth] = useState("");
   const [landType, setLandType] = useState("");
+  const [filePreviewUrl, setFilePreviewUrl] = useState<string>("");
+  const [showFilePreview, setShowFilePreview] = useState(false);
+  
 
-  const [cadFiles, setCadFiles] = useState<File[]>([]);
-  const [result, setResult] = useState<"success" | "failure" | "">("");
+  // const [cadFiles, setCadFiles] = useState<File[]>([]);
+  // const [result, setResult] = useState<"success" | "failure" | "">("");
 
   const [showMenu, setShowMenu] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
 
+
+
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+const [file, setFile] = useState<File | null>(null);
+const [loading, setLoading] = useState(false);
+const [progress, setProgress] = useState(0);
+
+const [pdfUrl, setPdfUrl] = useState("");
+const [applicationNo, setApplicationNo] = useState("");
+const [aiResult, setAiResult] = useState<"success" | "failure" | "">("");
+const [message, setMessage] = useState("");
   /* ===== Dynamic User/Admin Switch ===== */
   const switchLabel =
     location.pathname === "/admin" ? "Admin" : "User";
@@ -151,32 +167,32 @@ const [searchLocation, setSearchLocation] = useState("");
       : { label: "Admin", path: "/admin" };
 
   /* ===== Validate CAD ===== */
-  const validateBuilding = () => {
-    if (cadFiles.length === 0) {
-      setResult("failure");
-      return;
-    }
+  // const validateBuilding = () => {
+  //   if (cadFiles.length === 0) {
+  //     setResult("failure");
+  //     return;
+  //   }
 
-    const fileNames = cadFiles.map((file) =>
-      file.name.toLowerCase()
-    );
+  //   const fileNames = cadFiles.map((file) =>
+  //     file.name.toLowerCase()
+  //   );
 
-    const isSuccessFile = fileNames.some(
-      (name) => name.includes("success") || name.includes("2006")
-    );
+  //   const isSuccessFile = fileNames.some(
+  //     (name) => name.includes("success") || name.includes("2006")
+  //   );
 
-    const isFailureFile = fileNames.some(
-      (name) => name.includes("failure") || name.includes("2016")
-    );
+  //   const isFailureFile = fileNames.some(
+  //     (name) => name.includes("failure") || name.includes("2016")
+  //   );
 
-    if (isSuccessFile) {
-      setResult("success");
-    } else if (isFailureFile) {
-      setResult("failure");
-    } else {
-      setResult("failure");
-    }
-  };
+  //   if (isSuccessFile) {
+  //     setResult("success");
+  //   } else if (isFailureFile) {
+  //     setResult("failure");
+  //   } else {
+  //     setResult("failure");
+  //   }
+  // };
 
   const submitApplication = async () => {
   try {
@@ -210,6 +226,47 @@ if (response) {
       document.body.style.overflow = "auto";
     };
   }, [open, bpOpen, formOpen]);
+
+
+  const handleAIUpload = async () => {
+  if (!file) {
+    alert("Please upload file");
+    return;
+  }
+
+  setLoading(true);
+  setProgress(1);
+
+  try {
+    const data = await runAutoDcr(
+      file,
+      {
+        buildingType: "Residential",
+        floors: Number(floors || 2),
+        height: Number(height || 7),
+        classification: "Non-High-Rise",
+      },
+      (p) => setProgress(p)
+    );
+
+    const isCompliant = data.result.isCompliant;
+
+    setAiResult(isCompliant ? "success" : "failure");
+    setMessage(
+      isCompliant
+        ? "Plan Approved"
+        : "Plan Rejected"
+    );
+
+    setPdfUrl(data.pdf.downloadUrl);
+    setApplicationNo(data.pdf.applicationNo);
+  } catch (err) {
+    setAiResult("failure");
+    setMessage("AI Processing Failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div>
@@ -748,156 +805,236 @@ if (response) {
             )}
 
             {/* STEP 4 */}
-            {step === 4 && (
-              <>
-                <h2 className="sectionTitle">
-                  Upload CAD Designs
-                </h2>
+           {/* STEP 4 - AI Upload */}
+{/* STEP 4 - AI Upload (UI SAME AS AIUpload component) */}
+{step === 4 && (
+  <>
+    {/* <h2 className="sectionTitle">
+      
+    </h2> */}
 
-                <input
-                  type="file"
-                  multiple
-                  onChange={(e) =>
-                    setCadFiles(
-                      Array.from(
-                        e.target
-                          .files || []
-                      )
-                    )
-                  }
-                />
+    <div className="upload-section" style={{ padding: 0, boxShadow: "none" }}>
+      <div className="upload-box">
+        <label className="file-label">
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept=".pdf,.dwg,.dxf,.png,.jpg,.jpeg"
+    onChange={(e) => {
+  const selected = e.target.files?.[0];
+  if (selected) {
+    setFile(selected);
+    setFilePreviewUrl(URL.createObjectURL(selected)); // 🔥 ADD THIS
+  }
+}}
+          />
 
-                <div className="bottomActions">
-                  <button
-                    className="backBtn"
-                    onClick={() =>
-                      setStep(3)
-                    }
-                  >
-                    ‹ Back
-                  </button>
+          <div className="upload-content">
+            <p className="upload-icon">📄</p>
 
-                  <button
-                    className="nextBtn"
-                    onClick={() => {
-                      validateBuilding();
-                      setStep(5);
-                    }}
-                  >
-                    Next →
-                  </button>
-                </div>
-              </>
-            )}
+            <p className="upload-text">
+              {file ? file.name : "Click to upload or drag & drop"}
+            </p>
 
-            {/* STEP 5 */}
-            {step === 5 && (
-              <>
-                <h2 className="sectionTitle">
-                  Review & Submit
-                </h2>
+            <span className="upload-subtext">
+              CAD / PDF / Drawing File (Max 20MB)
+            </span>
+          </div>
+        </label>
 
-                <p>
-                  Please review all
-                  entered details.
-                </p>
+        {loading && (
+          <div className="progress-container">
+            <div className="progress-bar">
+              <div
+                className="progress-fill"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
 
-                <div className="bottomActions">
-                  <button
-                    className="backBtn"
-                    onClick={() =>
-                      setStep(4)
-                    }
-                  >
-                    ‹ Back
-                  </button>
+            <p>Processing AI... {progress}%</p>
+          </div>
+        )}
+      </div>
+    </div>
+
+    <div className="bottomActions">
+      <button className="backBtn" onClick={() => setStep(3)}>
+        ‹ Back
+      </button>
+
+      <button
+        className="nextBtn"
+        onClick={() => {
+          handleAIUpload();
+          setStep(5);
+        }}
+      >
+        Next →
+      </button>
+    </div>
+  </>
+)}
+{step === 5 && (
+  <div className="reviewCenterWrapper">
+    <div className="reviewColorCard">
+      <h2 className="reviewTitle">Review & Submit</h2>
+
+      <p className="reviewText">
+        Please verify all details before final submission.
+      </p>
+
+      {/* ===== Applicant Details ===== */}
+      <div className="reviewCard">
+        <h4>👤 Applicant Details</h4>
+        <p><b>Name:</b> {applicantName || "-"}</p>
+      </div>
+
+      {/* ===== Plot Details ===== */}
+      <div className="reviewCard">
+        <h4>📍 Plot Details</h4>
+        <p><b>Survey No:</b> {survey || "-"}</p>
+        <p><b>Plot Area:</b> {plotArea || "-"}</p>
+        <p><b>Road Width:</b> {roadWidth || "-"}</p>
+        <p><b>Land Type:</b> {landType || "-"}</p>
+      </div>
+
+      {/* ===== Building Details ===== */}
+      <div className="reviewCard">
+        <h4>🏗 Building Details</h4>
+        <p><b>Floors:</b> {floors || "-"}</p>
+        <p><b>Area:</b> {area || "-"}</p>
+        <p><b>Height:</b> {height || "-"}</p>
+        <p><b>Front:</b> {front || "-"}</p>
+        <p><b>Side:</b> {side || "-"}</p>
+        <p><b>Rear:</b> {rear || "-"}</p>
+        <p><b>Usage:</b> {usage || "-"}</p>
+      </div>
+
+      {/* ===== File Upload ===== */}
+<div className="reviewCard">
+  <h4>📄 Uploaded File</h4>
+
+  <p><b>File Name:</b> {file?.name || "No file uploaded"}</p>
 
   <button
-  className="nextBtn"
-  onClick={() => {
-    submitApplication(); // 🔥 POST call
-    setStep(6);
-  }}
->
-  Submit
-</button>
-                </div>
-              </>
-            )}
+    className="previewBtn"
+    onClick={() => setShowFilePreview(true)}
+    disabled={!filePreviewUrl}
+  >
+    👁 Preview File
+  </button>
+</div>
 
-            {/* STEP 6 */}
-            {step === 6 && (
-              <>
-                <h2 className="sectionTitle">
-                  Result
-                </h2>
+      <div className="reviewNote">
+        ⚠️ Once submitted, changes cannot be edited.
+      </div>
 
-                <div
-                  className="reviewCard"
-                  style={{
-                    textAlign:
-                      "center",
-                  }}
-                >
-                  {result ===
-                  "success" ? (
-                    <>
-                      <h3
-                        style={{
-                          color:
-                            "green",
-                        }}
-                      >
-                        ✅ Approved
-                      </h3>
-                      <p>
-                        Building
-                        Permission
-                        Approved
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <h3
-                        style={{
-                          color:
-                            "red",
-                        }}
-                      >
-                        ❌ Failed
-                      </h3>
-                      <p>
-                        Some rules
-                        are not
-                        satisfied
-                      </p>
-                    </>
-                  )}
+      <div className="bottomActions">
+        <button className="backBtn" onClick={() => setStep(4)}>
+          ‹ Back
+        </button>
 
-                  <button
-                    className="nextBtn"
-                    style={{
-                      marginTop:
-                        "20px",
-                    }}
-                  >
-                    📥 Download
-                    Report
-                  </button>
-                </div>
+        <button
+          className="nextBtn"
+          onClick={() => {
+            submitApplication();
+            setStep(6);
+          }}
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+   {showFilePreview && (
+  <div className="modalOverlay" onClick={() => setShowFilePreview(false)}>
+    <div
+      className="largeModal previewModal"
+      onClick={(e) => e.stopPropagation()}
+      style={{ width: "90%", height: "95vh", position: "relative" }}
+    >
 
-                <div className="bottomActions">
-                  <button
-                    className="backBtn"
-                    onClick={() =>
-                      setStep(5)
-                    }
-                  >
-                    ‹ Back
-                  </button>
-                </div>
-              </>
-            )}
+      {/* 🔥 CLOSE BUTTON INSIDE FILE AREA */}
+      <button
+        className="previewCloseBtn"
+        onClick={() => setShowFilePreview(false)}
+      >
+        ✖
+      </button>
+
+      <div style={{ height: "100%", padding: "10px" }}>
+        {file?.type.includes("pdf") ? (
+          <iframe
+            src={filePreviewUrl}
+            width="100%"
+            height="100%"
+            style={{ border: "none" }}
+          />
+        ) : (
+          <img
+            src={filePreviewUrl}
+            alt="preview"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+        )}
+      </div>
+
+    </div>
+  </div>
+)}
+     
+     
+            {/* STEP 6 - FINAL RESULT */}
+{step === 6 && (
+  <>
+    <h2 className="sectionTitle">Result</h2>
+
+    <div className="reviewCard" style={{ textAlign: "center" }}>
+      {aiResult === "success" ? (
+        <>
+          <h3 style={{ color: "green" }}>✅ Plan Approved</h3>
+        </>
+      ) : (
+        <>
+          <h3 style={{ color: "red" }}>❌ Plan Rejected</h3>
+        </>
+      )}
+
+      <p>{message}</p>
+
+      {applicationNo && (
+        <p>
+          Application No: <b>{applicationNo}</b>
+        </p>
+      )}
+
+      {pdfUrl && (
+        <button
+          className="nextBtn"
+          onClick={() => {
+            const link = document.createElement("a");
+            link.href = getReportDownloadUrl(pdfUrl);
+            link.download = `${applicationNo}.pdf`;
+            link.click();
+          }}
+        >
+          ⬇ Download Report
+        </button>
+      )}
+    </div>
+
+    <div className="bottomActions">
+      <button className="backBtn" onClick={() => setStep(5)}>
+        ‹ Back
+      </button>
+    </div>
+  </>
+)}
           </div>
         </div>
       )}

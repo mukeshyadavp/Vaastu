@@ -57,3 +57,7 @@ backend/generated_reports/*
 !backend/generated_reports/.gitkeep
 uploads/*
 !uploads/.gitkeep
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

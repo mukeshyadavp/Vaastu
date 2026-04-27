@@ -10,7 +10,7 @@ from reportlab.platypus import (
     Spacer,
     Table,
     TableStyle,
-    PageBreak
+    PageBreak,
 )
 
 
@@ -20,6 +20,17 @@ def generate_application_number():
 
 def money(value):
     return f"Rs. {value:,.0f}"
+
+
+def get_table_style():
+    styles = getSampleStyleSheet()
+    return ParagraphStyle(
+        "TableText",
+        parent=styles["Normal"],
+        fontSize=8,
+        leading=11,
+        textColor=colors.HexColor("#111827"),
+    )
 
 
 def build_rule_rows(auto_dcr_result):
@@ -71,10 +82,38 @@ def build_rule_rows(auto_dcr_result):
         },
         {
             "rule": "Floor Area Ratio",
-            "submitted": measurements.get("fsi", 0),
+            "submitted": measurements.get("far", measurements.get("fsi", 0)),
             "required": rules.get("max_fsi", 1.5),
             "unit": "ratio",
             "reference": "Chapter VII, G.O.Ms.No.119",
+        },
+        {
+            "rule": "Ground Coverage",
+            "submitted": measurements.get("ground_coverage_percent", 0),
+            "required": rules.get("max_ground_coverage_percent", 70),
+            "unit": "%",
+            "reference": "Chapter VII, G.O.Ms.No.119",
+        },
+        {
+            "rule": "Parking Requirement",
+            "submitted": measurements.get("parking_percent", 0),
+            "required": rules.get("required_parking_percent", 40),
+            "unit": "% of built-up",
+            "reference": "Table 11, G.O.Ms.No.119",
+        },
+        {
+            "rule": "Rain Water Harvesting",
+            "submitted": measurements.get("rain_water_harvesting", 0),
+            "required": rules.get("rain_water_required", 0),
+            "unit": "provision",
+            "reference": "Chapter XI-1, Rule 152",
+        },
+        {
+            "rule": "Fire Department NOC",
+            "submitted": measurements.get("fire_noc", 0),
+            "required": rules.get("fire_noc_required", 0),
+            "unit": "clearance",
+            "reference": "Chapter VI, G.O.Ms.No.119",
         },
     ]
 
@@ -86,13 +125,18 @@ def build_rule_rows(auto_dcr_result):
         is_failed = rule_name in violation_map
 
         if is_failed:
-            message = violation_map[rule_name]["message"]
+            message = violation_map[rule_name].get("message", "Rule failed")
             status_icon = "FAILED"
         else:
             if rule_name == "Floor Area Ratio":
                 message = f"FAR {submitted} is within permissible limit of {required}"
+            elif rule_name == "Ground Coverage":
+                message = f"Ground coverage {submitted}% is within permissible limit of {required}%"
+            elif rule_name in ["Rain Water Harvesting", "Fire Department NOC"]:
+                message = f"{rule_name} requirement satisfied"
             else:
-                message = f"{rule_name} {submitted}m meets requirement of {required}m"
+                message = f"{rule_name} {submitted} {item['unit']} meets requirement of {required} {item['unit']}"
+
             status_icon = "PASSED"
 
         rows.append([
@@ -106,21 +150,94 @@ def build_rule_rows(auto_dcr_result):
     return rows
 
 
-def get_table_style():
-    styles = getSampleStyleSheet()
-    return ParagraphStyle(
-        "TableText",
-        parent=styles["Normal"],
-        fontSize=8,
-        leading=11,
-        textColor=colors.HexColor("#111827"),
+def build_ai_analysis_section(auto_dcr_result, normal_style, section_style):
+    ai_analysis = auto_dcr_result.get("aiAnalysis")
+
+    if not ai_analysis:
+        return []
+
+    story_items = []
+
+    story_items.append(Paragraph("AI Scrutiny Explanation", section_style))
+
+    enabled = ai_analysis.get("enabled", False)
+    model = ai_analysis.get("model", "-")
+    risk_level = ai_analysis.get("riskLevel", "UNKNOWN")
+    summary = ai_analysis.get("summary", "")
+    citizen_message = ai_analysis.get("citizenMessage", "")
+    correction_steps = ai_analysis.get("correctionSteps", [])
+    officer_notes = ai_analysis.get("officerNotes", [])
+    missing_inputs = ai_analysis.get("missingInputs", [])
+
+    ai_rows = [
+        ["AI STATUS", "Enabled" if enabled else "Disabled"],
+        ["MODEL", model],
+        ["RISK LEVEL", risk_level],
+        ["SUMMARY", summary or "-"],
+        ["APPLICANT MESSAGE", citizen_message or "-"],
+    ]
+
+    if correction_steps:
+        ai_rows.append([
+            "CORRECTION STEPS",
+            "<br/>".join([
+                f"{index + 1}. {step}"
+                for index, step in enumerate(correction_steps)
+            ]),
+        ])
+
+    if officer_notes:
+        ai_rows.append([
+            "OFFICER NOTES",
+            "<br/>".join([f"• {note}" for note in officer_notes]),
+        ])
+
+    if missing_inputs:
+        ai_rows.append([
+            "MISSING INPUTS",
+            "<br/>".join([f"• {item}" for item in missing_inputs]),
+        ])
+
+    table_data = []
+
+    for label, value in ai_rows:
+        table_data.append([
+            Paragraph(f"<b>{label}</b>", normal_style),
+            Paragraph(str(value), normal_style),
+        ])
+
+    ai_table = Table(table_data, colWidths=[45 * mm, 115 * mm])
+
+    ai_table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#f8fafc")),
+        ("TEXTCOLOR", (0, 0), (0, -1), colors.HexColor("#475569")),
+        ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+        ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#e5e7eb")),
+        ("FONTSIZE", (0, 0), (-1, -1), 9),
+        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 7),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+    ]))
+
+    story_items.append(ai_table)
+
+    disclaimer = (
+        "Note: AI explanation is advisory only. Final pass/fail status is based on "
+        "the deterministic VAASTU Auto-DCR rule engine."
     )
+
+    story_items.append(Spacer(1, 6))
+    story_items.append(Paragraph(disclaimer, normal_style))
+
+    return story_items
 
 
 def generate_compliance_pdf(
     output_path,
     auto_dcr_result,
-    application_data=None
+    application_data=None,
 ):
     application_data = application_data or {}
 
@@ -131,10 +248,11 @@ def generate_compliance_pdf(
 
     measurements = auto_dcr_result.get("measurements", {})
     violations = auto_dcr_result.get("violations", [])
+    summary = auto_dcr_result.get("summary", {})
 
-    passed_count = 6 - len(violations)
-    violation_count = len(violations)
-    warning_count = 0
+    passed_count = summary.get("passed", 0)
+    warning_count = summary.get("warnings", 0)
+    violation_count = summary.get("violations", len(violations))
 
     plot_area = measurements.get("plot_area_sq_m", 300)
     builtup_area = measurements.get("builtup_area_sq_m", 300)
@@ -143,6 +261,8 @@ def generate_compliance_pdf(
     development_charge = builtup_area * 150
     impact_fee = builtup_area * 50
     total_fee = permit_fee + development_charge + impact_fee
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     doc = SimpleDocTemplate(
         output_path,
@@ -215,6 +335,8 @@ def generate_compliance_pdf(
     story.append(Spacer(1, 8))
 
     # Rule Table
+    story.append(Paragraph("Rule Validation Results", section_style))
+
     table_data = [[
         "STATUS",
         "RULE",
@@ -260,14 +382,23 @@ def generate_compliance_pdf(
 
     story.append(compliance_table)
 
+    # AI Explanation
+    story.extend(
+        build_ai_analysis_section(
+            auto_dcr_result=auto_dcr_result,
+            normal_style=normal_style,
+            section_style=section_style,
+        )
+    )
+
     # Building Details
     story.append(Paragraph("Building Details", section_style))
 
     building_rows = [
         ["BUILDING TYPE", application_data.get("buildingType", "Residential")],
         ["PLOT AREA", f"{plot_area} sq.m"],
-        ["NUMBER OF FLOORS", str(application_data.get("floors", 2))],
-        ["BUILDING HEIGHT", f"{application_data.get('height', 7.0)} m"],
+        ["NUMBER OF FLOORS", str(application_data.get("floors", measurements.get("floors", 2)))],
+        ["BUILDING HEIGHT", f"{application_data.get('height', measurements.get('height_m', 7.0))} m"],
         ["TOTAL BUILT-UP AREA", f"{builtup_area} sq.m"],
         ["BUILDING CLASSIFICATION", application_data.get("classification", "Non-High-Rise")],
     ]
@@ -394,7 +525,7 @@ def generate_compliance_pdf(
     story.append(Spacer(1, 20))
     story.append(Paragraph(
         f"Generated by VAASTU AI Auto-DCR Engine on {datetime.now().strftime('%d-%m-%Y %H:%M')}",
-        normal_style
+        normal_style,
     ))
 
     doc.build(story)

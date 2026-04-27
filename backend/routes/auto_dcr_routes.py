@@ -7,6 +7,7 @@ import uuid
 from ai.auto_dcr import run_auto_dcr_scrutiny
 from ai.compliance_pdf import generate_compliance_pdf
 from ai.cad_extractor import extract_dxf_measurements
+from ai.openai_scrutiny_service import generate_ai_scrutiny_explanation
 
 auto_dcr_bp = Blueprint("auto_dcr", __name__)
 
@@ -118,13 +119,11 @@ def ai_auto_dcr():
       500:
         description: Auto-DCR or PDF generation failed
     """
-    print("FILES:", request.files)
-    print("FORM:", request.form)
 
     if "file" not in request.files:
         return jsonify({
             "success": False,
-            "message": "Building plan file is required"
+            "message": "Building plan file is required",
         }), 400
 
     file = request.files["file"]
@@ -132,21 +131,31 @@ def ai_auto_dcr():
     if file.filename == "":
         return jsonify({
             "success": False,
-            "message": "No file selected"
+            "message": "No file selected",
         }), 400
 
     filename = secure_filename(file.filename)
     unique_filename = f"{uuid.uuid4()}_{filename}"
-    file_path = os.path.join(current_app.config["UPLOAD_FOLDER"], unique_filename)
 
+    upload_folder = current_app.config["UPLOAD_FOLDER"]
+    report_folder = current_app.config["REPORT_FOLDER"]
+
+    os.makedirs(upload_folder, exist_ok=True)
+    os.makedirs(report_folder, exist_ok=True)
+
+    file_path = os.path.join(upload_folder, unique_filename)
     file.save(file_path)
 
     submitted_data = request.form.to_dict()
     file_ext = os.path.splitext(filename)[1].lower()
 
+    cad_debug = {}
+    cad_measurements = None
+
     if file_ext == ".dxf":
         try:
             cad_measurements = extract_dxf_measurements(file_path)
+            cad_debug = cad_measurements.get("debug", {})
 
             floors = int(float(submitted_data.get("floors", 1)))
             builtup_area_ground = float(cad_measurements["builtupAreaGround"])
@@ -163,7 +172,7 @@ def ai_auto_dcr():
         except Exception as error:
             return jsonify({
                 "success": False,
-                "message": f"DXF extraction failed: {str(error)}"
+                "message": f"DXF extraction failed: {str(error)}",
             }), 400
 
     try:
@@ -171,17 +180,40 @@ def ai_auto_dcr():
     except ValueError as error:
         return jsonify({
             "success": False,
-            "message": str(error)
+            "message": str(error),
         }), 400
     except Exception as error:
         return jsonify({
             "success": False,
-            "message": f"Auto-DCR scrutiny failed: {str(error)}"
+            "message": f"Auto-DCR scrutiny failed: {str(error)}",
         }), 500
+
+    # ✅ OpenAI is used here
+    # OpenAI does NOT approve/reject. Auto-DCR already decided that.
+    # OpenAI only explains the result and correction steps.
+    try:
+        ai_analysis = generate_ai_scrutiny_explanation(
+            auto_dcr_result=result,
+            application_data=submitted_data,
+            cad_debug=cad_debug,
+        )
+
+        result["aiAnalysis"] = ai_analysis
+
+    except Exception as error:
+        result["aiAnalysis"] = {
+            "enabled": False,
+            "summary": f"OpenAI explanation failed: {str(error)}",
+            "riskLevel": "UNKNOWN",
+            "citizenMessage": "",
+            "officerNotes": [],
+            "correctionSteps": [],
+            "missingInputs": [],
+        }
 
     application_no = "AP-VAASTU-" + datetime.now().strftime("%Y%m%d%H%M%S")
     pdf_filename = f"{application_no}-Compliance-Report.pdf"
-    pdf_path = os.path.join(current_app.config["REPORT_FOLDER"], pdf_filename)
+    pdf_path = os.path.join(report_folder, pdf_filename)
 
     application_data = {
         "applicationNo": application_no,
@@ -195,22 +227,23 @@ def ai_auto_dcr():
         pdf_result = generate_compliance_pdf(
             output_path=pdf_path,
             auto_dcr_result=result,
-            application_data=application_data
+            application_data=application_data,
         )
     except Exception as error:
         return jsonify({
             "success": False,
-            "message": f"Compliance PDF generation failed: {str(error)}"
+            "message": f"Compliance PDF generation failed: {str(error)}",
         }), 500
 
     return jsonify({
         "success": True,
         "message": "AI Auto-DCR scrutiny completed",
         "filename": unique_filename,
+        "cadMeasurements": cad_measurements,
         "result": result,
         "pdf": {
             "applicationNo": pdf_result["applicationNo"],
             "status": pdf_result["status"],
-            "downloadUrl": f"/api/reports/{pdf_filename}"
-        }
+            "downloadUrl": f"/api/reports/{pdf_filename}",
+        },
     }), 200

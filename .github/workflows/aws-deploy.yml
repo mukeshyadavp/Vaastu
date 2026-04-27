@@ -1,0 +1,48 @@
+name: Deploy VAASTU to AWS Elastic Beanstalk
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Verify Dockerfile exists
+        run: |
+          ls -la
+          test -f Dockerfile
+
+      - name: Create deployment package
+        run: |
+          zip -r vaastu-deploy.zip . \
+            -x ".git/*" \
+            -x ".github/*" \
+            -x "node_modules/*" \
+            -x "backend/uploads/*" \
+            -x "backend/generated_reports/*" \
+            -x "backend/static/*" \
+            -x "*.log"
+
+      - name: Verify deployment package contains Dockerfile
+        run: |
+          unzip -l vaastu-deploy.zip | grep Dockerfile
+
+      - name: Deploy to Elastic Beanstalk
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: ${{ secrets.EB_APPLICATION_NAME }}
+          environment_name: ${{ secrets.EB_ENVIRONMENT_NAME }}
+          region: ${{ secrets.AWS_REGION }}
+          version_label: vaastu-${{ github.sha }}-${{ github.run_number }}-${{ github.run_attempt }}
+          deployment_package: vaastu-deploy.zip
+          wait_for_deployment: true

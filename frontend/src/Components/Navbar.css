@@ -316,6 +316,7 @@
   .menuItems {
     flex-wrap: wrap;
     gap: 10px;
+justify-content: center;
   }
 
   .applyBtn {
@@ -483,12 +484,23 @@
 }
 
 .nextBtn {
-  background: #2e7d32;
-  color: white;
+  background: #076426;
+  color: rgb(244, 247, 244);
   padding: 10px 20px;
   border: none;
   border-radius: 6px;
+
 }
+.previewBtn{  background: #e3e6e4;
+  color: rgb(24, 22, 22);
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+
 
 @media (max-width: 768px) {
   .plotWrapper {
@@ -895,4 +907,103 @@
   color: #2e7d32;
   margin-bottom: 5px;
   display: block;
+
+/* ===== STEP 5 CENTER LAYOUT ===== */
+.reviewCenterWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 0;
+}
+
+/* colorful card */
+.reviewColorCard {
+  width: 100%;
+  max-width: 1200px;   /* same feel as formPage */
+  text-align: left;    /* better for form review */
+  padding: 30px;
+  border-radius: 18px;
+
+  /* background: linear-gradient(135deg, #e8f5e9, #e3f2fd, #f3e5f5); */
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+
+  animation: fadeInUp 0.4s ease-in-out;
+}
+.previewModal {
+  width: 90%;
+  height: 95vh;
+  background: white;
+  border-radius: 10px;
+  padding: 10px;
+  position: relative;
+  overflow: hidden;
+}
+/* title */
+.reviewTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1b5e20;
+  margin-bottom: 10px;
+}
+
+/* text */
+.reviewText {
+  font-size: 15px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* warning box */
+.reviewNote {
+  background: #fff3cd;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  margin-bottom: 20px;
+  border: 1px solid #ffeeba;
+}
+
+.previewModal {
+  position: relative;
+  overflow: hidden;
+}
+
+/* 🔥 Close button inside preview */
+.previewCloseBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  /* background: rgba(0, 0, 0, 0.6); */
+  color: rgb(22, 21, 21);
+
+  border: none;
+  border-radius: 50%;
+
+  width: 35px;
+  height: 35px;
+
+  font-size: 18px;
+  font-weight: bold;
+
+  cursor: pointer;
+  z-index: 10;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+  /* background: red; */
+
+
+/* animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

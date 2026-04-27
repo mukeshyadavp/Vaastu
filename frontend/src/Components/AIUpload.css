@@ -18,18 +18,22 @@
 /* ===============================
    Upload Box
 ================================ */
+.upload-area-wrapper {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
 .upload-box {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-/* Hide default input */
 .file-label input {
   display: none;
 }
 
-/* Upload Card */
 .file-label {
   border: 2px dashed #cbd5f5;
   border-radius: 12px;
@@ -45,7 +49,6 @@
   background: #eff6ff;
 }
 
-/* Upload Content */
 .upload-content {
   display: flex;
   flex-direction: column;
@@ -91,37 +94,322 @@
 }
 
 .upload-btn:disabled {
-  opacity: 0.65;
+  opacity: 0.85;
   cursor: not-allowed;
 }
 
 /* ===============================
-   Progress
+   Small Transparent Popup Overlay
 ================================ */
-.progress-container {
-  margin-top: 15px;
-  text-align: center;
+.upload-loader-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.1);
+  backdrop-filter: blur(1px);
+  border-radius: 14px;
+  animation: overlayFadeIn 0.22s ease;
+  pointer-events: all;
 }
 
-.progress-container p {
-  margin: 8px 0 0;
-  font-size: 13px;
-  color: #64748b;
-  font-weight: 600;
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
-.progress-bar {
+/* ===============================
+   Real Floor Plan Popup Loader
+================================ */
+.floorplan-loader {
+  width: 142px;
+  height: 170px;
+  padding: 10px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(191, 219, 254, 0.95);
+  box-shadow:
+    0 20px 45px rgba(15, 23, 42, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.floorplan-card {
+  position: relative;
   width: 100%;
-  height: 8px;
-  background: #e5e7eb;
+  height: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(59, 130, 246, 0.22), transparent 32%),
+    linear-gradient(135deg, #eff6ff, #ffffff);
+  border: 1px solid #bfdbfe;
+}
+
+.floorplan-grid {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(37, 99, 235, 0.09) 1px, transparent 1px),
+    linear-gradient(rgba(37, 99, 235, 0.09) 1px, transparent 1px);
+  background-size: 10px 10px;
+}
+
+.floorplan-boundary {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 13px;
+  bottom: 13px;
+  border: 3px solid #111827;
   border-radius: 6px;
+  background: rgba(255, 255, 255, 0.36);
   overflow: hidden;
 }
 
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #2563eb, #3b82f6);
-  transition: width 0.3s ease;
+.floorplan-garden {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 23px;
+  background: linear-gradient(
+    135deg,
+    rgba(132, 204, 22, 0.35),
+    rgba(34, 197, 94, 0.35)
+  );
+  border-top: 2px solid rgba(34, 197, 94, 0.65);
+}
+
+.floorplan-room {
+  position: absolute;
+  border: 2px solid #1f2937;
+  background: rgba(255, 255, 255, 0.68);
+  border-radius: 3px;
+}
+
+.floorplan-room::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background:
+    linear-gradient(90deg, rgba(37, 99, 235, 0.07) 1px, transparent 1px),
+    linear-gradient(rgba(37, 99, 235, 0.07) 1px, transparent 1px);
+  background-size: 7px 7px;
+  border-radius: 2px;
+}
+
+.living {
+  left: 6px;
+  top: 7px;
+  width: 51px;
+  height: 36px;
+  background: rgba(254, 249, 195, 0.7);
+}
+
+.kitchen {
+  right: 6px;
+  top: 7px;
+  width: 34px;
+  height: 30px;
+  background: rgba(254, 243, 199, 0.75);
+}
+
+.bedroom-one {
+  left: 6px;
+  top: 49px;
+  width: 39px;
+  height: 35px;
+  background: rgba(253, 230, 138, 0.55);
+}
+
+.bedroom-two {
+  right: 6px;
+  top: 73px;
+  width: 34px;
+  height: 35px;
+  background: rgba(253, 230, 138, 0.55);
+}
+
+.toilet-one {
+  right: 6px;
+  top: 41px;
+  width: 24px;
+  height: 27px;
+  background: rgba(186, 230, 253, 0.65);
+}
+
+.toilet-two {
+  left: 48px;
+  top: 87px;
+  width: 25px;
+  height: 22px;
+  background: rgba(186, 230, 253, 0.65);
+}
+
+.lobby {
+  left: 48px;
+  top: 49px;
+  width: 29px;
+  height: 33px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.stairs {
+  left: 6px;
+  bottom: 27px;
+  width: 38px;
+  height: 22px;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(15, 23, 42, 0.18) 0,
+      rgba(15, 23, 42, 0.18) 2px,
+      rgba(255, 255, 255, 0.7) 2px,
+      rgba(255, 255, 255, 0.7) 5px
+    );
+}
+
+.floorplan-door {
+  position: absolute;
+  width: 9px;
+  height: 5px;
+  background: #ffffff;
+  border-left: 2px solid #2563eb;
+  border-right: 2px solid #2563eb;
+  z-index: 6;
+}
+
+.door-one {
+  left: 45px;
+  top: 42px;
+}
+
+.door-two {
+  right: 28px;
+  top: 68px;
+}
+
+.door-three {
+  left: 35px;
+  bottom: 49px;
+}
+
+.scan-target {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #22c55e;
+  border-radius: 5px;
+  z-index: 8;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+  opacity: 0;
+  animation: targetPulse 2.2s ease-in-out infinite;
+}
+
+.target-one {
+  left: 18px;
+  top: 18px;
+}
+
+.target-two {
+  right: 14px;
+  top: 45px;
+  animation-delay: 0.45s;
+}
+
+.target-three {
+  left: 50px;
+  top: 88px;
+  animation-delay: 0.9s;
+}
+
+.floorplan-scan-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -42px;
+  height: 42px;
+  background: linear-gradient(
+    180deg,
+    rgba(34, 197, 94, 0),
+    rgba(34, 197, 94, 0.12),
+    rgba(59, 130, 246, 0.24),
+    rgba(34, 197, 94, 0)
+  );
+  z-index: 10;
+  animation: floorplanBandMove 1.9s ease-in-out infinite;
+}
+
+.floorplan-scan-line {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 12px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #22c55e,
+    #3b82f6,
+    #22c55e,
+    transparent
+  );
+  box-shadow:
+    0 0 12px rgba(34, 197, 94, 0.75),
+    0 0 22px rgba(59, 130, 246, 0.45);
+  z-index: 11;
+  animation: floorplanLineMove 1.9s ease-in-out infinite;
+}
+
+@keyframes floorplanBandMove {
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(190px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes floorplanLineMove {
+  0% {
+    top: 14px;
+  }
+
+  50% {
+    top: 152px;
+  }
+
+  100% {
+    top: 14px;
+  }
+}
+
+@keyframes targetPulse {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+
+  45%,
+  65% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* ===============================
@@ -309,8 +597,35 @@
     font-size: 14px;
   }
 
-  .progress-container p {
-    font-size: 13px;
+  .floorplan-loader {
+    width: 124px;
+    height: 148px;
+    border-radius: 22px;
+  }
+
+  .floorplan-boundary {
+    left: 12px;
+    right: 12px;
+    top: 12px;
+    bottom: 12px;
+  }
+
+  .floorplan-scan-line {
+    animation-name: floorplanLineMoveMobile;
+  }
+
+  @keyframes floorplanLineMoveMobile {
+    0% {
+      top: 13px;
+    }
+
+    50% {
+      top: 130px;
+    }
+
+    100% {
+      top: 13px;
+    }
   }
 
   .result-card {

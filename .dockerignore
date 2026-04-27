@@ -1,0 +1,12 @@
+node_modules
+dist
+dist-ssr
+backend/static/*
+!backend/static/.gitkeep
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/generated_reports/*
+!backend/generated_reports/.gitkeep
+.git
+.env
+*.log
