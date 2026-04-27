@@ -1,15 +1,22 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   runAutoDcr,
   getReportDownloadUrl,
+  generateCadPreview,
   type AutoDcrViolation,
 } from "../Services/api";
+
+import GenericFileUpload from "./common/GenericFileUpload";
+import AutoDcrResultPanel from "./common/AutoDcrResultPanel";
+
 import "./AIUpload.css";
 
 type UploadResult = "success" | "failure" | "";
 
 const AIUpload = () => {
   const [file, setFile] = useState<File | null>(null);
+  const [filePreviewUrl, setFilePreviewUrl] = useState("");
+
   const [result, setResult] = useState<UploadResult>("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,13 +27,16 @@ const AIUpload = () => {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const resetFileInput = () => {
-    setFile(null);
+  useEffect(() => {
+    return () => {
+      if (filePreviewUrl && filePreviewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(filePreviewUrl);
+      }
+    };
+  }, [filePreviewUrl]);
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
+  const wait = (ms: number) =>
+    new Promise((resolve) => window.setTimeout(resolve, ms));
 
   const resetResult = () => {
     setResult("");
@@ -34,6 +44,47 @@ const AIUpload = () => {
     setPdfUrl("");
     setApplicationNo("");
     setViolations([]);
+  };
+
+  const isImageFile = (selectedFile: File) => {
+    return selectedFile.type.startsWith("image/");
+  };
+
+  const isPdfFile = (selectedFile: File) => {
+    return selectedFile.type.includes("pdf");
+  };
+
+  const isDxfFile = (selectedFile: File) => {
+    return selectedFile.name.toLowerCase().endsWith(".dxf");
+  };
+
+  const handleFileChange = async (selectedFile: File) => {
+    setFile(selectedFile);
+
+    if (filePreviewUrl && filePreviewUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(filePreviewUrl);
+    }
+
+    resetResult();
+
+    if (isImageFile(selectedFile) || isPdfFile(selectedFile)) {
+      setFilePreviewUrl(URL.createObjectURL(selectedFile));
+      return;
+    }
+
+    if (isDxfFile(selectedFile)) {
+      try {
+        const previewUrl = await generateCadPreview(selectedFile);
+        setFilePreviewUrl(getReportDownloadUrl(previewUrl));
+        return;
+      } catch (error) {
+        console.error("CAD preview failed:", error);
+        setFilePreviewUrl("");
+        return;
+      }
+    }
+
+    setFilePreviewUrl("");
   };
 
   const handleUpload = async () => {
@@ -52,6 +103,8 @@ const AIUpload = () => {
     setLoading(true);
     resetResult();
 
+    const loaderStartTime = Date.now();
+
     try {
       const data = await runAutoDcr(file, {
         buildingType: "Residential",
@@ -60,6 +113,10 @@ const AIUpload = () => {
         classification: "Non-High-Rise",
       });
 
+      const elapsedTime = Date.now() - loaderStartTime;
+      const remainingTime = Math.max(0, 5000 - elapsedTime);
+
+      await wait(remainingTime);
 
       const isCompliant = data.result.isCompliant;
 
@@ -74,13 +131,14 @@ const AIUpload = () => {
       setPdfUrl(data.pdf.downloadUrl);
       setApplicationNo(data.pdf.applicationNo);
       setViolations(data.result.violations || []);
-
-      setTimeout(() => {
-        resetFileInput();
-      }, 1500);
     } catch (error) {
+      const elapsedTime = Date.now() - loaderStartTime;
+      const remainingTime = Math.max(0, 5000 - elapsedTime);
+
+      await wait(remainingTime);
 
       setResult("failure");
+
       setMessage(
         error instanceof Error
           ? error.message
@@ -114,136 +172,38 @@ const AIUpload = () => {
     document.body.removeChild(link);
   };
 
+  const shouldShowResultPanel =
+    !loading && (result !== "" || violations.length > 0);
+
   return (
-    <div className="upload-section">
-      <h2>AI-Assisted Automated Scrutiny</h2>
+    <>
+      <GenericFileUpload
+        title="AI-Assisted Automated Scrutiny"
+        file={file}
+        filePreviewUrl={filePreviewUrl}
+        loading={loading}
+        disabled={loading}
+        inputRef={fileInputRef}
+        buttonText="Run AI Scrutiny"
+        loadingButtonText="AI Scanning..."
+        onFileChange={handleFileChange}
+        onRun={handleUpload}
+      />
 
-      <div className="upload-area-wrapper">
-        <div className="upload-box">
-          <label className="file-label">
-            <input
-              type="file"
-              accept=".pdf,.dwg,.dxf,.png,.jpg,.jpeg"
-              ref={fileInputRef}
-              disabled={loading}
-              onChange={(e) => {
-                const selectedFile = e.target.files?.[0];
-
-                if (selectedFile) {
-                  setFile(selectedFile);
-                  resetResult();
-                }
-              }}
-            />
-
-            <div className="upload-content">
-              <p className="upload-icon">📄</p>
-
-              <p className="upload-text">
-                {file ? file.name : "Click to upload or drag & drop"}
-              </p>
-
-              <span className="upload-subtext">
-                CAD / PDF / Drawing File (Max 20MB)
-              </span>
-            </div>
-          </label>
-
-          <button
-            type="button"
-            className="upload-btn"
-            onClick={handleUpload}
-            disabled={loading}
-          >
-            {loading ? "AI Scanning..." : "Run AI Scrutiny"}
-          </button>
-        </div>
-
-        {loading && (
-          <div className="upload-loader-overlay">
-            <div className="floorplan-loader">
-              <div className="floorplan-card">
-                <div className="floorplan-grid"></div>
-
-                <div className="floorplan-boundary">
-                  <div className="floorplan-garden"></div>
-
-                  <div className="floorplan-room living"></div>
-                  <div className="floorplan-room kitchen"></div>
-                  <div className="floorplan-room bedroom-one"></div>
-                  <div className="floorplan-room bedroom-two"></div>
-                  <div className="floorplan-room toilet-one"></div>
-                  <div className="floorplan-room toilet-two"></div>
-                  <div className="floorplan-room lobby"></div>
-                  <div className="floorplan-room stairs"></div>
-
-                  <div className="floorplan-door door-one"></div>
-                  <div className="floorplan-door door-two"></div>
-                  <div className="floorplan-door door-three"></div>
-
-                  <span className="scan-target target-one"></span>
-                  <span className="scan-target target-two"></span>
-                  <span className="scan-target target-three"></span>
-                </div>
-
-                <div className="floorplan-scan-band"></div>
-                <div className="floorplan-scan-line"></div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {!loading && result !== "" && (
-        <div className={`result-card ${result}`}>
-          <div className="result-left">
-            <div className={`result-icon ${result}`}>
-              {result === "success" ? "✔" : "✖"}
-            </div>
-
-            <div>
-              <h3 className="result-title">
-                {result === "success" ? "Plan Approved" : "Plan Rejected"}
-              </h3>
-
-              <p className="result-message">{message}</p>
-
-              {applicationNo && (
-                <p className="application-no">
-                  Application No: <strong>{applicationNo}</strong>
-                </p>
-              )}
-            </div>
-          </div>
-
-          {pdfUrl && (
-            <button
-              type="button"
-              className="download-btn"
-              onClick={handleDownload}
-            >
-              ⬇ Download Compliance PDF
-            </button>
-          )}
-        </div>
+      {shouldShowResultPanel && (
+        <AutoDcrResultPanel
+          loading={false}
+          result={result}
+          message={message}
+          applicationNo={applicationNo}
+          pdfUrl={pdfUrl}
+          violations={violations}
+          file={file}
+          filePreviewUrl={filePreviewUrl}
+          onDownload={handleDownload}
+        />
       )}
-
-      {!loading && violations.length > 0 && (
-        <div className="violation-list">
-          <h3>Compliance Violations</h3>
-
-          {violations.map((item, index) => (
-            <div className="violation-item" key={`${item.rule}-${index}`}>
-              <strong>{item.rule}</strong>
-              <p>{item.message}</p>
-              <span>
-                Required: {item.required} | Found: {item.found}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+    </>
   );
 };
 

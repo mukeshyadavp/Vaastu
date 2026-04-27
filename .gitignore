@@ -52,6 +52,8 @@ lerna-lock.yaml
 *.njsproj
 *.sln
 *.sw?
+backend/generated_previews/*
+!backend/generated_previews/.gitkeep
 
 backend/generated_reports/*
 !backend/generated_reports/.gitkeep

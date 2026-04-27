@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { apiPost, getReportDownloadUrl, runAutoDcr } from "../../../../Services/api";
+import {
+  apiPost,
+  getReportDownloadUrl,
+  runAutoDcr,
+  generateCadPreview,
+} from "../../../../Services/api";
 
 type UseBuildingPermissionFormProps = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -39,6 +44,8 @@ export const useBuildingPermissionForm = ({
   const [showFilePreview, setShowFilePreview] = useState(false);
 
   const [loading, setLoading] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
+
   const [pdfUrl, setPdfUrl] = useState("");
   const [applicationNo, setApplicationNo] = useState("");
   const [aiResult, setAiResult] = useState<"success" | "failure" | "">("");
@@ -47,7 +54,7 @@ export const useBuildingPermissionForm = ({
 
   useEffect(() => {
     return () => {
-      if (filePreviewUrl) {
+      if (filePreviewUrl && filePreviewUrl.startsWith("blob:")) {
         URL.revokeObjectURL(filePreviewUrl);
       }
     };
@@ -59,6 +66,18 @@ export const useBuildingPermissionForm = ({
     setAiResult("");
     setMessage("");
     setViolations([]);
+  };
+
+  const isImageFile = (selectedFile: File) => {
+    return selectedFile.type.startsWith("image/");
+  };
+
+  const isPdfFile = (selectedFile: File) => {
+    return selectedFile.type.includes("pdf");
+  };
+
+  const isDxfFile = (selectedFile: File) => {
+    return selectedFile.name.toLowerCase().endsWith(".dxf");
   };
 
   const searchMapLocation = async () => {
@@ -107,6 +126,41 @@ export const useBuildingPermissionForm = ({
     const response = await apiPost("/api/applications", newData);
 
     return response;
+  };
+
+  const handleFileChange = async (selectedFile: File) => {
+    setFile(selectedFile);
+    resetResult();
+
+    if (filePreviewUrl && filePreviewUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(filePreviewUrl);
+    }
+
+    setFilePreviewUrl("");
+
+    if (isImageFile(selectedFile) || isPdfFile(selectedFile)) {
+      setFilePreviewUrl(URL.createObjectURL(selectedFile));
+      return;
+    }
+
+    if (isDxfFile(selectedFile)) {
+      try {
+        setPreviewLoading(true);
+
+        const previewUrl = await generateCadPreview(selectedFile);
+
+        setFilePreviewUrl(getReportDownloadUrl(previewUrl));
+      } catch (error) {
+        console.error("CAD preview failed:", error);
+        setFilePreviewUrl("");
+      } finally {
+        setPreviewLoading(false);
+      }
+
+      return;
+    }
+
+    setFilePreviewUrl("");
   };
 
   const submitAndRunAutoDcr = async () => {
@@ -196,17 +250,6 @@ export const useBuildingPermissionForm = ({
     document.body.removeChild(link);
   };
 
-  const handleFileChange = (selectedFile: File) => {
-    setFile(selectedFile);
-
-    if (filePreviewUrl) {
-      URL.revokeObjectURL(filePreviewUrl);
-    }
-
-    setFilePreviewUrl(URL.createObjectURL(selectedFile));
-    resetResult();
-  };
-
   const resetWizard = () => {
     setStep(1);
 
@@ -228,8 +271,16 @@ export const useBuildingPermissionForm = ({
     setUsage("");
 
     setFile(null);
+
+    if (filePreviewUrl && filePreviewUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(filePreviewUrl);
+    }
+
     setFilePreviewUrl("");
     setShowFilePreview(false);
+
+    setLoading(false);
+    setPreviewLoading(false);
 
     resetResult();
 
@@ -300,6 +351,8 @@ export const useBuildingPermissionForm = ({
     setShowFilePreview,
 
     loading,
+    previewLoading,
+
     pdfUrl,
     applicationNo,
     aiResult,
