@@ -14,6 +14,7 @@ const ResultStep: React.FC<Props> = ({ form }) => {
       applicationNo={form.applicationNo}
       pdfUrl={form.pdfUrl}
       violations={form.violations}
+      complianceChecks={form.complianceChecks}
       file={form.file}
       filePreviewUrl={form.filePreviewUrl}
       onDownload={form.downloadReport}

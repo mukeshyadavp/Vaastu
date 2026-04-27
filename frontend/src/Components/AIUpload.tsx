@@ -4,6 +4,7 @@ import {
   getReportDownloadUrl,
   generateCadPreview,
   type AutoDcrViolation,
+  type AutoDcrCheck,
 } from "../Services/api";
 
 import GenericFileUpload from "./common/GenericFileUpload";
@@ -24,6 +25,7 @@ const AIUpload = () => {
   const [pdfUrl, setPdfUrl] = useState("");
   const [applicationNo, setApplicationNo] = useState("");
   const [violations, setViolations] = useState<AutoDcrViolation[]>([]);
+  const [complianceChecks, setComplianceChecks] = useState<AutoDcrCheck[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -44,6 +46,7 @@ const AIUpload = () => {
     setPdfUrl("");
     setApplicationNo("");
     setViolations([]);
+    setComplianceChecks([]);
   };
 
   const isImageFile = (selectedFile: File) => {
@@ -131,6 +134,7 @@ const AIUpload = () => {
       setPdfUrl(data.pdf.downloadUrl);
       setApplicationNo(data.pdf.applicationNo);
       setViolations(data.result.violations || []);
+      setComplianceChecks(data.result.checks || []);
     } catch (error) {
       const elapsedTime = Date.now() - loaderStartTime;
       const remainingTime = Math.max(0, 5000 - elapsedTime);
@@ -148,6 +152,7 @@ const AIUpload = () => {
       setPdfUrl("");
       setApplicationNo("");
       setViolations([]);
+      setComplianceChecks([]);
     } finally {
       setLoading(false);
     }
@@ -173,7 +178,7 @@ const AIUpload = () => {
   };
 
   const shouldShowResultPanel =
-    !loading && (result !== "" || violations.length > 0);
+    !loading && (result !== "" || violations.length > 0 || complianceChecks.length > 0);
 
   return (
     <>
@@ -198,6 +203,7 @@ const AIUpload = () => {
           applicationNo={applicationNo}
           pdfUrl={pdfUrl}
           violations={violations}
+          complianceChecks={complianceChecks}
           file={file}
           filePreviewUrl={filePreviewUrl}
           onDownload={handleDownload}

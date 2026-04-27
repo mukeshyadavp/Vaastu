@@ -10,18 +10,34 @@ export type AutoDcrViolationItem = {
   found: string | number;
 };
 
+export type AutoDcrComplianceItem = {
+  rule: string;
+  status: "PASSED" | "FAILED";
+  submitted: number;
+  required: number;
+  unit: string;
+  reference: string;
+  message: string;
+  suggestion?: string;
+};
+
 type AutoDcrResultPanelProps = {
   loading: boolean;
   result: AutoDcrResultStatus;
   message: string;
   applicationNo?: string;
   pdfUrl?: string;
+
   violations?: AutoDcrViolationItem[];
+  complianceChecks?: AutoDcrComplianceItem[];
+
   file: File | null;
   filePreviewUrl: string;
+
   onDownload?: () => void;
   onBack?: () => void;
   onFinish?: () => void;
+
   showBackButton?: boolean;
   showFinishButton?: boolean;
 };
@@ -33,6 +49,7 @@ const AutoDcrResultPanel: React.FC<AutoDcrResultPanelProps> = ({
   applicationNo,
   pdfUrl,
   violations = [],
+  complianceChecks = [],
   file,
   filePreviewUrl,
   onDownload,
@@ -41,6 +58,10 @@ const AutoDcrResultPanel: React.FC<AutoDcrResultPanelProps> = ({
   showBackButton = false,
   showFinishButton = false,
 }) => {
+  const passedChecks = complianceChecks.filter(
+    (item) => item.status === "PASSED"
+  );
+
   return (
     <>
       <div className="result-wrapper">
@@ -88,7 +109,40 @@ const AutoDcrResultPanel: React.FC<AutoDcrResultPanelProps> = ({
           </div>
         )}
 
-        {!loading && violations.length > 0 && (
+        {!loading && result === "success" && (
+          <div className="compliance-list">
+            <h3>Compliance Checks Passed</h3>
+
+            {passedChecks.length > 0 ? (
+              passedChecks.map((item, index) => (
+                <div className="compliance-item" key={`${item.rule}-${index}`}>
+                  <strong>{item.rule}</strong>
+
+                  <p>{item.message}</p>
+
+                  <span>
+                    Submitted: {item.submitted} {item.unit} | Required:{" "}
+                    {item.required} {item.unit}
+                  </span>
+
+                  {item.reference && (
+                    <small>Reference: {item.reference}</small>
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className="compliance-item">
+                <strong>All Rules Passed</strong>
+                <p>
+                  The uploaded plan satisfies the configured Auto-DCR compliance
+                  checks.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {!loading && result === "failure" && violations.length > 0 && (
           <div className="violation-list">
             <h3>Compliance Violations</h3>
 

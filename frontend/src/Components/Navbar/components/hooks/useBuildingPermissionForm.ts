@@ -4,6 +4,7 @@ import {
   getReportDownloadUrl,
   runAutoDcr,
   generateCadPreview,
+  type AutoDcrCheck,
 } from "../../../../Services/api";
 
 type UseBuildingPermissionFormProps = {
@@ -51,6 +52,7 @@ export const useBuildingPermissionForm = ({
   const [aiResult, setAiResult] = useState<"success" | "failure" | "">("");
   const [message, setMessage] = useState("");
   const [violations, setViolations] = useState<any[]>([]);
+  const [complianceChecks, setComplianceChecks] = useState<AutoDcrCheck[]>([]);
 
   useEffect(() => {
     return () => {
@@ -66,6 +68,7 @@ export const useBuildingPermissionForm = ({
     setAiResult("");
     setMessage("");
     setViolations([]);
+    setComplianceChecks([]);
   };
 
   const isImageFile = (selectedFile: File) => {
@@ -204,6 +207,7 @@ export const useBuildingPermissionForm = ({
       setPdfUrl(data.pdf.downloadUrl);
       setApplicationNo(data.pdf.applicationNo);
       setViolations(data.result.violations || []);
+      setComplianceChecks(data.result.checks || []);
 
       fetchApplications();
 
@@ -225,6 +229,7 @@ export const useBuildingPermissionForm = ({
       setPdfUrl("");
       setApplicationNo("");
       setViolations([]);
+      setComplianceChecks([]);
     } finally {
       setLoading(false);
     }
@@ -358,6 +363,7 @@ export const useBuildingPermissionForm = ({
     aiResult,
     message,
     violations,
+    complianceChecks,
 
     searchMapLocation,
     submitAndRunAutoDcr,
