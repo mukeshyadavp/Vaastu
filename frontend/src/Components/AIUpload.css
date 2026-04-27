@@ -126,14 +126,14 @@
 }
 
 /* ===============================
-   Improved AI Building Plan Loader
+   Real Floor Plan Popup Loader
 ================================ */
-.ai-plan-loader {
-  width: 138px;
-  height: 138px;
+.floorplan-loader {
+  width: 142px;
+  height: 170px;
   padding: 10px;
-  border-radius: 26px;
-  background: rgba(255, 255, 255, 0.86);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.88);
   border: 1px solid rgba(191, 219, 254, 0.95);
   box-shadow:
     0 20px 45px rgba(15, 23, 42, 0.22),
@@ -141,242 +141,217 @@
   backdrop-filter: blur(10px);
 }
 
-.ai-plan-card {
+.floorplan-card {
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 20px;
+  border-radius: 18px;
   overflow: hidden;
   background:
-    radial-gradient(circle at 20% 18%, rgba(59, 130, 246, 0.28), transparent 32%),
-    radial-gradient(circle at 80% 80%, rgba(34, 197, 94, 0.18), transparent 28%),
+    radial-gradient(circle at 22% 18%, rgba(59, 130, 246, 0.22), transparent 32%),
     linear-gradient(135deg, #eff6ff, #ffffff);
   border: 1px solid #bfdbfe;
 }
 
-.plan-bg-grid {
+.floorplan-grid {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(37, 99, 235, 0.11) 1px, transparent 1px),
-    linear-gradient(rgba(37, 99, 235, 0.11) 1px, transparent 1px);
-  background-size: 11px 11px;
+    linear-gradient(90deg, rgba(37, 99, 235, 0.09) 1px, transparent 1px),
+    linear-gradient(rgba(37, 99, 235, 0.09) 1px, transparent 1px);
+  background-size: 10px 10px;
 }
 
-.plan-plot {
+.floorplan-boundary {
   position: absolute;
-  inset: 15px;
-  border: 2px solid #2563eb;
-  border-radius: 12px;
-  box-shadow:
-    inset 0 0 14px rgba(37, 99, 235, 0.12),
-    0 0 0 1px rgba(37, 99, 235, 0.08);
+  left: 14px;
+  right: 14px;
+  top: 13px;
+  bottom: 13px;
+  border: 3px solid #111827;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.36);
+  overflow: hidden;
 }
 
-.plan-house {
+.floorplan-garden {
   position: absolute;
-  left: 23px;
-  top: 24px;
-  width: 58px;
-  height: 52px;
-  border: 2px solid #0f172a;
-  border-radius: 7px;
-  background: rgba(255, 255, 255, 0.55);
-  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.04);
-}
-
-.plan-room {
-  position: absolute;
-  border: 1px solid #1d4ed8;
-  background: rgba(37, 99, 235, 0.07);
-}
-
-.room-top-left {
-  left: 5px;
-  top: 5px;
-  width: 20px;
-  height: 17px;
-}
-
-.room-top-right {
-  right: 5px;
-  top: 5px;
-  width: 20px;
-  height: 17px;
-}
-
-.room-bottom-left {
-  left: 5px;
-  bottom: 5px;
-  width: 20px;
-  height: 18px;
-}
-
-.room-bottom-right {
-  right: 5px;
-  bottom: 5px;
-  width: 20px;
-  height: 18px;
-}
-
-.plan-wall {
-  position: absolute;
-  background: #0f172a;
-  border-radius: 999px;
-}
-
-.wall-center-v {
-  left: 28px;
-  top: 0;
-  width: 2px;
-  height: 52px;
-}
-
-.wall-center-h {
   left: 0;
-  top: 25px;
-  width: 58px;
-  height: 2px;
+  right: 0;
+  bottom: 0;
+  height: 23px;
+  background: linear-gradient(
+    135deg,
+    rgba(132, 204, 22, 0.35),
+    rgba(34, 197, 94, 0.35)
+  );
+  border-top: 2px solid rgba(34, 197, 94, 0.65);
 }
 
-.plan-door {
+.floorplan-room {
   position: absolute;
-  left: 24px;
-  bottom: -2px;
-  width: 10px;
+  border: 2px solid #1f2937;
+  background: rgba(255, 255, 255, 0.68);
+  border-radius: 3px;
+}
+
+.floorplan-room::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background:
+    linear-gradient(90deg, rgba(37, 99, 235, 0.07) 1px, transparent 1px),
+    linear-gradient(rgba(37, 99, 235, 0.07) 1px, transparent 1px);
+  background-size: 7px 7px;
+  border-radius: 2px;
+}
+
+.living {
+  left: 6px;
+  top: 7px;
+  width: 51px;
+  height: 36px;
+  background: rgba(254, 249, 195, 0.7);
+}
+
+.kitchen {
+  right: 6px;
+  top: 7px;
+  width: 34px;
+  height: 30px;
+  background: rgba(254, 243, 199, 0.75);
+}
+
+.bedroom-one {
+  left: 6px;
+  top: 49px;
+  width: 39px;
+  height: 35px;
+  background: rgba(253, 230, 138, 0.55);
+}
+
+.bedroom-two {
+  right: 6px;
+  top: 73px;
+  width: 34px;
+  height: 35px;
+  background: rgba(253, 230, 138, 0.55);
+}
+
+.toilet-one {
+  right: 6px;
+  top: 41px;
+  width: 24px;
+  height: 27px;
+  background: rgba(186, 230, 253, 0.65);
+}
+
+.toilet-two {
+  left: 48px;
+  top: 87px;
+  width: 25px;
+  height: 22px;
+  background: rgba(186, 230, 253, 0.65);
+}
+
+.lobby {
+  left: 48px;
+  top: 49px;
+  width: 29px;
+  height: 33px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.stairs {
+  left: 6px;
+  bottom: 27px;
+  width: 38px;
+  height: 22px;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(15, 23, 42, 0.18) 0,
+      rgba(15, 23, 42, 0.18) 2px,
+      rgba(255, 255, 255, 0.7) 2px,
+      rgba(255, 255, 255, 0.7) 5px
+    );
+}
+
+.floorplan-door {
+  position: absolute;
+  width: 9px;
   height: 5px;
   background: #ffffff;
   border-left: 2px solid #2563eb;
   border-right: 2px solid #2563eb;
-  z-index: 3;
+  z-index: 6;
 }
 
-/* ===============================
-   Setback Dimension Lines
-================================ */
-.setback-line {
+.door-one {
+  left: 45px;
+  top: 42px;
+}
+
+.door-two {
+  right: 28px;
+  top: 68px;
+}
+
+.door-three {
+  left: 35px;
+  bottom: 49px;
+}
+
+.scan-target {
   position: absolute;
-  background: #22c55e;
-  opacity: 0.75;
-  border-radius: 999px;
-  animation: dimensionPulse 1.8s ease-in-out infinite;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #22c55e;
+  border-radius: 5px;
+  z-index: 8;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+  opacity: 0;
+  animation: targetPulse 2.2s ease-in-out infinite;
 }
 
-.setback-top {
-  left: 25px;
-  right: 25px;
-  top: 10px;
-  height: 2px;
+.target-one {
+  left: 18px;
+  top: 18px;
 }
 
-.setback-bottom {
-  left: 25px;
-  right: 25px;
-  bottom: 10px;
-  height: 2px;
-  animation-delay: 0.25s;
-}
-
-.setback-left {
-  top: 25px;
-  bottom: 25px;
-  left: 10px;
-  width: 2px;
+.target-two {
+  right: 14px;
+  top: 45px;
   animation-delay: 0.45s;
 }
 
-.setback-right {
-  top: 25px;
-  bottom: 25px;
-  right: 10px;
-  width: 2px;
-  animation-delay: 0.65s;
-}
-
-/* ===============================
-   AI Detection Nodes
-================================ */
-.ai-node {
-  position: absolute;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #22c55e;
-  box-shadow:
-    0 0 0 4px rgba(34, 197, 94, 0.16),
-    0 0 14px rgba(34, 197, 94, 0.75);
-  z-index: 5;
-  animation: nodeBlink 1.6s ease-in-out infinite;
-}
-
-.node-1 {
-  left: 23px;
-  top: 23px;
-}
-
-.node-2 {
-  right: 23px;
-  top: 23px;
-  animation-delay: 0.25s;
-}
-
-.node-3 {
-  left: 23px;
-  bottom: 23px;
-  animation-delay: 0.5s;
-}
-
-.node-4 {
-  right: 23px;
-  bottom: 23px;
-  animation-delay: 0.75s;
-}
-
-/* ===============================
-   AI Scan Ring
-================================ */
-.ai-scan-ring {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 34px;
-  height: 34px;
-  border: 2px solid rgba(59, 130, 246, 0.75);
-  border-radius: 50%;
-  transform: translate(-50%, -50%) scale(0.4);
-  opacity: 0;
-  z-index: 4;
-  animation: scanRing 2s ease-out infinite;
-}
-
-.ring-2 {
+.target-three {
+  left: 50px;
+  top: 88px;
   animation-delay: 0.9s;
 }
 
-/* ===============================
-   Scan Beam
-================================ */
-.ai-scan-beam {
+.floorplan-scan-band {
   position: absolute;
   left: 0;
   right: 0;
-  top: -38px;
-  height: 38px;
+  top: -42px;
+  height: 42px;
   background: linear-gradient(
     180deg,
     rgba(34, 197, 94, 0),
-    rgba(34, 197, 94, 0.14),
-    rgba(59, 130, 246, 0.25),
+    rgba(34, 197, 94, 0.12),
+    rgba(59, 130, 246, 0.24),
     rgba(34, 197, 94, 0)
   );
-  z-index: 6;
-  animation: aiBeamMove 1.85s ease-in-out infinite;
+  z-index: 10;
+  animation: floorplanBandMove 1.9s ease-in-out infinite;
 }
 
-.ai-scan-line {
+.floorplan-scan-line {
   position: absolute;
-  left: 11px;
-  right: 11px;
+  left: 10px;
+  right: 10px;
   top: 12px;
   height: 2px;
   border-radius: 999px;
@@ -391,17 +366,17 @@
   box-shadow:
     0 0 12px rgba(34, 197, 94, 0.75),
     0 0 22px rgba(59, 130, 246, 0.45);
-  z-index: 7;
-  animation: aiLineMove 1.85s ease-in-out infinite;
+  z-index: 11;
+  animation: floorplanLineMove 1.9s ease-in-out infinite;
 }
 
-@keyframes aiBeamMove {
+@keyframes floorplanBandMove {
   0% {
     transform: translateY(0);
   }
 
   50% {
-    transform: translateY(150px);
+    transform: translateY(190px);
   }
 
   100% {
@@ -409,13 +384,13 @@
   }
 }
 
-@keyframes aiLineMove {
+@keyframes floorplanLineMove {
   0% {
     top: 14px;
   }
 
   50% {
-    top: 114px;
+    top: 152px;
   }
 
   100% {
@@ -423,44 +398,17 @@
   }
 }
 
-@keyframes scanRing {
-  0% {
-    opacity: 0.65;
-    transform: translate(-50%, -50%) scale(0.4);
-  }
-
-  80% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(2.35);
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(2.35);
-  }
-}
-
-@keyframes nodeBlink {
+@keyframes targetPulse {
   0%,
   100% {
-    opacity: 0.45;
-    transform: scale(0.88);
+    opacity: 0;
+    transform: scale(0.85);
   }
 
-  50% {
+  45%,
+  65% {
     opacity: 1;
-    transform: scale(1.08);
-  }
-}
-
-@keyframes dimensionPulse {
-  0%,
-  100% {
-    opacity: 0.35;
-  }
-
-  50% {
-    opacity: 1;
+    transform: scale(1);
   }
 }
 
@@ -649,30 +597,30 @@
     font-size: 14px;
   }
 
-  .ai-plan-loader {
-    width: 118px;
-    height: 118px;
+  .floorplan-loader {
+    width: 124px;
+    height: 148px;
     border-radius: 22px;
   }
 
-  .plan-house {
-    left: 19px;
-    top: 22px;
-    transform: scale(0.9);
-    transform-origin: top left;
+  .floorplan-boundary {
+    left: 12px;
+    right: 12px;
+    top: 12px;
+    bottom: 12px;
   }
 
-  .ai-scan-line {
-    animation-name: aiLineMoveMobile;
+  .floorplan-scan-line {
+    animation-name: floorplanLineMoveMobile;
   }
 
-  @keyframes aiLineMoveMobile {
+  @keyframes floorplanLineMoveMobile {
     0% {
       top: 13px;
     }
 
     50% {
-      top: 98px;
+      top: 130px;
     }
 
     100% {
