@@ -24,6 +24,10 @@ async function handleResponse<T>(
   return response.json();
 }
 
+/* ===============================
+   Basic API Helpers
+================================ */
+
 export async function apiGet<T>(endpoint: string): Promise<T> {
   const response = await fetch(apiUrl(endpoint));
   return handleResponse<T>(response, "API GET request failed");
@@ -44,12 +48,29 @@ export async function apiPost<T>(
   return handleResponse<T>(response, "API POST request failed");
 }
 
-export async function apiPut<T>(endpoint: string): Promise<T> {
+export async function apiPut<T>(
+  endpoint: string,
+  data?: unknown
+): Promise<T> {
   const response = await fetch(apiUrl(endpoint), {
     method: "PUT",
+    headers: data
+      ? {
+          "Content-Type": "application/json",
+        }
+      : undefined,
+    body: data ? JSON.stringify(data) : undefined,
   });
 
   return handleResponse<T>(response, "API PUT request failed");
+}
+
+export async function apiDelete<T>(endpoint: string): Promise<T> {
+  const response = await fetch(apiUrl(endpoint), {
+    method: "DELETE",
+  });
+
+  return handleResponse<T>(response, "API DELETE request failed");
 }
 
 export async function uploadFile<T>(file: File): Promise<T> {
@@ -65,13 +86,47 @@ export async function uploadFile<T>(file: File): Promise<T> {
 }
 
 /* ===============================
+   Applications Types
+================================ */
+
+export type ApplicationItem = {
+  id: number;
+  applicantName: string;
+  status: string;
+  location: string;
+  plotSize: string;
+  latitude?: number | null;
+  longitude?: number | null;
+};
+
+export type ApplicationPayload = {
+  applicantName: string;
+  location: string;
+  plotSize: string;
+  status?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+};
+
+export type ApplicationResponse = {
+  success: boolean;
+  message?: string;
+  data: ApplicationItem;
+};
+
+export type ApplicationsListResponse = {
+  success: boolean;
+  data: ApplicationItem[];
+};
+
+/* ===============================
    AI Auto-DCR Types
 ================================ */
 
 export type AutoDcrViolation = {
   rule: string;
-  required: string;
-  found: string;
+  required: string | number;
+  found: string | number;
   message: string;
   suggestion?: string;
   reference?: string;
@@ -106,6 +161,17 @@ export type AutoDcrResult = {
   applicationDetails?: {
     buildingType: string;
     classification: string;
+  };
+  aiAnalysis?: {
+    enabled: boolean;
+    provider?: string;
+    model?: string;
+    summary: string;
+    riskLevel: "LOW" | "MEDIUM" | "HIGH" | "UNKNOWN";
+    citizenMessage: string;
+    officerNotes: string[];
+    correctionSteps: string[];
+    missingInputs: string[];
   };
 };
 
@@ -242,6 +308,33 @@ export function runAutoDcr(
 }
 
 /* ===============================
+   CAD Preview
+================================ */
+
+export type CadPreviewResponse = {
+  success: boolean;
+  previewUrl: string;
+  message?: string;
+};
+
+export async function generateCadPreview(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(apiUrl("/api/cad/preview"), {
+    method: "POST",
+    body: formData,
+  });
+
+  const data = await handleResponse<CadPreviewResponse>(
+    response,
+    "CAD preview failed"
+  );
+
+  return data.previewUrl;
+}
+
+/* ===============================
    Satellite AI
 ================================ */
 
@@ -324,5 +417,11 @@ export async function validateGpsLocation(
 ================================ */
 
 export function getReportDownloadUrl(downloadUrl: string) {
+  if (!downloadUrl) return "";
+
+  if (downloadUrl.startsWith("http://") || downloadUrl.startsWith("https://")) {
+    return downloadUrl;
+  }
+
   return apiUrl(downloadUrl);
 }

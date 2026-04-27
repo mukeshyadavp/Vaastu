@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { apiPost, getReportDownloadUrl, runAutoDcr } from "../../../../Services/api";
+import {
+  apiPost,
+  getReportDownloadUrl,
+  runAutoDcr,
+  generateCadPreview,
+  type AutoDcrCheck,
+} from "../../../../Services/api";
 
 type UseBuildingPermissionFormProps = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -40,15 +46,18 @@ export const useBuildingPermissionForm = ({
   const [showFilePreview, setShowFilePreview] = useState(false);
 
   const [loading, setLoading] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
+
   const [pdfUrl, setPdfUrl] = useState("");
   const [applicationNo, setApplicationNo] = useState("");
   const [aiResult, setAiResult] = useState<"success" | "failure" | "">("");
   const [message, setMessage] = useState("");
   const [violations, setViolations] = useState<any[]>([]);
+  const [complianceChecks, setComplianceChecks] = useState<AutoDcrCheck[]>([]);
 
   useEffect(() => {
     return () => {
-      if (filePreviewUrl) {
+      if (filePreviewUrl && filePreviewUrl.startsWith("blob:")) {
         URL.revokeObjectURL(filePreviewUrl);
       }
     };
@@ -60,6 +69,26 @@ export const useBuildingPermissionForm = ({
     setAiResult("");
     setMessage("");
     setViolations([]);
+    setComplianceChecks([]);
+  };
+
+  const isImageFile = (selectedFile: File) => {
+    return selectedFile.type.startsWith("image/");
+  };
+
+  const isPdfFile = (selectedFile: File) => {
+    return (
+      selectedFile.type.includes("pdf") ||
+      selectedFile.name.toLowerCase().endsWith(".pdf")
+    );
+  };
+
+  const isDxfFile = (selectedFile: File) => {
+    return selectedFile.name.toLowerCase().endsWith(".dxf");
+  };
+
+  const isDwgFile = (selectedFile: File) => {
+    return selectedFile.name.toLowerCase().endsWith(".dwg");
   };
 
   const searchMapLocation = async () => {
@@ -129,6 +158,50 @@ export const useBuildingPermissionForm = ({
     return response;
   };
 
+  const handleFileChange = async (selectedFile: File) => {
+    setFile(selectedFile);
+    resetResult();
+
+    if (filePreviewUrl && filePreviewUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(filePreviewUrl);
+    }
+
+    setFilePreviewUrl("");
+
+    if (isImageFile(selectedFile) || isPdfFile(selectedFile)) {
+      setFilePreviewUrl(URL.createObjectURL(selectedFile));
+      return;
+    }
+
+    // if (isDxfFile(selectedFile)) {
+    //   try {
+    //     setPreviewLoading(true);
+
+    //     const previewUrl = await generateCadPreview(selectedFile);
+    //     const fullPreviewUrl = getReportDownloadUrl(previewUrl);
+
+    //     console.log("DXF preview URL:", fullPreviewUrl);
+
+    //     setFilePreviewUrl(fullPreviewUrl);
+    //   } catch (error) {
+    //     console.error("CAD preview failed:", error);
+    //     setFilePreviewUrl("");
+    //   } finally {
+    //     setPreviewLoading(false);
+    //   }
+
+    //   return;
+    // }
+
+    if (isDwgFile(selectedFile) || isDxfFile(selectedFile)) {
+      console.warn("DWG preview is disabled on Render free. Showing CAD fallback.");
+      setFilePreviewUrl("");
+      return;
+    }
+
+    setFilePreviewUrl("");
+  };
+
   const submitAndRunAutoDcr = async () => {
     if (!file) {
       alert("Please upload CAD / PDF / drawing file before submitting");
@@ -170,6 +243,7 @@ export const useBuildingPermissionForm = ({
       setPdfUrl(data.pdf.downloadUrl);
       setApplicationNo(data.pdf.applicationNo);
       setViolations(data.result.violations || []);
+      setComplianceChecks(data.result.checks || []);
 
       fetchApplications();
 
@@ -191,6 +265,7 @@ export const useBuildingPermissionForm = ({
       setPdfUrl("");
       setApplicationNo("");
       setViolations([]);
+      setComplianceChecks([]);
     } finally {
       setLoading(false);
     }
@@ -216,17 +291,6 @@ export const useBuildingPermissionForm = ({
     document.body.removeChild(link);
   };
 
-  const handleFileChange = (selectedFile: File) => {
-    setFile(selectedFile);
-
-    if (filePreviewUrl) {
-      URL.revokeObjectURL(filePreviewUrl);
-    }
-
-    setFilePreviewUrl(URL.createObjectURL(selectedFile));
-    resetResult();
-  };
-
   const resetWizard = () => {
     setStep(1);
 
@@ -248,8 +312,16 @@ export const useBuildingPermissionForm = ({
     setUsage("");
 
     setFile(null);
+
+    if (filePreviewUrl && filePreviewUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(filePreviewUrl);
+    }
+
     setFilePreviewUrl("");
     setShowFilePreview(false);
+
+    setLoading(false);
+    setPreviewLoading(false);
 
     resetResult();
 
@@ -321,11 +393,14 @@ export const useBuildingPermissionForm = ({
     setShowFilePreview,
 
     loading,
+    previewLoading,
+
     pdfUrl,
     applicationNo,
     aiResult,
     message,
     violations,
+    complianceChecks,
 
     searchMapLocation,
     submitAndRunAutoDcr,

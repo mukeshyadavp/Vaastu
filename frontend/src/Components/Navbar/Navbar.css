@@ -1,3 +1,4 @@
+@import "../common/ai-file-components.css";
 @import "./styles/header.css";
 @import "./styles/menu.css";
 @import "./styles/modal.css";
@@ -6,8 +7,5 @@
 @import "./styles/upload.css";
 @import "./styles/review.css";
 @import "./styles/preview.css";
-@import "./styles/loader.css";
-@import "./styles/result.css";
-@import "./styles/violations.css";
 @import "./styles/animations.css";
 @import "./styles/responsive.css";
