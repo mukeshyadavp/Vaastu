@@ -1,27 +1,31 @@
 import { useState } from "react";
 import "./GISMonitoringPage.css";
 
+import { useEffect } from "react";
+import { apiGet } from "../../Services/api"
+
 import mainImg from "../../assets/modern-district-aerial-panorama-urban-style.jpg"
 import img2 from "../../assets/feb.jfif";
-import img1 from "../../assets/empty land.webp";
-import img3 from "../../assets/march.png";
-import img4 from "../../assets/april.webp";
+// import img1 from "../../assets/empty land.webp";
+// import img3 from "../../assets/march.png";
+// import img4 from "../../assets/april.webp";
 // import img21 from "../../assets/building2-1.webp";
 import img23 from "../../assets/Image2-3.jfif";
-import img31 from "../../assets/building3-1.webp";
+// import img31 from "../../assets/building3-1.webp";
 import img41 from "../../assets/building4-1.jfif";
-import monitor1 from "../../assets/monitor1.jpg";
-import monitor2 from "../../assets/monitor2.jpg";
-import monitor3 from "../../assets/monitor3.png";
-import monitor4 from "../../assets/monitor4.png";
-import monitor5 from "../../assets/monitor5.png";
-import monitor6 from "../../assets/monitor6.png";  
+// import monitor1 from "../../assets/monitor1.jpg";
+// import monitor2 from "../../assets/monitor2.jpg";
+// import monitor3 from "../../assets/monitor3.png";
+// import monitor4 from "../../assets/monitor4.png";
+// import monitor5 from "../../assets/monitor5.png";
+// import monitor6 from "../../assets/monitor6.png";  
 import house from "../../assets/house.jpg";       
 
 
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+// import { img } from "framer-motion/m";
 // import { i } from "framer-motion/client";
 
 type Building = {
@@ -38,6 +42,43 @@ type BuildingItem = {
   date?: string;
 };
 
+
+const GISMonitoringPage = () => {
+  const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(null);
+
+  // const [apiLocation, setApiLocation] = useState<[number, number] | null>(null);
+
+  const [apiLocations, setApiLocations] = useState<
+  Record<number, [number, number]>
+>({});
+
+ useEffect(() => {
+  const fetchLocation = async () => {
+    try {
+      const response: any = await apiGet("/api/applications");
+
+      console.log("API Response:", response);
+
+      if (response?.data?.length > 0) {
+        const locations: Record<number, [number, number]> = {};
+
+        response.data.forEach((item: any) => {
+          locations[item.id] = [
+            Number(item.latitude),
+            Number(item.longitude),
+          ];
+        });
+
+        setApiLocations(locations);
+      }
+    } catch (error) {
+      console.error("API Error:", error);
+    }
+  };
+
+  fetchLocation();
+}, []);
+
 const buildings: Building[] = [
   { id: 1, name: "Building 1", img: mainImg },
   { id: 2, name: "Building 2", img: img23 },
@@ -47,52 +88,140 @@ const buildings: Building[] = [
   
 ];
 
-const buildingDataMap: Record<number, BuildingItem[]> = {
-  1: [
-    { label: "Stage 1", img: img1, status: "clear" },
-    { label: "Stage 2", img: img2, status: "clear" },
-    { label: "Stage 3", img: img3, status: "violation" },
-    { label: "Stage 4", img: img4, status: "clear" },
-  ],
-  2: [
-    { label: "Stage 1", img: monitor1, status: "clear" },
-    { label: "Stage 2", img: monitor2, status: "clear" },
-    { label: "Stage 3", img: monitor3, status: "violation" },
-    { label: "Stage 4", img: monitor4, status: "clear" },
-    { label: "Stage 5", img: monitor5, status: "clear" },
-    { label: "Stage 6", img: monitor6, status: "clear" },
-    
-  ],
-  3: [
-    { label: "Phase 1", img: img31, status: "clear" },
-    { label: "Phase 2", img: img2, status: "violation" },
-  ],
-  4: [{ label: "Only Stage", img: img41, status: "clear" }],
 
-5: [
-  {
-    label: "Stage 1 - 1 year ago",
-    img: "",
-    status: "clear",
-    location: [18.31107247514488, 78.34096926925069],
-    date: "2025-04-27",
-  },
-  {
-    label: "Stage 2 - 6 months ago",
-    img: "",
-    status: "clear",
-    location: [18.31107247514488, 78.34096926925069],
-    date: "2025-10-27",
-  },
-  {
-    label: "Stage 3 - 3 months ago",
-    img: "",
-    status: "clear",
-    location: [18.31107247514488, 78.34096926925069],
-    date: "2026-04-27",
-  },
-],
-};
+const buildingDataMap: Record<number, BuildingItem[]> = {
+ 1: apiLocations[1]
+  ? [
+      {
+        label: "Stage 1 - 1 year ago",
+        img: "",
+        status: "clear",
+        location: apiLocations[1],
+        date: "2025-04-27",
+      },
+      {
+        label: "Stage 2 - 6 months ago",
+        img: "",
+        status: "clear",
+        location: apiLocations[1],
+        date: "2025-10-27",
+      },
+      {
+        label: "Stage 3 - 3 months ago",
+        img: "",
+        status: "clear",
+        location: apiLocations[1],
+        date: "2026-01-27",
+      },
+    ]
+  : [],
+2: apiLocations[2]
+  ? [
+      {
+        label: "Stage 1 - 1 year ago",
+        img: "",
+        status: "clear",
+        location: apiLocations[2],
+        date: "2025-04-27",
+      },
+      {
+        label: "Stage 2 - 6 months ago",
+        img: "",
+        status: "clear",
+        location: apiLocations[2],
+        date: "2025-10-27",
+      },
+      {
+        label: "Stage 3 - 3 months ago",
+        img: "",
+        status: "violation",
+        location: apiLocations[2],
+        date: "2026-01-27",
+      },
+    ]
+  : [],
+3: apiLocations[3]
+  ? [
+      {
+        label: "Stage 1 - 1 year ago",
+        img: "",
+        status: "clear",
+        location: apiLocations[3],
+        date: "2025-04-27",
+      },
+      {
+        label: "Stage 2 - 6 months ago",
+        img: "",
+        status: "clear",
+        location: apiLocations[3],
+        date: "2025-10-27",
+      },
+      {
+        label: "Stage 3 - 3 months ago",
+        img: "",
+        status: "violation",
+        location: apiLocations[3],      
+        date: "2026-01-27",
+      },
+    ]
+  : [],
+
+4: apiLocations[4]
+  ? [
+      {
+        label: "Stage 1 - 1 year ago",
+        img: "",
+        status: "clear",
+        location: apiLocations[4],
+        date: "2025-04-27",
+      },
+      {
+        label: "Stage 2 - 6 months ago",
+        img: "",
+        status: "clear",
+        location: apiLocations[4],
+        date: "2025-10-27",
+      },
+      {
+        label: "Stage 3 - 3 months ago",
+        img: "",
+        status: "violation",
+        location: apiLocations[4] ,
+        date: "2026-01-27",
+      },
+    ]
+  : [],
+
+5: apiLocations[5]
+  ? [
+      {
+        label: "Stage 1 - 1 year ago",
+        img: "",
+        status: "clear",
+        location: apiLocations[5],
+        date: "2025-04-27",
+      },
+      {
+        label: "Stage 2 - 6 months ago",
+        img: "",
+        status: "clear",
+        location: apiLocations[5],
+        date: "2025-10-27",
+      },
+      {
+        label: "Stage 3 - 3 months ago",
+        img: "",
+        status: "clear",
+        location: apiLocations[5],
+        date: "2026-04-27",
+      },
+    ]
+  : [],
+};                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+
+
+               
+
 
 const blinkingIcon = L.divIcon({
   className: "",
@@ -101,11 +230,11 @@ const blinkingIcon = L.divIcon({
 });
 
 const buildingLocations: Record<number, [number, number]> = {
-  1: [17.385, 78.4867],
-  2: [17.4500, 78.3800],
-  3: [17.3000, 78.5500],
-  4: [17.4200, 78.6000],
-  5: [18.31107247514488, 78.34096926925069],
+  1: apiLocations[1] || [17.3850, 78.4867], // Hyderabad
+  2: apiLocations[2] || [16.5062, 80.6480], // Vijayawada
+  3: apiLocations[3] || [17.6868, 83.2185], // Visakhapatnam
+  4: apiLocations[4] || [15.8281, 78.0373], // Kurnool
+  5: apiLocations[5] || [18.3110, 78.3409], // Sangareddy
 };
 
 
@@ -185,7 +314,7 @@ const MapPreview = ({ id }: { id: number }) => {
       }}
       scrollWheelZoom={false}
     >
-      {id === 5 ? (
+     {id === 1 || id === 2 || id === 3 || id === 4 || id === 5 ? (
         <>
           {/* Earth View for Building 5 */}
           <TileLayer
@@ -211,8 +340,8 @@ const MapPreview = ({ id }: { id: number }) => {
   );
 };
 
-const GISMonitoringPage = () => {
-  const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(null);
+// const GISMonitoringPage = () => {
+//   const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(null);
 
   return (
     <div className="gis-page">
@@ -250,11 +379,17 @@ const GISMonitoringPage = () => {
               <div key={i} className="gis-month-card">
                 <h4>{item.label}</h4>
 
-{selectedBuilding.id === 5 && item.location ? (
-<StageMapPreview
-  position={item.location}
-  date={item.date || "2026-04-27"}
-/>) : (
+{(selectedBuilding.id === 1 ||
+  selectedBuilding.id === 2 ||
+  selectedBuilding.id === 3 ||
+
+    selectedBuilding.id === 4 ||
+  selectedBuilding.id === 5) && item.location ? (
+  <StageMapPreview
+    position={item.location}
+    date={item.date || "2026-04-27"}
+  />
+) : (
   <img src={item.img} />
 )}
                 {item.status === "violation" && selectedBuilding.id === 1 && (

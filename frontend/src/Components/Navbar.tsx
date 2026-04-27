@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import type { LatLngExpression } from "leaflet";
 import { useNavigate, useLocation } from "react-router-dom";
-import { apiPost } from "../Services/api";
+import { apiPost, getReportDownloadUrl, runAutoDcr } from "../Services/api";
 import { useMapEvents } from "react-leaflet";
 import { useMap } from "react-leaflet";
 type MapProps = {
