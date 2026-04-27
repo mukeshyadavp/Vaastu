@@ -25,6 +25,7 @@ export const useBuildingPermissionForm = ({
   const [searchLocation, setSearchLocation] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
+  const [suggestions, setSuggestions] = useState<any[]>([]);
 
   const [floors, setFloors] = useState("");
   const [area, setArea] = useState("");
@@ -93,6 +94,25 @@ export const useBuildingPermissionForm = ({
       alert("Unable to search location");
     }
   };
+
+  const fetchSuggestions = async (query: string) => {
+  if (!query.trim()) {
+    setSuggestions([]);
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`
+    );
+
+    const data = await response.json();
+    setSuggestions(data);
+  } catch (error) {
+    console.error("Suggestion fetch failed:", error);
+  }
+};
+
 
   const submitApplication = async () => {
     const newData = {
@@ -241,6 +261,7 @@ export const useBuildingPermissionForm = ({
   const closeForm = () => {
     setOpen(false);
     resetWizard();
+    setSuggestions([]);
   };
 
   return {
@@ -311,6 +332,10 @@ export const useBuildingPermissionForm = ({
     downloadReport,
     handleFileChange,
     closeForm,
+
+    suggestions,
+setSuggestions,
+fetchSuggestions,
   };
 };
 

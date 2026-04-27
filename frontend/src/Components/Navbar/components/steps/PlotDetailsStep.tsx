@@ -1,5 +1,6 @@
 import LocationMap from "../../../../Map/LocationMap";
 import type { BuildingPermissionForm } from "../hooks/useBuildingPermissionForm";
+import { FaSearch } from "react-icons/fa";
 
 type Props = {
   form: BuildingPermissionForm;
@@ -41,19 +42,58 @@ const PlotDetailsStep: React.FC<Props> = ({ form }) => {
         <option>Commercial</option>
       </select>
 
+      {/* 🔍 SEARCH SECTION */}
       <div className="searchContainer">
         <input
           className="inputBox searchInput"
           placeholder="Search Location"
           value={form.searchLocation}
-          onChange={(event) => form.setSearchLocation(event.target.value)}
+          onChange={(event) => {
+            form.setSearchLocation(event.target.value);
+            form.fetchSuggestions(event.target.value);
+          }}
         />
 
-        <button className="searchBtn" onClick={form.searchMapLocation}>
-          Search
+        <button
+          className="searchBtn"
+          onClick={form.searchMapLocation}
+        >
+          <FaSearch />
         </button>
+
+        {/* 📋 SUGGESTIONS */}
+        {form.suggestions.length > 0 && (
+          <div className="suggestionsBox">
+            {form.suggestions.map((item: any, index: number) => (
+              <div
+                key={index}
+                className="suggestionItem"
+                onClick={() => {
+                  form.setSearchLocation(item.display_name);
+
+                  const lat = parseFloat(item.lat);
+                  const lon = parseFloat(item.lon);
+
+                  form.setLatitude(item.lat);
+                  form.setLongitude(item.lon);
+
+                  window.dispatchEvent(
+                    new CustomEvent("moveMap", {
+                      detail: { lat, lon },
+                    })
+                  );
+
+                  form.setSuggestions([]);
+                }}
+              >
+                {item.display_name}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
+      {/* 📍 LAT LNG */}
       <div className="latLngRow">
         <div className="fieldGroup">
           <label>Latitude</label>
@@ -66,6 +106,7 @@ const PlotDetailsStep: React.FC<Props> = ({ form }) => {
         </div>
       </div>
 
+      {/* 🗺 MAP */}
       <div className="mapBoxReal">
         <LocationMap
           setLatitude={form.setLatitude}
@@ -73,6 +114,7 @@ const PlotDetailsStep: React.FC<Props> = ({ form }) => {
         />
       </div>
 
+      {/* 🔘 BUTTONS */}
       <div className="bottomActions">
         <button className="backBtn" onClick={() => form.setStep(1)}>
           ‹ Back
