@@ -17,6 +17,47 @@ def to_float_or_none(value):
 
 @applications_bp.route("/api/applications", methods=["GET"])
 def get_applications():
+    """
+    Get all applications
+    ---
+    tags:
+      - Applications
+    responses:
+      200:
+        description: Application list returned successfully
+        schema:
+          type: object
+          properties:
+            success:
+              type: boolean
+              example: true
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  applicantName:
+                    type: string
+                    example: Ramesh Kumar
+                  status:
+                    type: string
+                    example: Pending
+                  location:
+                    type: string
+                    example: Vijayawada
+                  plotSize:
+                    type: string
+                    example: 250 Sq Yards
+                  latitude:
+                    type: number
+                    example: 16.5062
+                  longitude:
+                    type: number
+                    example: 80.6480
+    """
     applications = Application.query.order_by(Application.id.desc()).all()
 
     return jsonify({
@@ -27,6 +68,48 @@ def get_applications():
 
 @applications_bp.route("/api/applications", methods=["POST"])
 def create_application():
+    """
+    Create new application
+    ---
+    tags:
+      - Applications
+    consumes:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required:
+            - applicantName
+            - location
+            - plotSize
+          properties:
+            applicantName:
+              type: string
+              example: Mukesh Yadav
+            location:
+              type: string
+              example: Vijayawada
+            plotSize:
+              type: string
+              example: 250 Sq Yards
+            latitude:
+              type: number
+              example: 16.5062
+            longitude:
+              type: number
+              example: 80.6480
+            status:
+              type: string
+              example: Pending
+    responses:
+      201:
+        description: Application created successfully
+      400:
+        description: Invalid request body
+    """
     data = request.get_json()
 
     if not data:
@@ -68,6 +151,24 @@ def create_application():
 
 @applications_bp.route("/api/applications/<int:application_id>", methods=["GET"])
 def get_application(application_id):
+    """
+    Get application by ID
+    ---
+    tags:
+      - Applications
+    parameters:
+      - name: application_id
+        in: path
+        type: integer
+        required: true
+        description: Application ID
+        example: 1
+    responses:
+      200:
+        description: Application returned successfully
+      404:
+        description: Application not found
+    """
     application = Application.query.get(application_id)
 
     if not application:
@@ -84,6 +185,52 @@ def get_application(application_id):
 
 @applications_bp.route("/api/applications/<int:application_id>", methods=["PUT"])
 def update_application(application_id):
+    """
+    Update application
+    ---
+    tags:
+      - Applications
+    consumes:
+      - application/json
+    parameters:
+      - name: application_id
+        in: path
+        type: integer
+        required: true
+        description: Application ID
+        example: 1
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            applicantName:
+              type: string
+              example: Mukesh Yadav
+            location:
+              type: string
+              example: Guntur
+            plotSize:
+              type: string
+              example: 300 Sq Yards
+            latitude:
+              type: number
+              example: 16.3067
+            longitude:
+              type: number
+              example: 80.4365
+            status:
+              type: string
+              example: Pending
+    responses:
+      200:
+        description: Application updated successfully
+      400:
+        description: Invalid request body
+      404:
+        description: Application not found
+    """
     application = Application.query.get(application_id)
 
     if not application:
@@ -125,6 +272,24 @@ def update_application(application_id):
 
 @applications_bp.route("/api/applications/<int:application_id>/approve", methods=["PUT"])
 def approve_application(application_id):
+    """
+    Approve application
+    ---
+    tags:
+      - Applications
+    parameters:
+      - name: application_id
+        in: path
+        type: integer
+        required: true
+        description: Application ID
+        example: 1
+    responses:
+      200:
+        description: Application approved successfully
+      404:
+        description: Application not found
+    """
     application = Application.query.get(application_id)
 
     if not application:
@@ -145,6 +310,24 @@ def approve_application(application_id):
 
 @applications_bp.route("/api/applications/<int:application_id>/reject", methods=["PUT"])
 def reject_application(application_id):
+    """
+    Reject application
+    ---
+    tags:
+      - Applications
+    parameters:
+      - name: application_id
+        in: path
+        type: integer
+        required: true
+        description: Application ID
+        example: 1
+    responses:
+      200:
+        description: Application rejected successfully
+      404:
+        description: Application not found
+    """
     application = Application.query.get(application_id)
 
     if not application:
@@ -165,6 +348,24 @@ def reject_application(application_id):
 
 @applications_bp.route("/api/applications/<int:application_id>", methods=["DELETE"])
 def delete_application(application_id):
+    """
+    Delete application
+    ---
+    tags:
+      - Applications
+    parameters:
+      - name: application_id
+        in: path
+        type: integer
+        required: true
+        description: Application ID
+        example: 1
+    responses:
+      200:
+        description: Application deleted successfully
+      404:
+        description: Application not found
+    """
     application = Application.query.get(application_id)
 
     if not application:
