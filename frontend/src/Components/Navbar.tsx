@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import type { LatLngExpression } from "leaflet";
 import { useNavigate, useLocation } from "react-router-dom";
-
+import { apiPost } from "../Services/api";
 const MapComponent = () => {
   const position: LatLngExpression = [17.385, 78.4867];
 
@@ -27,6 +27,7 @@ const MapComponent = () => {
 };
 
 type NavbarProps = {
+  fetchApplications: () => void;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   bpOpen: boolean;
@@ -46,6 +47,7 @@ const Navbar: React.FC<NavbarProps> = ({
   setFormOpen,
     applyOpen,        // ✅ ADD
   setApplyOpen,     // ✅ ADD
+  fetchApplications,
 }) => {
   const [type, setType] = useState("");
   const [step, setStep] = useState(1);
@@ -59,6 +61,7 @@ const Navbar: React.FC<NavbarProps> = ({
   const [rear, setRear] = useState("");
 
   const [survey, setSurvey] = useState("");
+  const [applicantName, setApplicantName] = useState("");
   const [plotArea, setPlotArea] = useState("");
   const [roadWidth, setRoadWidth] = useState("");
   const [landType, setLandType] = useState("");
@@ -107,6 +110,27 @@ const Navbar: React.FC<NavbarProps> = ({
       setResult("failure");
     }
   };
+
+  const submitApplication = async () => {
+  try {
+    const newData = {
+   applicantName: applicantName || "New Applicant",
+      location: "Auto Location",
+      plotSize: plotArea || "N/A",
+    };
+
+    const response:any = await apiPost("api/applications", newData);
+    if( response.ok) {
+    alert("Application Submitted ✅");
+
+    fetchApplications(); // 🔥 refresh table
+
+  } else {
+    console.error("Failed to submit application");
+  }} catch (error) {
+    console.error("Error submitting application:", error);
+  }
+};
 
   /* ===== Disable Background Scroll ===== */
   useEffect(() => {
@@ -212,6 +236,7 @@ const Navbar: React.FC<NavbarProps> = ({
           <div className="modal">
             <div className="modalHeader">
               <h2>Apply For</h2>
+
 
               <span
                 className="closeBtn"
@@ -365,7 +390,11 @@ const Navbar: React.FC<NavbarProps> = ({
                 <h2>Personal Information</h2>
 
                 <div className="formGrid">
-                  <input placeholder="Applicant Full Name" />
+                <input
+  placeholder="Applicant Full Name"
+  value={applicantName}
+  onChange={(e) => setApplicantName(e.target.value)}
+/>
                   <input placeholder="Relationship" />
                   <input placeholder="Aadhaar Number" />
                   <input placeholder="Mobile Number" />
@@ -656,14 +685,15 @@ const Navbar: React.FC<NavbarProps> = ({
                     ‹ Back
                   </button>
 
-                  <button
-                    className="nextBtn"
-                    onClick={() =>
-                      setStep(6)
-                    }
-                  >
-                    Submit
-                  </button>
+  <button
+  className="nextBtn"
+  onClick={() => {
+    submitApplication(); // 🔥 POST call
+    setStep(6);
+  }}
+>
+  Submit
+</button>
                 </div>
               </>
             )}

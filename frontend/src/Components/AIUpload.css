@@ -1,12 +1,23 @@
-/* Upload Section */
+/* ===============================
+   AI Upload Section
+================================ */
 .upload-section {
   background: #ffffff;
   padding: 20px;
   border-radius: 14px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
-/* Upload Box */
+.upload-section h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* ===============================
+   Upload Box
+================================ */
 .upload-box {
   display: flex;
   flex-direction: column;
@@ -34,7 +45,7 @@
   background: #eff6ff;
 }
 
-/* Content */
+/* Upload Content */
 .upload-content {
   display: flex;
   flex-direction: column;
@@ -43,13 +54,16 @@
 }
 
 .upload-icon {
-  font-size: 28px;
+  margin: 0;
+  font-size: 30px;
 }
 
 .upload-text {
+  margin: 0;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: #1e293b;
+  word-break: break-word;
 }
 
 .upload-subtext {
@@ -57,129 +71,45 @@
   color: #64748b;
 }
 
-/* Upload Button */
+/* ===============================
+   Upload Button
+================================ */
 .upload-btn {
+  margin-top: 4px;
   background: #2563eb;
   color: white;
   border: none;
-  padding: 10px;
+  padding: 11px 14px;
   border-radius: 8px;
   cursor: pointer;
-  font-weight: 500;
-  transition: 0.2s;
+  font-weight: 600;
+  transition: 0.2s ease;
 }
 
 .upload-btn:hover {
   background: #1d4ed8;
 }
 
-
-/* Download Button */
-.download-btn {
-  background: #10b981;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
+.upload-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
-.download-btn:hover {
-  background: #059669;
-}
-/* Drop Zone */
-.drop-zone {
-  border: 2px dashed #cbd5f5;
-  border-radius: 12px;
-  padding: 30px;
-  text-align: center;
-  cursor: pointer;
-  background: #f8fafc;
-  transition: 0.3s;
-}
-
-.drop-zone:hover {
-  border-color: #2563eb;
-  background: #eff6ff;
-}
-
-.upload-icon {
-  font-size: 30px;
-}
-
-/* File List */
-.file-list {
-  margin-top: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.file-item {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  padding: 10px;
-  border-radius: 10px;
-}
-
-.file-info {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-}
-
-/* Progress Bar */
-.progress-bar {
-  height: 6px;
-  background: #e5e7eb;
-  border-radius: 5px;
-  margin-top: 6px;
-  overflow: hidden;
-}
-
-.progress {
-  height: 100%;
-  background: #2563eb;
-  transition: width 0.3s ease;
-}
-
-/* Remove Button */
-.file-item button {
-  margin-top: 5px;
-  border: none;
-  background: none;
-  color: red;
-  cursor: pointer;
-}
-
-/* Upload Button */
-.upload-btn {
-  margin-top: 15px;
-  background: #2563eb;
-  color: white;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-}
-
-.upload-btn:hover {
-  background: #1d4ed8;
-}
-
-/* Success */
-.success-text {
-  margin-top: 10px;
-  color: green;
-  font-weight: 500;
-}
-/* Progress Container */
+/* ===============================
+   Progress
+================================ */
 .progress-container {
   margin-top: 15px;
   text-align: center;
 }
 
-/* Progress Bar Background */
+.progress-container p {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+}
+
 .progress-bar {
   width: 100%;
   height: 8px;
@@ -188,13 +118,15 @@
   overflow: hidden;
 }
 
-/* Progress Fill */
 .progress-fill {
   height: 100%;
   background: linear-gradient(90deg, #2563eb, #3b82f6);
   transition: width 0.3s ease;
 }
-/* Result Card */
+
+/* ===============================
+   Result Card
+================================ */
 .result-card {
   margin-top: 20px;
   padding: 16px;
@@ -202,68 +134,75 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 14px;
   transition: all 0.3s ease;
   border: 1px solid transparent;
 }
 
-/* Success */
 .result-card.success {
   background: #ecfdf5;
   border-color: #a7f3d0;
 }
 
-/* Failure */
 .result-card.failure {
   background: #fef2f2;
   border-color: #fecaca;
 }
 
-/* Left section */
 .result-left {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
 }
 
-/* Icon */
 .result-icon {
   width: 40px;
   height: 40px;
+  min-width: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: white;
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 800;
 }
 
-/* Success Icon */
 .result-icon.success {
   background: #10b981;
-  color: white;
 }
 
-/* Failure Icon */
 .result-icon.failure {
   background: #ef4444;
-  color: white;
 }
 
-/* Title */
 .result-title {
   margin: 0;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
+  color: #0f172a;
 }
 
-/* Message */
 .result-message {
-  margin: 2px 0 0;
+  margin: 3px 0 0;
   font-size: 13px;
   color: #6b7280;
 }
 
-/* Download Button */
+.application-no {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #475569;
+}
+
+.application-no strong {
+  color: #0f172a;
+}
+
+/* ===============================
+   Download Button
+================================ */
 .download-btn {
   background: linear-gradient(135deg, #2563eb, #3b82f6);
   color: white;
@@ -272,38 +211,89 @@
   border-radius: 8px;
   cursor: pointer;
   font-size: 13px;
-  font-weight: 500;
-  display: flex;
+  font-weight: 700;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+  white-space: nowrap;
   transition: all 0.25s ease;
 }
 
-/* Hover */
 .download-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
 }
 
-/* Click */
 .download-btn:active {
   transform: scale(0.97);
 }
 
-/* ===== Mobile Responsive ===== */
-@media (max-width: 768px) {
+/* ===============================
+   Violation List
+================================ */
+.violation-list {
+  margin-top: 18px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 16px;
+  padding: 18px;
+}
 
-  /* Section padding */
+.violation-list h3 {
+  margin: 0 0 14px;
+  color: #9a3412;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.violation-item {
+  background: #ffffff;
+  border: 1px solid #fed7aa;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.violation-item:last-child {
+  margin-bottom: 0;
+}
+
+.violation-item strong {
+  color: #c2410c;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.violation-item p {
+  margin: 0 0 6px;
+  color: #7c2d12;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.violation-item span {
+  color: #9a3412;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ===============================
+   Mobile Responsive
+================================ */
+@media (max-width: 768px) {
   .upload-section {
     padding: 14px;
   }
 
-  /* Upload box */
+  .upload-section h2 {
+    font-size: 18px;
+  }
+
   .upload-box {
     gap: 10px;
   }
 
-  /* Upload card */
   .file-label {
     padding: 18px;
   }
@@ -313,33 +303,26 @@
     text-align: center;
   }
 
-  /* Button full width */
   .upload-btn {
     width: 100%;
     padding: 12px;
     font-size: 14px;
   }
 
-  /* Progress text */
   .progress-container p {
     font-size: 13px;
   }
 
-  /* RESULT CARD STACK */
   .result-card {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
   }
 
-  /* Left section full width */
   .result-left {
     width: 100%;
   }
 
-  /* Download button full width */
   .download-btn {
     width: 100%;
-    justify-content: center;
   }
 }
