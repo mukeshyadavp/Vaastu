@@ -1,406 +1,277 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./GISMonitoringPage.css";
 
-import { useEffect } from "react";
-import { apiGet } from "../../Services/api"
+import { apiGet } from "../../Services/api";
 
-import mainImg from "../../assets/modern-district-aerial-panorama-urban-style.jpg"
+import mainImg from "../../assets/modern-district-aerial-panorama-urban-style.jpg";
 import img2 from "../../assets/feb.jfif";
-// import img1 from "../../assets/empty land.webp";
-// import img3 from "../../assets/march.png";
-// import img4 from "../../assets/april.webp";
-// import img21 from "../../assets/building2-1.webp";
 import img23 from "../../assets/Image2-3.jfif";
-// import img31 from "../../assets/building3-1.webp";
 import img41 from "../../assets/building4-1.jfif";
-// import monitor1 from "../../assets/monitor1.jpg";
-// import monitor2 from "../../assets/monitor2.jpg";
-// import monitor3 from "../../assets/monitor3.png";
-// import monitor4 from "../../assets/monitor4.png";
-// import monitor5 from "../../assets/monitor5.png";
-// import monitor6 from "../../assets/monitor6.png";  
-import house from "../../assets/house.jpg";       
+import house from "../../assets/house.jpg";
 
-
-import { MapContainer, TileLayer, Marker } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-// import { img } from "framer-motion/m";
-// import { i } from "framer-motion/client";
+
+type ApiApplication = {
+  id: number;
+  applicantName?: string;
+  name?: string;
+  status?: string;
+  location?: string;
+  plotSize?: string;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
+};
 
 type Building = {
   id: number;
   name: string;
   img: string;
+  status: string;
+  locationText?: string;
+  plotSize?: string;
+  position: [number, number];
 };
 
 type BuildingItem = {
   label: string;
-  img: string;
   status: "clear" | "violation";
-  location?: [number, number];
-  date?: string;
+  location: [number, number];
+  date: string;
 };
 
+const fallbackImages = [mainImg, img23, img2, img41, house];
 
-const GISMonitoringPage = () => {
-  const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(null);
-
-  // const [apiLocation, setApiLocation] = useState<[number, number] | null>(null);
-
-  const [apiLocations, setApiLocations] = useState<
-  Record<number, [number, number]>
->({});
-
- useEffect(() => {
-  const fetchLocation = async () => {
-    try {
-      const response: any = await apiGet("/api/applications");
-
-      console.log("API Response:", response);
-
-      if (response?.data?.length > 0) {
-        const locations: Record<number, [number, number]> = {};
-
-        response.data.forEach((item: any) => {
-          locations[item.id] = [
-            Number(item.latitude),
-            Number(item.longitude),
-          ];
-        });
-
-        setApiLocations(locations);
-      }
-    } catch (error) {
-      console.error("API Error:", error);
-    }
-  };
-
-  fetchLocation();
-}, []);
-
-const buildings: Building[] = [
-  { id: 1, name: "Building 1", img: mainImg },
-  { id: 2, name: "Building 2", img: img23 },
-  { id: 3, name: "Building 3", img: img2 },
-  { id: 4, name: "Building 4", img: img41 },
-  { id: 5, name: "Building 5", img: house },
-  
+const fallbackLocations: [number, number][] = [
+  [17.385, 78.4867],
+  [16.5062, 80.648],
+  [17.6868, 83.2185],
+  [15.8281, 78.0373],
+  [18.311, 78.3409],
 ];
-
-
-const buildingDataMap: Record<number, BuildingItem[]> = {
- 1: apiLocations[1]
-  ? [
-      {
-        label: "Stage 1 - 1 year ago",
-        img: "",
-        status: "clear",
-        location: apiLocations[1],
-        date: "2025-04-27",
-      },
-      {
-        label: "Stage 2 - 6 months ago",
-        img: "",
-        status: "clear",
-        location: apiLocations[1],
-        date: "2025-10-27",
-      },
-      {
-        label: "Stage 3 - 3 months ago",
-        img: "",
-        status: "clear",
-        location: apiLocations[1],
-        date: "2026-01-27",
-      },
-    ]
-  : [],
-2: apiLocations[2]
-  ? [
-      {
-        label: "Stage 1 - 1 year ago",
-        img: "",
-        status: "clear",
-        location: apiLocations[2],
-        date: "2025-04-27",
-      },
-      {
-        label: "Stage 2 - 6 months ago",
-        img: "",
-        status: "clear",
-        location: apiLocations[2],
-        date: "2025-10-27",
-      },
-      {
-        label: "Stage 3 - 3 months ago",
-        img: "",
-        status: "violation",
-        location: apiLocations[2],
-        date: "2026-01-27",
-      },
-    ]
-  : [],
-3: apiLocations[3]
-  ? [
-      {
-        label: "Stage 1 - 1 year ago",
-        img: "",
-        status: "clear",
-        location: apiLocations[3],
-        date: "2025-04-27",
-      },
-      {
-        label: "Stage 2 - 6 months ago",
-        img: "",
-        status: "clear",
-        location: apiLocations[3],
-        date: "2025-10-27",
-      },
-      {
-        label: "Stage 3 - 3 months ago",
-        img: "",
-        status: "violation",
-        location: apiLocations[3],      
-        date: "2026-01-27",
-      },
-    ]
-  : [],
-
-4: apiLocations[4]
-  ? [
-      {
-        label: "Stage 1 - 1 year ago",
-        img: "",
-        status: "clear",
-        location: apiLocations[4],
-        date: "2025-04-27",
-      },
-      {
-        label: "Stage 2 - 6 months ago",
-        img: "",
-        status: "clear",
-        location: apiLocations[4],
-        date: "2025-10-27",
-      },
-      {
-        label: "Stage 3 - 3 months ago",
-        img: "",
-        status: "violation",
-        location: apiLocations[4] ,
-        date: "2026-01-27",
-      },
-    ]
-  : [],
-
-5: apiLocations[5]
-  ? [
-      {
-        label: "Stage 1 - 1 year ago",
-        img: "",
-        status: "clear",
-        location: apiLocations[5],
-        date: "2025-04-27",
-      },
-      {
-        label: "Stage 2 - 6 months ago",
-        img: "",
-        status: "clear",
-        location: apiLocations[5],
-        date: "2025-10-27",
-      },
-      {
-        label: "Stage 3 - 3 months ago",
-        img: "",
-        status: "clear",
-        location: apiLocations[5],
-        date: "2026-04-27",
-      },
-    ]
-  : [],
-};                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
-
-
-               
-
 
 const blinkingIcon = L.divIcon({
   className: "",
   html: `<div class="blink-marker"></div>`,
   iconSize: [20, 20],
+  iconAnchor: [10, 10],
 });
 
-const buildingLocations: Record<number, [number, number]> = {
-  1: apiLocations[1] || [17.3850, 78.4867], // Hyderabad
-  2: apiLocations[2] || [16.5062, 80.6480], // Vijayawada
-  3: apiLocations[3] || [17.6868, 83.2185], // Visakhapatnam
-  4: apiLocations[4] || [15.8281, 78.0373], // Kurnool
-  5: apiLocations[5] || [18.3110, 78.3409], // Sangareddy
+const isValidCoordinate = (lat: number, lng: number) => {
+  return Number.isFinite(lat) && Number.isFinite(lng) && lat !== 0 && lng !== 0;
 };
 
-
-const getHistoricalTileUrl = (
-  date: string,
-  lat: number,
-  lng: number
-) => {
-  const delta = 0.01; // area size around marker
-
-  const minLng = lng - delta;
-  const minLat = lat - delta;
-  const maxLng = lng + delta;
-  const maxLat = lat + delta;
-
-  return `https://services.sentinel-hub.com/ogc/wms/9c60b570-aba2-4843-9dc7-bed252179483
-?SERVICE=WMS
-&REQUEST=GetMap
-&VERSION=1.3.0
-&LAYERS=1_TRUE_COLOR
-&FORMAT=image/jpeg
-&CRS=EPSG:4326
-&WIDTH=512
-&HEIGHT=512
-&BBOX=${minLat},${minLng},${maxLat},${maxLng}
-&TIME=${date}
-&MAXCC=20`;
-};
-
-const StageMapPreview = ({
+const StageSatellitePreview = ({
   position,
   date,
+  label,
 }: {
   position: [number, number];
   date: string;
+  label: string;
 }) => {
   return (
-    <MapContainer
-      center={position}
-      zoom={17}
-      style={{
-        height: "180px",
-        width: "100%",
-        borderRadius: "10px",
-      }}
-      scrollWheelZoom={true}
-      dragging={true}
-      zoomControl={true}
-      doubleClickZoom={true}
-    >
-<TileLayer
-  url={getHistoricalTileUrl(
-    date,
-    position[0],
-    position[1]
-  )}
-  attribution="Satellite imagery © Sentinel Hub"
-/>
-
-      {/* Blinking Marker */}
-      <Marker position={position} icon={blinkingIcon} />
-    </MapContainer>
-  );
-};
-const MapPreview = ({ id }: { id: number }) => {
-  const position = buildingLocations[id];
-
-  return (
-    <MapContainer
-      center={position}
-      zoom={16}
-      style={{
-        height: "250px",
-        width: "100%",
-        borderRadius: "12px",
-        marginBottom: "15px",
-      }}
-      scrollWheelZoom={false}
-    >
-     {id === 1 || id === 2 || id === 3 || id === 4 || id === 5 ? (
-        <>
-          {/* Earth View for Building 5 */}
+    <div className="gis-stage-image-wrapper">
+      <div className="gis-stage-satellite-map">
+        <MapContainer
+          center={position}
+          zoom={18}
+          style={{
+            height: "100%",
+            width: "100%",
+          }}
+          zoomControl={false}
+          dragging={false}
+          scrollWheelZoom={false}
+          doubleClickZoom={false}
+          attributionControl={false}
+        >
           <TileLayer
             url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
             attribution="Tiles © Esri"
           />
 
-          {/* Blinking Marker for Building 5 */}
-          <Marker position={position} icon={blinkingIcon} />
-        </>
-      ) : (
-        <>
-          {/* Normal Map for Other Buildings */}
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
+          <Marker position={position} icon={blinkingIcon}>
+            <Popup>
+              <strong>{label}</strong>
+              <br />
+              Date: {date}
+              <br />
+              Lat: {position[0]}
+              <br />
+              Lng: {position[1]}
+            </Popup>
+          </Marker>
+        </MapContainer>
 
-          {/* Blinking Marker */}
-          <Marker position={position} icon={blinkingIcon} />
-        </>
-      )}
+        <div className="gis-stage-zoom-badge">Clear Satellite View</div>
+      </div>
+
+      <div className="gis-stage-image-meta">
+        <span>{label}</span>
+        <span>{date}</span>
+      </div>
+    </div>
+  );
+};
+
+const MapPreview = ({ building }: { building: Building }) => {
+  return (
+    <MapContainer
+      center={building.position}
+      zoom={17}
+      style={{
+        height: "460px",
+        width: "100%",
+        borderRadius: "18px",
+        marginBottom: "22px",
+      }}
+      scrollWheelZoom={false}
+    >
+      <TileLayer
+        url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+        attribution="Tiles © Esri"
+      />
+
+      <Marker position={building.position} icon={blinkingIcon}>
+        <Popup>
+          <strong>{building.name}</strong>
+          <br />
+          Status: {building.status}
+          <br />
+          Lat: {building.position[0]}
+          <br />
+          Lng: {building.position[1]}
+        </Popup>
+      </Marker>
     </MapContainer>
   );
 };
 
-// const GISMonitoringPage = () => {
-//   const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(null);
+const buildStageTimeline = (building: Building): BuildingItem[] => {
+  const normalizedStatus = building.status.toLowerCase();
+
+  const hasViolation =
+    normalizedStatus === "rejected" ||
+    normalizedStatus === "violation" ||
+    normalizedStatus === "unauthorized";
+
+  return [
+    {
+      label: "Stage 1 - 1 year ago",
+      status: "clear",
+      location: building.position,
+      date: "2025-04-27",
+    },
+    {
+      label: "Stage 2 - 6 months ago",
+      status: "clear",
+      location: building.position,
+      date: "2025-10-27",
+    },
+    {
+      label: "Stage 3 - 3 months ago",
+      status: hasViolation ? "violation" : "clear",
+      location: building.position,
+      date: "2026-01-27",
+    },
+  ];
+};
+
+const GISMonitoringPage = () => {
+  const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(
+    null
+  );
+
+  const [applications, setApplications] = useState<ApiApplication[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        setLoading(true);
+
+        const response: any = await apiGet("/api/applications");
+
+        if (response?.data?.length > 0) {
+          setApplications(response.data);
+        } else {
+          setApplications([]);
+        }
+      } catch (error) {
+        console.error("API Error:", error);
+        setApplications([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApplications();
+  }, []);
+
+  const buildings: Building[] = useMemo(() => {
+    return applications.map((item, index) => {
+      const lat = Number(item.latitude);
+      const lng = Number(item.longitude);
+
+      const position: [number, number] = isValidCoordinate(lat, lng)
+        ? [lat, lng]
+        : fallbackLocations[index % fallbackLocations.length];
+
+      return {
+        id: item.id,
+        name: item.applicantName || item.name || `Application ${item.id}`,
+        img: fallbackImages[index % fallbackImages.length],
+        status: item.status || "Pending",
+        locationText: item.location,
+        plotSize: item.plotSize,
+        position,
+      };
+    });
+  }, [applications]);
+
+  const timeline = selectedBuilding ? buildStageTimeline(selectedBuilding) : [];
 
   return (
     <div className="gis-page">
-
-      {/* HEADER */}
       <h1 className="gis-title">GIS & Satellite Monitoring</h1>
 
-      {/* BUILDING GRID */}
-      {!selectedBuilding && (
+      {loading && <p className="gis-loading">Loading applications...</p>}
+
+      {!loading && !selectedBuilding && buildings.length === 0 && (
+        <div className="gis-empty">
+          No applications found. Submit applications with latitude and longitude
+          to view GIS monitoring.
+        </div>
+      )}
+
+      {!selectedBuilding && buildings.length > 0 && (
         <div className="gis-grid">
-          {buildings.map((b) => (
+          {buildings.map((building) => (
             <div
-              key={b.id}
+              key={building.id}
               className="gis-card"
-              onClick={() => setSelectedBuilding(b)}
-              style={{ backgroundImage: `url(${b.img})` }}
+              onClick={() => setSelectedBuilding(building)}
+              style={{ backgroundImage: `url(${building.img})` }}
             >
-              <div className="gis-overlay">{b.name}</div>
+              <div className="gis-overlay">
+                <div>
+                  <strong>{building.name}</strong>
+
+                  <span>
+                    {building.status} · Lat {building.position[0].toFixed(5)},
+                    Lng {building.position[1].toFixed(5)}
+                  </span>
+                </div>
+              </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* DETAIL VIEW */}
       {selectedBuilding && (
         <div className="gis-detail">
-{/* MAP VIEW */}
-<div className="gis-map-section">
-  <MapPreview id={selectedBuilding.id} />
-</div>
-          <h2>{selectedBuilding.name}</h2>
-
-          <div className="gis-timeline">
-            {buildingDataMap[selectedBuilding.id]?.map((item, i) => (
-              <div key={i} className="gis-month-card">
-                <h4>{item.label}</h4>
-
-{(selectedBuilding.id === 1 ||
-  selectedBuilding.id === 2 ||
-  selectedBuilding.id === 3 ||
-
-    selectedBuilding.id === 4 ||
-  selectedBuilding.id === 5) && item.location ? (
-  <StageMapPreview
-    position={item.location}
-    date={item.date || "2026-04-27"}
-  />
-) : (
-  <img src={item.img} />
-)}
-                {item.status === "violation" && selectedBuilding.id === 1 && (
-                  <div className="gis-alert">
-                    🚨 Construction outside boundary
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
           <button
             className="gis-back"
             onClick={() => setSelectedBuilding(null)}
@@ -408,6 +279,52 @@ const MapPreview = ({ id }: { id: number }) => {
             ⬅ Back
           </button>
 
+          <div className="gis-map-section">
+            <MapPreview building={selectedBuilding} />
+          </div>
+
+          <h2>{selectedBuilding.name}</h2>
+
+          <div className="gis-meta-row">
+            <span>Status: {selectedBuilding.status}</span>
+
+            {selectedBuilding.locationText && (
+              <span>Location: {selectedBuilding.locationText}</span>
+            )}
+
+            {selectedBuilding.plotSize && (
+              <span>Plot Size: {selectedBuilding.plotSize}</span>
+            )}
+
+            <span>
+              Coordinates: {selectedBuilding.position[0]},{" "}
+              {selectedBuilding.position[1]}
+            </span>
+          </div>
+
+          <div className="gis-timeline">
+            {timeline.map((item, index) => (
+              <div key={`${item.label}-${index}`} className="gis-month-card">
+                <h4>{item.label}</h4>
+
+                <StageSatellitePreview
+                  position={item.location}
+                  date={item.date}
+                  label={item.label}
+                />
+
+                <div
+                  className={
+                    item.status === "violation" ? "gis-alert" : "gis-clear"
+                  }
+                >
+                  {item.status === "violation"
+                    ? "🚨 Construction outside boundary"
+                    : "✅ No violation detected"}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

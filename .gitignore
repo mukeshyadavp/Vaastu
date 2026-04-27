@@ -23,6 +23,7 @@ env/
 
 # Flask database
 backend/*.db
+instance
 
 # Uploads (keep folder only)
 backend/uploads/*
@@ -54,7 +55,6 @@ lerna-lock.yaml
 *.sw?
 backend/generated_previews/*
 !backend/generated_previews/.gitkeep
-
 backend/generated_reports/*
 !backend/generated_reports/.gitkeep
 uploads/*
