@@ -33,14 +33,21 @@ os.makedirs(PREVIEW_FOLDER, exist_ok=True)
 
 
 def get_database_url():
-    database_url = os.getenv("DATABASE_URL", "sqlite:///vaastu.db")
+    flask_env = os.getenv("FLASK_ENV", "development").lower()
+    database_url = os.getenv("DATABASE_URL", "").strip()
+
+    # Local Windows/Python 3.14: force SQLite unless explicitly production
+    if flask_env != "production":
+        return "sqlite:///vaastu.db"
+
+    if not database_url:
+        return "sqlite:///vaastu.db"
 
     # Render sometimes provides postgres:// but SQLAlchemy needs postgresql://
     if database_url.startswith("postgres://"):
         database_url = database_url.replace("postgres://", "postgresql://", 1)
 
     return database_url
-
 
 def create_app():
     app = Flask(

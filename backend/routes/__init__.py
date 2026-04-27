@@ -7,6 +7,7 @@ from .gps_routes import gps_bp
 from .report_routes import reports_bp
 from .react_routes import react_bp
 from .cad_preview_routes import cad_preview_bp
+from routes.location_routes import location_bp
 
 def register_routes(app):
     app.register_blueprint(health_bp)
@@ -18,3 +19,4 @@ def register_routes(app):
     app.register_blueprint(gps_bp)
     app.register_blueprint(reports_bp)
     app.register_blueprint(react_bp)
+    app.register_blueprint(location_bp)

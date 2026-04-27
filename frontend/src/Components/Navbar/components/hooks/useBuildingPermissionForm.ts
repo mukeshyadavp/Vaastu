@@ -4,6 +4,7 @@ import {
   getReportDownloadUrl,
   runAutoDcr,
   generateCadPreview,
+  searchLocationSuggestions,
   type AutoDcrCheck,
 } from "../../../../Services/api";
 
@@ -92,53 +93,49 @@ export const useBuildingPermissionForm = ({
   };
 
   const searchMapLocation = async () => {
-    if (!searchLocation.trim()) return;
+  if (!searchLocation.trim()) return;
 
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-          searchLocation
-        )}`
+  try {
+    const data = await searchLocationSuggestions(searchLocation);
+
+    if (data.length > 0) {
+      const lat = parseFloat(data[0].lat);
+      const lon = parseFloat(data[0].lon);
+
+      setLatitude(lat.toString());
+      setLongitude(lon.toString());
+
+      window.dispatchEvent(
+        new CustomEvent("moveMap", {
+          detail: { lat, lon },
+        })
       );
-
-      const data = await response.json();
-
-      if (data.length > 0) {
-        const lat = parseFloat(data[0].lat);
-        const lon = parseFloat(data[0].lon);
-
-        setLatitude(lat.toString());
-        setLongitude(lon.toString());
-
-        window.dispatchEvent(
-          new CustomEvent("moveMap", {
-            detail: { lat, lon },
-          })
-        );
-      } else {
-        alert("Location not found");
-      }
-    } catch (error) {
-      console.error("Location search failed:", error);
-      alert("Unable to search location");
+    } else {
+      alert("Location not found");
     }
-  };
+  } catch (error) {
+    console.error("Location search failed:", error);
+    alert("Unable to search location");
+  }
+};
 
-  const fetchSuggestions = async (query: string) => {
+const fetchSuggestions = async (query: string) => {
   if (!query.trim()) {
     setSuggestions([]);
     return;
   }
 
-  try {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`
-    );
+  if (query.trim().length < 3) {
+    setSuggestions([]);
+    return;
+  }
 
-    const data = await response.json();
+  try {
+    const data = await searchLocationSuggestions(query);
     setSuggestions(data);
   } catch (error) {
     console.error("Suggestion fetch failed:", error);
+    setSuggestions([]);
   }
 };
 
