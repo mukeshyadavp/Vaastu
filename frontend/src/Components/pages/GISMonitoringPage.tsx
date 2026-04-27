@@ -15,7 +15,8 @@ import monitor2 from "../../assets/monitor2.jpg";
 import monitor3 from "../../assets/monitor3.png";
 import monitor4 from "../../assets/monitor4.png";
 import monitor5 from "../../assets/monitor5.png";
-import monitor6 from "../../assets/monitor6.png";         
+import monitor6 from "../../assets/monitor6.png";  
+import house from "../../assets/house.jpg";       
 
 
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
@@ -33,6 +34,8 @@ type BuildingItem = {
   label: string;
   img: string;
   status: "clear" | "violation";
+  location?: [number, number];
+  date?: string;
 };
 
 const buildings: Building[] = [
@@ -40,6 +43,8 @@ const buildings: Building[] = [
   { id: 2, name: "Building 2", img: img23 },
   { id: 3, name: "Building 3", img: img2 },
   { id: 4, name: "Building 4", img: img41 },
+  { id: 5, name: "Building 5", img: house },
+  
 ];
 
 const buildingDataMap: Record<number, BuildingItem[]> = {
@@ -63,6 +68,30 @@ const buildingDataMap: Record<number, BuildingItem[]> = {
     { label: "Phase 2", img: img2, status: "violation" },
   ],
   4: [{ label: "Only Stage", img: img41, status: "clear" }],
+
+5: [
+  {
+    label: "Stage 1 - 1 year ago",
+    img: "",
+    status: "clear",
+    location: [18.31107247514488, 78.34096926925069],
+    date: "2025-04-27",
+  },
+  {
+    label: "Stage 2 - 6 months ago",
+    img: "",
+    status: "clear",
+    location: [18.31107247514488, 78.34096926925069],
+    date: "2025-10-27",
+  },
+  {
+    label: "Stage 3 - 3 months ago",
+    img: "",
+    status: "clear",
+    location: [18.31107247514488, 78.34096926925069],
+    date: "2026-04-27",
+  },
+],
 };
 
 const blinkingIcon = L.divIcon({
@@ -76,8 +105,71 @@ const buildingLocations: Record<number, [number, number]> = {
   2: [17.4500, 78.3800],
   3: [17.3000, 78.5500],
   4: [17.4200, 78.6000],
+  5: [18.31107247514488, 78.34096926925069],
 };
 
+
+const getHistoricalTileUrl = (
+  date: string,
+  lat: number,
+  lng: number
+) => {
+  const delta = 0.01; // area size around marker
+
+  const minLng = lng - delta;
+  const minLat = lat - delta;
+  const maxLng = lng + delta;
+  const maxLat = lat + delta;
+
+  return `https://services.sentinel-hub.com/ogc/wms/9c60b570-aba2-4843-9dc7-bed252179483
+?SERVICE=WMS
+&REQUEST=GetMap
+&VERSION=1.3.0
+&LAYERS=1_TRUE_COLOR
+&FORMAT=image/jpeg
+&CRS=EPSG:4326
+&WIDTH=512
+&HEIGHT=512
+&BBOX=${minLat},${minLng},${maxLat},${maxLng}
+&TIME=${date}
+&MAXCC=20`;
+};
+
+const StageMapPreview = ({
+  position,
+  date,
+}: {
+  position: [number, number];
+  date: string;
+}) => {
+  return (
+    <MapContainer
+      center={position}
+      zoom={17}
+      style={{
+        height: "180px",
+        width: "100%",
+        borderRadius: "10px",
+      }}
+      scrollWheelZoom={true}
+      dragging={true}
+      zoomControl={true}
+      doubleClickZoom={true}
+    >
+<TileLayer
+  url={getHistoricalTileUrl(
+    date,
+    position[0],
+    position[1]
+  )}
+  attribution="Satellite imagery © Sentinel Hub"
+/>
+
+      {/* Blinking Marker */}
+      <Marker position={position} icon={blinkingIcon} />
+    </MapContainer>
+  );
+};
 const MapPreview = ({ id }: { id: number }) => {
   const position = buildingLocations[id];
 
@@ -93,8 +185,28 @@ const MapPreview = ({ id }: { id: number }) => {
       }}
       scrollWheelZoom={false}
     >
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <Marker position={position} icon={blinkingIcon} />
+      {id === 5 ? (
+        <>
+          {/* Earth View for Building 5 */}
+          <TileLayer
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            attribution="Tiles © Esri"
+          />
+
+          {/* Blinking Marker for Building 5 */}
+          <Marker position={position} icon={blinkingIcon} />
+        </>
+      ) : (
+        <>
+          {/* Normal Map for Other Buildings */}
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+
+          {/* Blinking Marker */}
+          <Marker position={position} icon={blinkingIcon} />
+        </>
+      )}
     </MapContainer>
   );
 };
@@ -138,8 +250,13 @@ const GISMonitoringPage = () => {
               <div key={i} className="gis-month-card">
                 <h4>{item.label}</h4>
 
-                <img src={item.img} />
-
+{selectedBuilding.id === 5 && item.location ? (
+<StageMapPreview
+  position={item.location}
+  date={item.date || "2026-04-27"}
+/>) : (
+  <img src={item.img} />
+)}
                 {item.status === "violation" && selectedBuilding.id === 1 && (
                   <div className="gis-alert">
                     🚨 Construction outside boundary
