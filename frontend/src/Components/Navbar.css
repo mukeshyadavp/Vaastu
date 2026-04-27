@@ -796,3 +796,103 @@
   background: #f1f5f9;
   color: #2e7d32;
 }
+
+
+/* 🔍 SEARCH ROW */
+.searchRow {
+  display: grid;
+  grid-template-columns: 2fr auto 2fr; /* input - button - name */
+  gap: 10px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.searchInput {
+  width: 100%;
+}
+
+.searchBtn {
+  padding: 10px 16px;
+  background: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.searchBtn:hover {
+  background: #1b5e20;
+}
+
+.locationName {
+  width: 100%;
+  background: #f5f5f5;
+}
+
+/* 📍 LAT LNG ROW */
+.latLngRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.fieldGroup label {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+/* ===== SEARCH SECTION ===== */
+.searchContainer {
+  display: flex;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.searchInput {
+  flex: 1;
+}
+
+.searchBtn {
+  padding: 10px 18px;
+  background: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.searchBtn:hover {
+  background: #1b5e20;
+}
+
+/* ===== LAT LNG ===== */
+.latLngRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.fieldGroup {
+  background: #fafafa;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.fieldGroup label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2e7d32;
+  margin-bottom: 5px;
+  display: block;
+}

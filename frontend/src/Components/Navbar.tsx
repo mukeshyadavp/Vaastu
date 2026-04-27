@@ -6,8 +6,56 @@ import "leaflet/dist/leaflet.css";
 import type { LatLngExpression } from "leaflet";
 import { useNavigate, useLocation } from "react-router-dom";
 import { apiPost } from "../Services/api";
-const MapComponent = () => {
-  const position: LatLngExpression = [17.385, 78.4867];
+import { useMapEvents } from "react-leaflet";
+import { useMap } from "react-leaflet";
+type MapProps = {
+  setLatitude: (lat: string) => void;
+  setLongitude: (lng: string) => void;
+};
+
+const MapComponent: React.FC<MapProps> = ({
+  
+  setLatitude,
+  setLongitude,
+}) => {
+const [position, setPosition] = useState<LatLngExpression>([17.385, 78.4867]);
+const MapMover = ({ setPosition }: any) => {
+  const map = useMap();
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      const { lat, lon } = e.detail;
+
+      map.setView([lat, lon], 13);
+
+    
+      setPosition([lat, lon]);
+    };
+
+    window.addEventListener("moveMap", handler);
+
+    return () => {
+      window.removeEventListener("moveMap", handler);
+    };
+  }, [map, setPosition]);
+
+  return null;
+};
+const MapClickHandler = () => {
+  useMapEvents({
+    click(e) {
+      const lat = e.latlng.lat;
+      const lng = e.latlng.lng;
+
+      setPosition([lat, lng]);
+
+      setLatitude(lat.toString());
+      setLongitude(lng.toString());
+    },
+  });
+
+  return null;
+};
 
   return (
     <MapContainer
@@ -19,7 +67,23 @@ const MapComponent = () => {
         attribution="&copy; OpenStreetMap contributors"
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <Marker position={position}>
+       <MapMover setPosition={setPosition} />
+      <MapClickHandler />
+      <Marker
+  position={position}
+  draggable={true}
+  eventHandlers={{
+    dragend: (e) => {
+      const marker = e.target;
+      const latlng = marker.getLatLng();
+
+      setPosition([latlng.lat, latlng.lng]);
+
+      setLatitude(latlng.lat.toString());
+      setLongitude(latlng.lng.toString());
+    },
+  }}
+>
         <Popup>Selected Location</Popup>
       </Marker>
     </MapContainer>
@@ -63,6 +127,9 @@ const Navbar: React.FC<NavbarProps> = ({
   const [survey, setSurvey] = useState("");
   const [applicantName, setApplicantName] = useState("");
   const [plotArea, setPlotArea] = useState("");
+  const [latitude, setLatitude] = useState("");
+const [longitude, setLongitude] = useState("");
+const [searchLocation, setSearchLocation] = useState("");
   const [roadWidth, setRoadWidth] = useState("");
   const [landType, setLandType] = useState("");
 
@@ -477,10 +544,71 @@ if (response) {
                     Commercial
                   </option>
                 </select>
+<div className="searchContainer">
+  <input
+    className="inputBox searchInput"
+    placeholder="Search Location"
+    value={searchLocation}
+    onChange={(e) => setSearchLocation(e.target.value)}
+  />
+
+  <button
+    className="searchBtn"
+    onClick={async () => {
+      if (!searchLocation) return;
+
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${searchLocation}`
+      );
+      const data = await res.json();
+
+      if (data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lon = parseFloat(data[0].lon);
+
+        setLatitude(lat.toString());
+        setLongitude(lon.toString());
+
+        window.dispatchEvent(
+          new CustomEvent("moveMap", {
+            detail: { lat, lon },
+          })
+        );
+      }
+    }}
+  >
+    Search
+  </button>
+</div>
+<div className="latLngRow">
+
+  <div className="fieldGroup">
+    <label>Latitude</label>
+    <input
+      className="inputBox"
+      value={latitude}
+      readOnly
+    />
+  </div>
+
+  <div className="fieldGroup">
+    <label>Longitude</label>
+    <input
+      className="inputBox"
+      value={longitude}
+      readOnly
+    />
+  </div>
+</div>
+
 
                 <div className="mapBoxReal">
-                  <MapComponent />
+               <MapComponent
+  setLatitude={setLatitude}
+  setLongitude={setLongitude}
+/>
                 </div>
+
 
                 <div className="bottomActions">
                   <button
