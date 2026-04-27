@@ -128,8 +128,8 @@ const Navbar: React.FC<NavbarProps> = ({
   const [applicantName, setApplicantName] = useState("");
   const [plotArea, setPlotArea] = useState("");
   const [latitude, setLatitude] = useState("");
-const [longitude, setLongitude] = useState("");
-const [searchLocation, setSearchLocation] = useState("");
+  const [longitude, setLongitude] = useState("");
+  const [searchLocation, setSearchLocation] = useState("");
   const [roadWidth, setRoadWidth] = useState("");
   const [landType, setLandType] = useState("");
   const [filePreviewUrl, setFilePreviewUrl] = useState<string>("");
@@ -202,7 +202,7 @@ const [message, setMessage] = useState("");
       plotSize: plotArea || "N/A",
     };
 
-  const response = await apiPost("api/applications", newData);
+  const response = await apiPost("/api/applications", newData);
 
 if (response) {
   alert("Application Submitted ✅");
