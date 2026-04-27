@@ -12,7 +12,6 @@ const AIUpload = () => {
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<UploadResult>("");
   const [message, setMessage] = useState("");
-  const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(false);
 
   const [pdfUrl, setPdfUrl] = useState("");
@@ -20,6 +19,9 @@ const AIUpload = () => {
   const [violations, setViolations] = useState<AutoDcrViolation[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const wait = (ms: number) =>
+    new Promise((resolve) => window.setTimeout(resolve, ms));
 
   const resetFileInput = () => {
     setFile(null);
@@ -32,153 +34,183 @@ const AIUpload = () => {
   const resetResult = () => {
     setResult("");
     setMessage("");
-    setProgress(0);
     setPdfUrl("");
     setApplicationNo("");
     setViolations([]);
   };
 
- const handleUpload = async () => {
-  if (!file) {
-    setResult("failure");
-    setMessage("Please select a file");
-    return;
-  }
+  const handleUpload = async () => {
+    if (!file) {
+      setResult("failure");
+      setMessage("Please select a file");
+      return;
+    }
 
-  if (file.size > 20 * 1024 * 1024) {
-    setResult("failure");
-    setMessage("File too large. Maximum allowed size is 20MB");
-    return;
-  }
+    if (file.size > 20 * 1024 * 1024) {
+      setResult("failure");
+      setMessage("File too large. Maximum allowed size is 20MB");
+      return;
+    }
 
-  setLoading(true);
-  resetResult();
-  setProgress(1);
+    setLoading(true);
+    resetResult();
 
-  try {
-    const data = await runAutoDcr(
-      file,
-      {
+    const loaderStartTime = Date.now();
+
+    try {
+      const data = await runAutoDcr(file, {
         buildingType: "Residential",
         floors: 2,
         height: 7.0,
         classification: "Non-High-Rise",
-      },
-      (uploadProgress) => {
-        setProgress(uploadProgress);
-      }
-    );
+      });
 
-    const isCompliant = data.result.isCompliant;
+      const elapsedTime = Date.now() - loaderStartTime;
+      const remainingTime = Math.max(0, 5000 - elapsedTime);
 
-    setResult(isCompliant ? "success" : "failure");
-    setMessage(
-      isCompliant
-        ? "Plan Approved. Compliance certificate generated successfully."
-        : "Plan Rejected. Non-compliance report generated successfully."
-    );
+      await wait(remainingTime);
 
-    // IMPORTANT: set for BOTH pass and fail
-    setPdfUrl(data.pdf.downloadUrl);
-    setApplicationNo(data.pdf.applicationNo);
-    setViolations(data.result.violations || []);
+      const isCompliant = data.result.isCompliant;
 
-    setTimeout(() => {
-      resetFileInput();
-    }, 1500);
-  } catch (error) {
-    setProgress(0);
-    setResult("failure");
-    setMessage(
-      error instanceof Error
-        ? error.message
-        : "Upload failed. Please check Flask server and try again."
-    );
-    setPdfUrl("");
-    setApplicationNo("");
-    setViolations([]);
-  } finally {
-    setLoading(false);
-  }
-};
-const handleDownload = () => {
-  if (!pdfUrl) {
-    setMessage("PDF is not available yet");
-    return;
-  }
+      setResult(isCompliant ? "success" : "failure");
 
-  const link = document.createElement("a");
+      setMessage(
+        isCompliant
+          ? "Plan Approved. Compliance certificate generated successfully."
+          : "Plan Rejected. Non-compliance report generated successfully."
+      );
 
-  link.href = getReportDownloadUrl(pdfUrl);
-  link.download =
-    result === "success"
-      ? `${applicationNo}-Approved-Compliance.pdf`
-      : `${applicationNo}-Rejected-Compliance.pdf`;
+      setPdfUrl(data.pdf.downloadUrl);
+      setApplicationNo(data.pdf.applicationNo);
+      setViolations(data.result.violations || []);
 
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
+      setTimeout(() => {
+        resetFileInput();
+      }, 1500);
+    } catch (error) {
+      const elapsedTime = Date.now() - loaderStartTime;
+      const remainingTime = Math.max(0, 5000 - elapsedTime);
+
+      await wait(remainingTime);
+
+      setResult("failure");
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Upload failed. Please check Flask server and try again."
+      );
+
+      setPdfUrl("");
+      setApplicationNo("");
+      setViolations([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDownload = () => {
+    if (!pdfUrl) {
+      setMessage("PDF is not available yet");
+      return;
+    }
+
+    const link = document.createElement("a");
+
+    link.href = getReportDownloadUrl(pdfUrl);
+    link.download =
+      result === "success"
+        ? `${applicationNo}-Approved-Compliance.pdf`
+        : `${applicationNo}-Rejected-Compliance.pdf`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="upload-section">
       <h2>AI-Assisted Automated Scrutiny</h2>
 
-      <div className="upload-box">
-        <label className="file-label">
-          <input
-            type="file"
-            accept=".pdf,.dwg,.dxf,.png,.jpg,.jpeg"
-            ref={fileInputRef}
-            onChange={(e) => {
-              const selectedFile = e.target.files?.[0];
+      <div className="upload-area-wrapper">
+        <div className="upload-box">
+          <label className="file-label">
+            <input
+              type="file"
+              accept=".pdf,.dwg,.dxf,.png,.jpg,.jpeg"
+              ref={fileInputRef}
+              disabled={loading}
+              onChange={(e) => {
+                const selectedFile = e.target.files?.[0];
 
-              if (selectedFile) {
-                setFile(selectedFile);
-                resetResult();
-              }
-            }}
-          />
-
-          <div className="upload-content">
-            <p className="upload-icon">📄</p>
-
-            <p className="upload-text">
-              {file ? file.name : "Click to upload or drag & drop"}
-            </p>
-
-            <span className="upload-subtext">
-              CAD / PDF / Drawing File (Max 20MB)
-            </span>
-          </div>
-        </label>
-
-        <button
-          type="button"
-          className="upload-btn"
-          onClick={handleUpload}
-          disabled={loading}
-        >
-          {loading ? "Uploading..." : "Run AI Scrutiny"}
-        </button>
-      </div>
-
-      {loading && (
-        <div className="progress-container">
-          <div className="progress-bar">
-            <div
-              className="progress-fill"
-              style={{ width: `${progress}%` }}
+                if (selectedFile) {
+                  setFile(selectedFile);
+                  resetResult();
+                }
+              }}
             />
-          </div>
 
-          <p>
-            {progress < 80
-              ? `${progress}% Uploading file...`
-              : `${progress}% Generating compliance PDF...`}
-          </p>
+            <div className="upload-content">
+              <p className="upload-icon">📄</p>
+
+              <p className="upload-text">
+                {file ? file.name : "Click to upload or drag & drop"}
+              </p>
+
+              <span className="upload-subtext">
+                CAD / PDF / Drawing File (Max 20MB)
+              </span>
+            </div>
+          </label>
+
+          <button
+            type="button"
+            className="upload-btn"
+            onClick={handleUpload}
+            disabled={loading}
+          >
+            {loading ? "AI Scanning..." : "Run AI Scrutiny"}
+          </button>
         </div>
-      )}
+
+        {loading && (
+          <div className="upload-loader-overlay">
+            <div className="ai-plan-loader">
+              <div className="ai-plan-card">
+                <div className="plan-bg-grid"></div>
+
+                <div className="plan-plot">
+                  <div className="plan-house">
+                    <span className="plan-room room-top-left"></span>
+                    <span className="plan-room room-top-right"></span>
+                    <span className="plan-room room-bottom-left"></span>
+                    <span className="plan-room room-bottom-right"></span>
+
+                    <span className="plan-wall wall-center-v"></span>
+                    <span className="plan-wall wall-center-h"></span>
+                    <span className="plan-door door-main"></span>
+                  </div>
+
+                  <span className="setback-line setback-top"></span>
+                  <span className="setback-line setback-right"></span>
+                  <span className="setback-line setback-bottom"></span>
+                  <span className="setback-line setback-left"></span>
+                </div>
+
+                <span className="ai-node node-1"></span>
+                <span className="ai-node node-2"></span>
+                <span className="ai-node node-3"></span>
+                <span className="ai-node node-4"></span>
+
+                <span className="ai-scan-ring ring-1"></span>
+                <span className="ai-scan-ring ring-2"></span>
+
+                <div className="ai-scan-beam"></div>
+                <div className="ai-scan-line"></div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {!loading && result !== "" && (
         <div className={`result-card ${result}`}>
