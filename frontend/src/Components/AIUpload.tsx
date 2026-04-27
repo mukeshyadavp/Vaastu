@@ -83,23 +83,23 @@ const AIUpload = () => {
       return;
     }
 
-    if (isDxfFile(selectedFile)) {
-      try {
-        const previewUrl = await generateCadPreview(selectedFile);
-        const fullPreviewUrl = getReportDownloadUrl(previewUrl);
+    // if (isDxfFile(selectedFile)) {
+    //   try {
+    //     const previewUrl = await generateCadPreview(selectedFile);
+    //     const fullPreviewUrl = getReportDownloadUrl(previewUrl);
 
-        console.log("DXF preview URL:", fullPreviewUrl);
+    //     console.log("DXF preview URL:", fullPreviewUrl);
 
-        setFilePreviewUrl(fullPreviewUrl);
-        return;
-      } catch (error) {
-        console.error("CAD preview failed:", error);
-        setFilePreviewUrl("");
-        return;
-      }
-    }
+    //     setFilePreviewUrl(fullPreviewUrl);
+    //     return;
+    //   } catch (error) {
+    //     console.error("CAD preview failed:", error);
+    //     setFilePreviewUrl("");
+    //     return;
+    //   }
+    // }
 
-    if (isDwgFile(selectedFile)) {
+    if (isDwgFile(selectedFile) || isDxfFile(selectedFile)) {
       console.warn("DWG preview is disabled on Render free. Showing CAD fallback.");
       setFilePreviewUrl("");
       return;
@@ -210,7 +210,7 @@ const AIUpload = () => {
         inputRef={fileInputRef}
         buttonText="Run AI Scrutiny"
         loadingButtonText="AI Scanning..."
-        uploadSubtext="DXF preview supported. DWG can be uploaded but preview is disabled on Render free."
+        uploadSubtext="CAD / PDF / Drawing File (Max 20MB)"
         onFileChange={handleFileChange}
         onRun={handleUpload}
       />

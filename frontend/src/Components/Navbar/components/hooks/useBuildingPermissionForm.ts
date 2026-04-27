@@ -153,27 +153,27 @@ export const useBuildingPermissionForm = ({
       return;
     }
 
-    if (isDxfFile(selectedFile)) {
-      try {
-        setPreviewLoading(true);
+    // if (isDxfFile(selectedFile)) {
+    //   try {
+    //     setPreviewLoading(true);
 
-        const previewUrl = await generateCadPreview(selectedFile);
-        const fullPreviewUrl = getReportDownloadUrl(previewUrl);
+    //     const previewUrl = await generateCadPreview(selectedFile);
+    //     const fullPreviewUrl = getReportDownloadUrl(previewUrl);
 
-        console.log("DXF preview URL:", fullPreviewUrl);
+    //     console.log("DXF preview URL:", fullPreviewUrl);
 
-        setFilePreviewUrl(fullPreviewUrl);
-      } catch (error) {
-        console.error("CAD preview failed:", error);
-        setFilePreviewUrl("");
-      } finally {
-        setPreviewLoading(false);
-      }
+    //     setFilePreviewUrl(fullPreviewUrl);
+    //   } catch (error) {
+    //     console.error("CAD preview failed:", error);
+    //     setFilePreviewUrl("");
+    //   } finally {
+    //     setPreviewLoading(false);
+    //   }
 
-      return;
-    }
+    //   return;
+    // }
 
-    if (isDwgFile(selectedFile)) {
+    if (isDwgFile(selectedFile) || isDxfFile(selectedFile)) {
       console.warn("DWG preview is disabled on Render free. Showing CAD fallback.");
       setFilePreviewUrl("");
       return;
