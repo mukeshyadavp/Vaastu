@@ -15,6 +15,11 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
+      - name: Verify Dockerfile exists
+        run: |
+          ls -la
+          test -f Dockerfile
+
       - name: Create deployment package
         run: |
           zip -r vaastu-deploy.zip . \
@@ -25,6 +30,10 @@ jobs:
             -x "backend/generated_reports/*" \
             -x "backend/static/*" \
             -x "*.log"
+
+      - name: Verify deployment package contains Dockerfile
+        run: |
+          unzip -l vaastu-deploy.zip | grep Dockerfile
 
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v22
