@@ -127,6 +127,8 @@ const Navbar: React.FC<NavbarProps> = ({
 
   } else {
     console.error("Failed to submit application");
+  }} catch (error) {
+    console.error("Error submitting application:", error);
   }
 };
 
