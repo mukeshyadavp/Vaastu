@@ -20,9 +20,6 @@ const AIUpload = () => {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const wait = (ms: number) =>
-    new Promise((resolve) => window.setTimeout(resolve, ms));
-
   const resetFileInput = () => {
     setFile(null);
 
@@ -55,8 +52,6 @@ const AIUpload = () => {
     setLoading(true);
     resetResult();
 
-    const loaderStartTime = Date.now();
-
     try {
       const data = await runAutoDcr(file, {
         buildingType: "Residential",
@@ -65,10 +60,6 @@ const AIUpload = () => {
         classification: "Non-High-Rise",
       });
 
-      const elapsedTime = Date.now() - loaderStartTime;
-      const remainingTime = Math.max(0, 5000 - elapsedTime);
-
-      await wait(remainingTime);
 
       const isCompliant = data.result.isCompliant;
 
@@ -88,10 +79,6 @@ const AIUpload = () => {
         resetFileInput();
       }, 1500);
     } catch (error) {
-      const elapsedTime = Date.now() - loaderStartTime;
-      const remainingTime = Math.max(0, 5000 - elapsedTime);
-
-      await wait(remainingTime);
 
       setResult("failure");
       setMessage(
@@ -174,38 +161,33 @@ const AIUpload = () => {
 
         {loading && (
           <div className="upload-loader-overlay">
-            <div className="ai-plan-loader">
-              <div className="ai-plan-card">
-                <div className="plan-bg-grid"></div>
+            <div className="floorplan-loader">
+              <div className="floorplan-card">
+                <div className="floorplan-grid"></div>
 
-                <div className="plan-plot">
-                  <div className="plan-house">
-                    <span className="plan-room room-top-left"></span>
-                    <span className="plan-room room-top-right"></span>
-                    <span className="plan-room room-bottom-left"></span>
-                    <span className="plan-room room-bottom-right"></span>
+                <div className="floorplan-boundary">
+                  <div className="floorplan-garden"></div>
 
-                    <span className="plan-wall wall-center-v"></span>
-                    <span className="plan-wall wall-center-h"></span>
-                    <span className="plan-door door-main"></span>
-                  </div>
+                  <div className="floorplan-room living"></div>
+                  <div className="floorplan-room kitchen"></div>
+                  <div className="floorplan-room bedroom-one"></div>
+                  <div className="floorplan-room bedroom-two"></div>
+                  <div className="floorplan-room toilet-one"></div>
+                  <div className="floorplan-room toilet-two"></div>
+                  <div className="floorplan-room lobby"></div>
+                  <div className="floorplan-room stairs"></div>
 
-                  <span className="setback-line setback-top"></span>
-                  <span className="setback-line setback-right"></span>
-                  <span className="setback-line setback-bottom"></span>
-                  <span className="setback-line setback-left"></span>
+                  <div className="floorplan-door door-one"></div>
+                  <div className="floorplan-door door-two"></div>
+                  <div className="floorplan-door door-three"></div>
+
+                  <span className="scan-target target-one"></span>
+                  <span className="scan-target target-two"></span>
+                  <span className="scan-target target-three"></span>
                 </div>
 
-                <span className="ai-node node-1"></span>
-                <span className="ai-node node-2"></span>
-                <span className="ai-node node-3"></span>
-                <span className="ai-node node-4"></span>
-
-                <span className="ai-scan-ring ring-1"></span>
-                <span className="ai-scan-ring ring-2"></span>
-
-                <div className="ai-scan-beam"></div>
-                <div className="ai-scan-line"></div>
+                <div className="floorplan-scan-band"></div>
+                <div className="floorplan-scan-line"></div>
               </div>
             </div>
           </div>
