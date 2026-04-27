@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request, send_from_directory
+from pymongo import MongoClient
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from config import Config
@@ -11,6 +12,11 @@ from flask import send_file
 from ai.compliance_pdf import generate_compliance_pdf
 from datetime import datetime
 import uuid
+
+client = MongoClient("mongodb://localhost:27017/")
+db = client["vaastu_db"]
+applications_collection = db["applications"]
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 REPORT_FOLDER = os.path.join(BASE_DIR, "generated_reports")
@@ -45,22 +51,25 @@ CORS(
 
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
-applications = [
-    {
-        "id": 1,
-        "applicantName": "Ramesh Kumar",
-        "status": "Pending",
-        "location": "Vijayawada",
-        "plotSize": "250 Sq Yards"
-    },
-    {
-        "id": 2,
-        "applicantName": "Suresh Reddy",
-        "status": "Approved",
-        "location": "Guntur",
-        "plotSize": "300 Sq Yards"
-    }
-]
+if applications_collection.count_documents({}) == 0:
+    default_data = [
+        {
+            "id": 1,
+            "applicantName": "Ramesh Kumar",
+            "status": "Pending",
+            "location": "Vijayawada",
+            "plotSize": "250 Sq Yards"
+        },
+        {
+            "id": 2,
+            "applicantName": "Suresh Reddy",
+            "status": "Approved",
+            "location": "Guntur",
+            "plotSize": "300 Sq Yards"
+        }
+    ]
+
+    applications_collection.insert_many(default_data)
 
 
 # ── API Routes ────────────────────────────────────────────────────────────────
@@ -75,15 +84,18 @@ def health_check():
 
 @app.route("/api/applications", methods=["GET"])
 def get_applications():
+    data = list(applications_collection.find({}, {"_id": 0}))
+
     return jsonify({
         "success": True,
-        "data": applications
+        "data": data
     })
 
 
 @app.route("/api/applications", methods=["POST"])
 def create_application():
     data = request.get_json()
+    print("Received from frontend:", data)
 
     if not data:
         return jsonify({
@@ -100,15 +112,21 @@ def create_application():
                 "message": f"{field} is required"
             }), 400
 
+    last_record = applications_collection.find_one(
+        sort=[("id", -1)]
+    )
+
+    new_id = 1 if not last_record else last_record["id"] + 1
+
     new_application = {
-        "id": len(applications) + 1,
+        "id": new_id,
         "applicantName": data["applicantName"],
         "location": data["location"],
         "plotSize": data["plotSize"],
         "status": data.get("status", "Pending")
     }
 
-    applications.append(new_application)
+    applications_collection.insert_one(new_application)
 
     return jsonify({
         "success": True,
@@ -116,17 +134,24 @@ def create_application():
         "data": new_application
     }), 201
 
-
 @app.route("/api/applications/<int:application_id>/approve", methods=["PUT"])
 def approve_application(application_id):
-    for app_item in applications:
-        if app_item["id"] == application_id:
-            app_item["status"] = "Approved"
-            return jsonify({
-                "success": True,
-                "message": "Application approved",
-                "data": app_item
-            })
+    result = applications_collection.update_one(
+        {"id": application_id},
+        {"$set": {"status": "Approved"}}
+    )
+
+    if result.modified_count > 0:
+        updated_app = applications_collection.find_one(
+            {"id": application_id},
+            {"_id": 0}
+        )
+
+        return jsonify({
+            "success": True,
+            "message": "Application approved",
+            "data": updated_app
+        })
 
     return jsonify({
         "success": False,
@@ -136,14 +161,22 @@ def approve_application(application_id):
 
 @app.route("/api/applications/<int:application_id>/reject", methods=["PUT"])
 def reject_application(application_id):
-    for app_item in applications:
-        if app_item["id"] == application_id:
-            app_item["status"] = "Rejected"
-            return jsonify({
-                "success": True,
-                "message": "Application rejected",
-                "data": app_item
-            })
+    result = applications_collection.update_one(
+        {"id": application_id},
+        {"$set": {"status": "Rejected"}}
+    )
+
+    if result.modified_count > 0:
+        updated_app = applications_collection.find_one(
+            {"id": application_id},
+            {"_id": 0}
+        )
+
+        return jsonify({
+            "success": True,
+            "message": "Application rejected",
+            "data": updated_app
+        })
 
     return jsonify({
         "success": False,
@@ -240,6 +273,8 @@ def ai_auto_dcr():
             "downloadUrl": f"/api/reports/{pdf_filename}"
         }
     }), 200
+
+
 @app.route("/api/reports/<filename>", methods=["GET"])
 def download_report(filename):
     file_path = os.path.join(REPORT_FOLDER, filename)
@@ -335,5 +370,7 @@ if __name__ == "__main__":
     app.run(
         host="0.0.0.0",
         port=5000,
-        debug=True
+        debug=True,
+        use_reloader=False
+        
     )
