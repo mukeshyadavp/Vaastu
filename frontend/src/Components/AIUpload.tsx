@@ -20,9 +20,6 @@ const AIUpload = () => {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const wait = (ms: number) =>
-    new Promise((resolve) => window.setTimeout(resolve, ms));
-
   const resetFileInput = () => {
     setFile(null);
 
@@ -55,8 +52,6 @@ const AIUpload = () => {
     setLoading(true);
     resetResult();
 
-    const loaderStartTime = Date.now();
-
     try {
       const data = await runAutoDcr(file, {
         buildingType: "Residential",
@@ -65,10 +60,6 @@ const AIUpload = () => {
         classification: "Non-High-Rise",
       });
 
-      const elapsedTime = Date.now() - loaderStartTime;
-      const remainingTime = Math.max(0, 5000 - elapsedTime);
-
-      await wait(remainingTime);
 
       const isCompliant = data.result.isCompliant;
 
@@ -88,10 +79,6 @@ const AIUpload = () => {
         resetFileInput();
       }, 1500);
     } catch (error) {
-      const elapsedTime = Date.now() - loaderStartTime;
-      const remainingTime = Math.max(0, 5000 - elapsedTime);
-
-      await wait(remainingTime);
 
       setResult("failure");
       setMessage(
