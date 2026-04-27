@@ -26,16 +26,22 @@ const [applications, setApplications] = useState<Application[]>([]);
 
   // ✅ GET FUNCTION
   const fetchApplications = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/api/applications");
-      const data = await res.json();
-    setApplications(
-data.data.map((app: any) => ({    id: app.id,
-    name: app.applicantName, // 🔥 fix
-    status: app.status,
-  }))
-);
-    } catch (err) {
+ try {
+  const res = await fetch("http://localhost:5000/api/applications");
+  const data = await res.json();
+
+  console.log("API RESPONSE:", data); // 👈 chala important
+
+  const apps = Array.isArray(data) ? data : data.data;
+
+  setApplications(
+    apps.map((app: any) => ({
+      id: app.id,
+      name: app.applicantName,
+      status: app.status || "Pending",
+    }))
+  );
+}catch (err) {
       console.error("Error fetching applications:", err);
     }
   };
