@@ -379,6 +379,9 @@ const MapPreview = ({ id }: { id: number }) => {
               <div key={i} className="gis-month-card">
                 <h4>{item.label}</h4>
 
+
+                
+
 {(selectedBuilding.id === 1 ||
   selectedBuilding.id === 2 ||
   selectedBuilding.id === 3 ||
