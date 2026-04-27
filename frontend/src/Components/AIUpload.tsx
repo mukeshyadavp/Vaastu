@@ -68,6 +68,7 @@ const AIUpload = () => {
       URL.revokeObjectURL(filePreviewUrl);
     }
 
+    setFilePreviewUrl("");
     resetResult();
 
     if (isImageFile(selectedFile) || isPdfFile(selectedFile)) {
@@ -78,7 +79,11 @@ const AIUpload = () => {
     if (isDxfFile(selectedFile)) {
       try {
         const previewUrl = await generateCadPreview(selectedFile);
-        setFilePreviewUrl(getReportDownloadUrl(previewUrl));
+        const fullPreviewUrl = getReportDownloadUrl(previewUrl);
+
+        console.log("DXF preview URL:", fullPreviewUrl);
+
+        setFilePreviewUrl(fullPreviewUrl);
         return;
       } catch (error) {
         console.error("CAD preview failed:", error);
@@ -178,7 +183,8 @@ const AIUpload = () => {
   };
 
   const shouldShowResultPanel =
-    !loading && (result !== "" || violations.length > 0 || complianceChecks.length > 0);
+    !loading &&
+    (result !== "" || violations.length > 0 || complianceChecks.length > 0);
 
   return (
     <>

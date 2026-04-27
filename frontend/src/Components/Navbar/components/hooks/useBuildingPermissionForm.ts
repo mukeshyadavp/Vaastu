@@ -151,8 +151,11 @@ export const useBuildingPermissionForm = ({
         setPreviewLoading(true);
 
         const previewUrl = await generateCadPreview(selectedFile);
+        const fullPreviewUrl = getReportDownloadUrl(previewUrl);
 
-        setFilePreviewUrl(getReportDownloadUrl(previewUrl));
+        console.log("DXF preview URL:", fullPreviewUrl);
+
+        setFilePreviewUrl(fullPreviewUrl);
       } catch (error) {
         console.error("CAD preview failed:", error);
         setFilePreviewUrl("");

@@ -9,10 +9,12 @@ const FileScannerLoader: React.FC<FileScannerLoaderProps> = ({
   filePreviewUrl,
   variant = "upload",
 }) => {
-  const isGeneratedCadPreview =
+  const fileName = file?.name || "";
+  const isPdfFile =
     Boolean(filePreviewUrl) &&
-    Boolean(file) &&
-    /\.(dxf|dwg)$/i.test(file?.name || "");
+    (file?.type.includes("pdf") || fileName.toLowerCase().endsWith(".pdf"));
+
+  const shouldShowImagePreview = Boolean(filePreviewUrl) && !isPdfFile;
 
   return (
     <div
@@ -21,14 +23,17 @@ const FileScannerLoader: React.FC<FileScannerLoaderProps> = ({
       }`}
     >
       <div className="file-scan-card">
-        {filePreviewUrl &&
-        (file?.type.startsWith("image/") || isGeneratedCadPreview) ? (
+        {shouldShowImagePreview ? (
           <img
             src={filePreviewUrl}
             alt="Uploaded plan preview"
             className="file-scan-thumbnail"
+            onError={(event) => {
+              console.error("Preview image failed:", filePreviewUrl);
+              event.currentTarget.style.display = "none";
+            }}
           />
-        ) : filePreviewUrl && file?.type.includes("pdf") ? (
+        ) : isPdfFile ? (
           <iframe
             src={filePreviewUrl}
             title="Uploaded PDF preview"

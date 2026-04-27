@@ -99,6 +99,15 @@ export type ApplicationItem = {
   longitude?: number | null;
 };
 
+export type ApplicationPayload = {
+  applicantName: string;
+  location: string;
+  plotSize: string;
+  status?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+};
+
 export type ApplicationResponse = {
   success: boolean;
   message?: string;
