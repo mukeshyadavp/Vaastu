@@ -3,10 +3,10 @@
 ================================ */
 .generic-upload-section {
   background: #ffffff;
-  padding: 30px;
+  padding: 20px;
   border-radius: 18px;
   box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
-  min-height: 520px;
+  min-height: 420px;
 }
 
 .generic-upload-section h2 {
@@ -23,14 +23,14 @@
   position: relative;
   border-radius: 18px;
   overflow: hidden;
-  min-height: 385px;
+  min-height: auto;
 }
 
 .upload-box {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  min-height: 385px;
+  gap: 10px;
+  min-height: auto;
 }
 
 .file-label input {
@@ -99,6 +99,7 @@
   font-weight: 700;
   font-size: 15px;
   transition: 0.2s ease;
+   margin-bottom: 0;
 }
 
 .upload-btn:hover {
@@ -118,7 +119,7 @@
   inset: 0;
   z-index: 40;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   min-height: 385px;
   background: rgba(15, 23, 42, 0.08);
@@ -126,6 +127,7 @@
   border-radius: 18px;
   animation: overlayFadeIn 0.22s ease;
   pointer-events: all;
+  margin-top: 6px !important;
 }
 
 @keyframes overlayFadeIn {
