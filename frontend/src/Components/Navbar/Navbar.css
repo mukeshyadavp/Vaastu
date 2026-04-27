@@ -1,0 +1,13 @@
+@import "./styles/header.css";
+@import "./styles/menu.css";
+@import "./styles/modal.css";
+@import "./styles/wizard.css";
+@import "./styles/map.css";
+@import "./styles/upload.css";
+@import "./styles/review.css";
+@import "./styles/preview.css";
+@import "./styles/loader.css";
+@import "./styles/result.css";
+@import "./styles/violations.css";
+@import "./styles/animations.css";
+@import "./styles/responsive.css";

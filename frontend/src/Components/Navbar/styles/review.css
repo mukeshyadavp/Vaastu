@@ -1,0 +1,60 @@
+.reviewCenterWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 0;
+}
+
+.reviewColorCard {
+  width: 100%;
+  max-width: 1200px;
+  text-align: left;
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  animation: fadeInUp 0.4s ease-in-out;
+}
+
+.reviewTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1b5e20;
+  margin-bottom: 10px;
+}
+
+.reviewText {
+  font-size: 15px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.reviewCard {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background: #fafafa;
+}
+
+.reviewNote {
+  background: #fff3cd;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  margin-bottom: 20px;
+  border: 1px solid #ffeeba;
+}
+
+.previewBtn {
+  background: #e3e6e4;
+  color: rgb(24, 22, 22);
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.previewBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

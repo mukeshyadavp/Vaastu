@@ -1,0 +1,45 @@
+.violation-list {
+  margin-top: 18px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.violation-list h3 {
+  margin: 0 0 14px;
+  color: #9a3412;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.violation-item {
+  background: #ffffff;
+  border: 1px solid #fed7aa;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.violation-item:last-child {
+  margin-bottom: 0;
+}
+
+.violation-item strong {
+  color: #c2410c;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.violation-item p {
+  margin: 0 0 6px;
+  color: #7c2d12;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.violation-item span {
+  color: #9a3412;
+  font-size: 13px;
+  font-weight: 700;
+}

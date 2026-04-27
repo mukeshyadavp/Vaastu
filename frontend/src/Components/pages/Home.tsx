@@ -26,6 +26,7 @@ const Home = () => {
           applyOpen={applyOpen}         // ✅ ADD
   setApplyOpen={setApplyOpen}   // ✅ ADD
       />
+      
       <HeroSlider /> 
 
       <HeroCards
