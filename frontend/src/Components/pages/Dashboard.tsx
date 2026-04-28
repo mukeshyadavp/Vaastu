@@ -6,16 +6,24 @@ const Dashboard: React.FC<{ applications: any[] }> = ({ applications }) => {
 const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
 useEffect(() => {
   if (selectedCard) {
-    document.body.style.overflow = "hidden";  // 🔒 lock scroll
+    const scrollBarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
+
+    document.body.style.overflow = "hidden";
+    document.body.style.paddingRight = `${scrollBarWidth}px`;
   } else {
-    document.body.style.overflow = "auto";    // 🔓 unlock
+    document.body.style.overflow = "auto";
+    document.body.style.paddingRight = "0px";
   }
 
   return () => {
-    document.body.style.overflow = "auto";    // cleanup
+    document.body.style.overflow = "auto";
+    document.body.style.paddingRight = "0px";
   };
 }, [selectedCard]);
-// ✅ ADD BELOW THIS
+
+
+
 const getTitle = () => {
   switch (selectedCard) {
     case "completed": return "Applications Completed";
@@ -208,34 +216,51 @@ const percentage =
 
     
 {selectedCard && (
-  <div className="db-modal-overlay" onClick={() => setSelectedCard(null)}>
+  <div
+    className="db-modal-overlay"
+    onClick={() => setSelectedCard(null)}
+  >
+    <div
+      className="db-modal"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Top header */}
+      <div className="db-modal-header">
+        <h3>{getTitle()}</h3>
 
-    <div className="db-modal" onClick={(e) => e.stopPropagation()}>
+        <button
+          className="db-close-btn"
+          onClick={() => setSelectedCard(null)}
+        >
+          ×
+        </button>
+      </div>
 
-      <h3>{getTitle()}</h3>
-
+      {/* Table */}
       <table>
         <thead>
           <tr>
-            <th>ID</th>
+            <th>S No</th>
             <th>Application</th>
             <th>Status</th>
           </tr>
         </thead>
 
-<tbody>
-  {selectedCard && getData()?.map((item: { id: number; name: string; status: string }) => (
-    <tr key={item.id}>
-      <td>#{item.id}</td>
-      <td>{item.name}</td>
-      <td>{item.status}</td>
-    </tr>
-  ))}
-</tbody>
+        <tbody>
+          {getData()?.map(
+            (
+              item: { id: number; name: string; status: string },
+              index: number
+            ) => (
+              <tr key={item.id}>
+                <td>{index + 1}</td>
+                <td>{item.name}</td>
+                <td>{item.status}</td>
+              </tr>
+            )
+          )}
+        </tbody>
       </table>
-
-      <button onClick={() => setSelectedCard(null)}>Close</button>
-
     </div>
   </div>
 )}
