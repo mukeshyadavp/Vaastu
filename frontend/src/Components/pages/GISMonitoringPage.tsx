@@ -38,10 +38,12 @@ type Building = {
   position: [number, number];
 };
 
-type WaybackRelease = {
-  releaseNum: number;
+// Each quarterly slot matched to a real Wayback release
+type HistorySlot = {
+  label: string;        // e.g. "Jan 2025"
+  targetDate: Date;
+  releaseNum: number;   // 0 = use current Esri
   releaseDateLabel: string;
-  stageLabel: string;
 };
 
 /* ─────────────────────────────────
@@ -55,59 +57,9 @@ const waybackUrl = (id: number) =>
   `https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/${id}/{z}/{y}/{x}`;
 
 const getLatestLocationPreviewImage = (lat: number, lng: number) => {
-  /*
-    Latest clear satellite preview for the building card.
-    Smaller delta = closer image.
-    If too zoomed-in, increase to 0.0012.
-  */
   const delta = 0.0009;
-
-  const minLng = lng - delta;
-  const minLat = lat - delta;
-  const maxLng = lng + delta;
-  const maxLat = lat + delta;
-
-  return `https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${minLng},${minLat},${maxLng},${maxLat}&bboxSR=4326&imageSR=4326&size=1000,620&format=jpg&f=image`;
+  return `https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${lng - delta},${lat - delta},${lng + delta},${lat + delta}&bboxSR=4326&imageSR=4326&size=1000,620&format=jpg&f=image`;
 };
-
-/* ─────────────────────────────────
-   Static fallback releases
-───────────────────────────────── */
-
-const STATIC_RELEASES: WaybackRelease[] = [
-  {
-    releaseNum: 0,
-    releaseDateLabel: "2014 – Baseline",
-    stageLabel: "Stage 1 · Baseline (2014)",
-  },
-  {
-    releaseNum: 0,
-    releaseDateLabel: "2019",
-    stageLabel: "Stage 2 · 2019 Capture",
-  },
-  {
-    releaseNum: 0,
-    releaseDateLabel: "2023",
-    stageLabel: "Stage 3 · 2023 Capture",
-  },
-  {
-    releaseNum: 0,
-    releaseDateLabel: "2024",
-    stageLabel: "Stage 4 · 2024 Capture",
-  },
-  {
-    releaseNum: 0,
-    releaseDateLabel: "2025",
-    stageLabel: "Stage 5 · 2025 Capture",
-  },
-  {
-    releaseNum: 0,
-    releaseDateLabel: "2026 (Latest)",
-    stageLabel: "Stage 6 · Latest (2026)",
-  },
-];
-
-const TIMELINE_INDICES = [0, 3, 5];
 
 /* ─────────────────────────────────
    Helpers
@@ -133,94 +85,124 @@ const blinkingIcon = L.divIcon({
   iconAnchor: [10, 10],
 });
 
-async function fetchWaybackReleases(): Promise<WaybackRelease[]> {
+/* ─────────────────────────────────
+   Generate 8 quarterly slots
+   newest → oldest (last 2 years)
+───────────────────────────────── */
+
+function generateQuarterlySlots(): { label: string; targetDate: Date }[] {
+  const slots: { label: string; targetDate: Date }[] = [];
+  const now = new Date();
+
+  for (let i = 0; i <= 7; i++) {
+    const d = new Date(now);
+    d.setMonth(d.getMonth() - i * 3);
+    d.setDate(1);
+    d.setHours(0, 0, 0, 0);
+
+    const label =
+      i === 0
+        ? `${d.toLocaleString("default", { month: "short" })} ${d.getFullYear()} (Current)`
+        : `${d.toLocaleString("default", { month: "short" })} ${d.getFullYear()}`;
+
+    slots.push({ label, targetDate: new Date(d) });
+  }
+
+  return slots; // newest first
+}
+
+/* ─────────────────────────────────
+   Fetch Wayback config & match
+   each slot to the closest release
+───────────────────────────────── */
+
+type WaybackEntry = { releaseNum: number; date: Date; label: string };
+
+async function fetchAndMatchReleases(
+  slots: { label: string; targetDate: Date }[]
+): Promise<HistorySlot[]> {
   try {
-    const response = await fetch(
+    const res = await fetch(
       "https://raw.githubusercontent.com/Esri/wayback/master/src/data/wayback-config.json",
       { cache: "force-cache" }
     );
+    if (!res.ok) throw new Error("fetch failed");
 
-    if (!response.ok) {
-      throw new Error("Wayback release fetch failed");
-    }
+    const raw: Record<string, { releaseDateLabel?: string }> = await res.json();
 
-    const data: Record<string, { releaseDateLabel?: string }> =
-      await response.json();
+    const entries: WaybackEntry[] = Object.entries(raw)
+      .map(([k, v]) => {
+        const num = parseInt(k, 10);
+        const lbl = v.releaseDateLabel ?? "";
+        const parsed = new Date(lbl);
+        return { releaseNum: num, date: parsed, label: lbl };
+      })
+      .filter((e) => !isNaN(e.releaseNum) && !isNaN(e.date.getTime()) && e.date.getTime() > 0)
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
 
-    const sorted = Object.entries(data)
-      .map(([key, value]) => ({
-        releaseNum: parseInt(key, 10),
-        releaseDateLabel: value.releaseDateLabel ?? key,
-        stageLabel: value.releaseDateLabel ?? key,
-      }))
-      .filter((item) => !Number.isNaN(item.releaseNum))
-      .sort((a, b) => a.releaseNum - b.releaseNum);
+    if (entries.length === 0) throw new Error("empty");
 
-    if (sorted.length === 0) {
-      throw new Error("No releases available");
-    }
+    return slots.map((slot, idx) => {
+      // Most recent slot → latest available release
+      if (idx === 0) {
+        const latest = entries[entries.length - 1];
+        return {
+          label: slot.label,
+          targetDate: slot.targetDate,
+          releaseNum: latest.releaseNum,
+          releaseDateLabel: latest.label,
+        };
+      }
 
-    const step = Math.max(1, Math.floor(sorted.length / 5));
-    const picked: WaybackRelease[] = [];
+      // Find the closest release that is on or before the target date
+      const target = slot.targetDate.getTime();
+      let best = entries[0];
+      let bestDiff = Math.abs(entries[0].date.getTime() - target);
 
-    for (let index = 0; index < 5; index += 1) {
-      const release = sorted[Math.min(index * step, sorted.length - 1)];
+      for (const e of entries) {
+        if (e.date.getTime() <= target) {
+          const diff = Math.abs(e.date.getTime() - target);
+          if (diff < bestDiff) { best = e; bestDiff = diff; }
+        }
+      }
 
-      picked.push({
-        ...release,
-        stageLabel: `Stage ${index + 1} · ${release.releaseDateLabel}`,
-      });
-    }
-
-    const latest = sorted[sorted.length - 1];
-
-    picked.push({
-      ...latest,
-      stageLabel: `Stage 6 · Latest (${latest.releaseDateLabel})`,
+      return {
+        label: slot.label,
+        targetDate: slot.targetDate,
+        releaseNum: best.releaseNum,
+        releaseDateLabel: best.label,
+      };
     });
-
-    return picked;
   } catch {
-    return STATIC_RELEASES;
+    // Fallback: every slot uses current Esri (releaseNum 0)
+    return slots.map((slot) => ({
+      label: slot.label,
+      targetDate: slot.targetDate,
+      releaseNum: 0,
+      releaseDateLabel: slot.label,
+    }));
   }
 }
 
+/* ─────────────────────────────────
+   Change status (index-based)
+───────────────────────────────── */
+
 const getChangeStatus = (index: number, status: string) => {
-  const normalizedStatus = status.toLowerCase();
+  const s = status.toLowerCase();
+  const hasIssue = s === "rejected" || s === "violation" || s === "unauthorized";
 
-  const hasIssue =
-    normalizedStatus === "rejected" ||
-    normalizedStatus === "violation" ||
-    normalizedStatus === "unauthorized";
-
-  if (index === 0) {
-    return {
-      label: "✅ No construction — baseline clear",
-      type: "clear" as const,
-    };
-  }
-
-  if (index === 1) {
+  if (index >= 6)
     return hasIssue
-      ? {
-          label: "⚠️ New structure — permit review needed",
-          type: "warning" as const,
-        }
-      : {
-          label: "✅ Authorized construction in progress",
-          type: "clear" as const,
-        };
-  }
+      ? { label: "🚨 Unauthorized deviation — exceeds approved boundary", type: "violation" as const }
+      : { label: "✅ Construction matches approved plan",                  type: "clear"     as const };
 
-  return hasIssue
-    ? {
-        label: "🚨 Unauthorized deviation — exceeds approved boundary",
-        type: "violation" as const,
-      }
-    : {
-        label: "✅ Construction matches approved plan",
-        type: "clear" as const,
-      };
+  if (index >= 3)
+    return hasIssue
+      ? { label: "⚠️ New structure — permit review needed",               type: "warning"   as const }
+      : { label: "✅ Authorized construction in progress",                 type: "clear"     as const };
+
+  return { label: "✅ No construction — baseline clear", type: "clear" as const };
 };
 
 /* ─────────────────────────────────
@@ -229,24 +211,25 @@ const getChangeStatus = (index: number, status: string) => {
 
 const MapRecenter = ({ pos }: { pos: [number, number] }) => {
   const map = useMap();
-
-  useEffect(() => {
-    map.setView(pos, map.getZoom());
-  }, [pos, map]);
-
+  useEffect(() => { map.setView(pos, map.getZoom()); }, [pos, map]);
   return null;
 };
 
-const SmartTileLayer = ({ release }: { release: WaybackRelease }) => {
+const SmartTileLayer = ({ slot }: { slot: HistorySlot }) => {
   const [fallback, setFallback] = useState(false);
   const errorCount = useRef(0);
 
-  const useCurrent = release.releaseNum === 0 || fallback;
-  const url = useCurrent ? ESRI_CURRENT : waybackUrl(release.releaseNum);
+  // Reset on slot change
+  useEffect(() => {
+    setFallback(false);
+    errorCount.current = 0;
+  }, [slot.releaseNum]);
 
+  const useCurrent = slot.releaseNum === 0 || fallback;
+  const url = useCurrent ? ESRI_CURRENT : waybackUrl(slot.releaseNum);
   const attribution = useCurrent
     ? "© Esri — Current Imagery"
-    : `© Esri Wayback — Release ${release.releaseNum} · ${release.releaseDateLabel}`;
+    : `© Esri Wayback — Release ${slot.releaseNum} · ${slot.releaseDateLabel}`;
 
   return (
     <TileLayer
@@ -258,10 +241,10 @@ const SmartTileLayer = ({ release }: { release: WaybackRelease }) => {
       eventHandlers={{
         tileerror: () => {
           errorCount.current += 1;
-
-          if (errorCount.current >= 3 && !fallback) {
-            setFallback(true);
-          }
+          if (errorCount.current >= 4 && !fallback) setFallback(true);
+        },
+        tileload: () => {
+          errorCount.current = Math.max(0, errorCount.current - 1);
         },
       }}
     />
@@ -269,63 +252,62 @@ const SmartTileLayer = ({ release }: { release: WaybackRelease }) => {
 };
 
 /* ─────────────────────────────────
-   Stage Card
+   Stage Card  (quarterly slot)
 ───────────────────────────────── */
 
 const StageCard = ({
-  release,
+  slot,
   pos,
   status,
   index,
+  isLatest,
 }: {
-  release: WaybackRelease;
+  slot: HistorySlot;
   pos: [number, number];
   status: string;
   index: number;
+  isLatest: boolean;
 }) => {
   const change = getChangeStatus(index, status);
 
   return (
-    <div className={`gis-month-card gis-month-card--${change.type}`}>
+    <div className={`gis-month-card gis-month-card--${change.type} ${isLatest ? "gis-month-card--latest" : ""}`}>
       <div className="gis-stage-header">
         <div>
-          <h4>{release.stageLabel}</h4>
-          <span className="gis-stage-date">{release.releaseDateLabel}</span>
+          <h4>
+            {slot.label}
+            {isLatest && <span className="gis-badge-latest">Latest</span>}
+          </h4>
+          <span className="gis-stage-date">
+            Wayback release: {slot.releaseNum === 0 ? "Current" : `#${slot.releaseNum}`}
+          </span>
         </div>
-
       </div>
 
       <div className="gis-stage-satellite-map">
         <MapContainer
           center={pos}
-          zoom={18}
+          zoom={16}
           style={{ height: "100%", width: "100%" }}
           zoomControl
           scrollWheelZoom
           doubleClickZoom
           attributionControl={false}
         >
-          <SmartTileLayer release={release} />
+          <SmartTileLayer slot={slot} />
           <MapRecenter pos={pos} />
-
           <Marker position={pos} icon={blinkingIcon}>
             <Popup>
-              <strong>{release.stageLabel}</strong>
-              <br />
-              {release.releaseDateLabel}
-              <br />
-              Lat: {pos[0].toFixed(6)}
-              <br />
+              <strong>{slot.label}</strong><br />
+              Release: {slot.releaseNum || "Current"}<br />
+              Lat: {pos[0].toFixed(6)}<br />
               Lng: {pos[1].toFixed(6)}
             </Popup>
           </Marker>
         </MapContainer>
 
         <div className="gis-stage-zoom-badge">
-          📡{" "}
-          {release.releaseNum === 0
-            ? "Current Imagery"
-            : `Wayback · ${release.releaseDateLabel}`}
+          📡 {slot.releaseNum === 0 ? "Current Imagery" : `Wayback · ${slot.label}`}
         </div>
       </div>
 
@@ -334,13 +316,9 @@ const StageCard = ({
       </div>
 
       <div className="gis-release-info">
-        {release.releaseNum === 0 ? (
-          "Current Esri imagery"
-        ) : (
-          <>
-            Release ID: <code>{release.releaseNum}</code>
-          </>
-        )}
+        {slot.releaseNum === 0
+          ? "Current Esri imagery"
+          : <><code>{slot.releaseDateLabel}</code> · Release #{slot.releaseNum}</>}
       </div>
     </div>
   );
@@ -353,44 +331,33 @@ const StageCard = ({
 const FullArchive = ({
   pos,
   name,
-  releases,
+  slots,
 }: {
   pos: [number, number];
   name: string;
-  releases: WaybackRelease[];
+  slots: HistorySlot[];
 }) => {
-  const [selectedRelease, setSelectedRelease] = useState(
-    releases[releases.length - 1]
-  );
+  const [selected, setSelected] = useState<HistorySlot>(slots[0]);
 
   useEffect(() => {
-    if (releases.length > 0) {
-      setSelectedRelease(releases[releases.length - 1]);
-    }
-  }, [releases]);
+    if (slots.length > 0) setSelected(slots[0]);
+  }, [slots]);
 
-  if (!selectedRelease) {
-    return null;
-  }
+  if (!selected) return null;
 
   return (
     <div className="gis-wayback-viewer">
       <h3 className="gis-wayback-title">📡 Full Historical Archive — {name}</h3>
 
       <div className="gis-wayback-releases">
-        {releases.map((release, index) => (
+        {slots.map((slot, idx) => (
           <button
             type="button"
-            key={`${release.releaseNum}-${release.releaseDateLabel}-${index}`}
-            className={`gis-release-btn ${
-              selectedRelease.releaseNum === release.releaseNum &&
-              selectedRelease.releaseDateLabel === release.releaseDateLabel
-                ? "active"
-                : ""
-            }`}
-            onClick={() => setSelectedRelease(release)}
+            key={idx}
+            className={`gis-release-btn ${selected.label === slot.label ? "active" : ""}`}
+            onClick={() => setSelected(slot)}
           >
-            {release.releaseDateLabel}
+            {slot.label}
           </button>
         ))}
       </div>
@@ -398,39 +365,29 @@ const FullArchive = ({
       <div className="gis-wayback-map-wrapper">
         <MapContainer
           center={pos}
-          zoom={18}
+          zoom={16}
           style={{ height: "100%", width: "100%" }}
           zoomControl
           scrollWheelZoom
           attributionControl={false}
         >
-          <SmartTileLayer
-            key={selectedRelease.releaseDateLabel}
-            release={selectedRelease}
-          />
-
+          <SmartTileLayer key={selected.label} slot={selected} />
           <MapRecenter pos={pos} />
-
           <Marker position={pos} icon={blinkingIcon}>
             <Popup>
-              <strong>{name}</strong>
-              <br />
-              {selectedRelease.stageLabel}
-              <br />
-              {selectedRelease.releaseDateLabel}
+              <strong>{name}</strong><br />
+              {selected.label}<br />
+              Release: {selected.releaseNum || "Current"}
             </Popup>
           </Marker>
         </MapContainer>
 
-        <div className="gis-wayback-overlay-label">
-          🛰️ {selectedRelease.stageLabel}
-        </div>
+        <div className="gis-wayback-overlay-label">🛰️ {selected.label}</div>
       </div>
 
       <p className="gis-wayback-note">
-        Historical imagery from Esri Wayback Archive. Automatically falls back
-        to current Esri satellite if a capture has no coverage for this
-        location.
+        Showing the Wayback release closest to each quarter. Falls back to
+        current Esri imagery if no tiles exist for this location.
       </p>
     </div>
   );
@@ -441,67 +398,62 @@ const FullArchive = ({
 ───────────────────────────────── */
 
 const GISMonitoringPage = () => {
-  const [selected, setSelected] = useState<Building | null>(null);
+  const [selected,     setSelected]     = useState<Building | null>(null);
   const [applications, setApplications] = useState<ApiApplication[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [releases, setReleases] =
-    useState<WaybackRelease[]>(STATIC_RELEASES);
-  const [showArchive, setShowArchive] = useState(false);
+  const [loading,      setLoading]      = useState(false);
+  const [historySlots, setHistorySlots] = useState<HistorySlot[]>([]);
+  const [loadingHist,  setLoadingHist]  = useState(false);
+  const [showArchive,  setShowArchive]  = useState(false);
 
+  // Fetch applications
   useEffect(() => {
-    const fetchApplications = async () => {
+    (async () => {
       try {
         setLoading(true);
-
         const response: any = await apiGet("/api/applications");
-
         setApplications(response?.data?.length > 0 ? response.data : []);
       } catch {
         setApplications([]);
       } finally {
         setLoading(false);
       }
-    };
-
-    fetchApplications();
+    })();
   }, []);
 
+  // Build quarterly slots when a building is selected
   useEffect(() => {
-    fetchWaybackReleases().then(setReleases);
-  }, []);
-
-  useEffect(() => {
+    if (!selected) return;
+    setHistorySlots([]);
     setShowArchive(false);
+    setLoadingHist(true);
+
+    const slots = generateQuarterlySlots();
+    fetchAndMatchReleases(slots).then((matched) => {
+      setHistorySlots(matched);
+      setLoadingHist(false);
+    });
   }, [selected]);
 
-  const buildings: Building[] = useMemo(() => {
-    return applications.map((item, index) => {
+  const buildings: Building[] = useMemo(() =>
+    applications.map((item, index) => {
       const lat = Number(item.latitude);
       const lng = Number(item.longitude);
-
       const validPosition = isValid(lat, lng);
       const position: [number, number] = validPosition
         ? [lat, lng]
         : fallbackLocations[index % fallbackLocations.length];
 
-      const fallbackImage = fallbackImages[index % fallbackImages.length];
-
       return {
-        id: item.id,
-        name: item.applicantName || item.name || `Application ${item.id}`,
+        id:           item.id,
+        name:         item.applicantName || item.name || `Application ${item.id}`,
         previewImage: getLatestLocationPreviewImage(position[0], position[1]),
-        fallbackImage,
-        status: item.status || "Pending",
+        fallbackImage: fallbackImages[index % fallbackImages.length],
+        status:       item.status || "Pending",
         locationText: item.location,
-        plotSize: item.plotSize,
+        plotSize:     item.plotSize,
         position,
       };
-    });
-  }, [applications]);
-
-  const timelineReleases = TIMELINE_INDICES.map((index) => {
-    return releases[Math.min(index, releases.length - 1)];
-  }).filter(Boolean);
+    }), [applications]);
 
   return (
     <div className="gis-page">
@@ -516,6 +468,7 @@ const GISMonitoringPage = () => {
         </div>
       )}
 
+      {/* ── Building Grid ── */}
       {!selected && buildings.length > 0 && (
         <div className="gis-grid">
           {buildings.map((building) => (
@@ -529,23 +482,16 @@ const GISMonitoringPage = () => {
                 alt={`${building.name} latest satellite preview`}
                 className="gis-card-img"
                 loading="lazy"
-                onError={(event) => {
-                  event.currentTarget.src = building.fallbackImage;
-                }}
+                onError={(e) => { e.currentTarget.src = building.fallbackImage; }}
               />
-
               <div className="gis-overlay">
                 <div>
                   <strong>{building.name}</strong>
-
                   <span>
                     {building.status} · {building.position[0].toFixed(5)},{" "}
                     {building.position[1].toFixed(5)}
                   </span>
-
-                  <small className="gis-card-caption">
-                    Latest satellite preview
-                  </small>
+                  <small className="gis-card-caption">Latest satellite preview</small>
                 </div>
               </div>
             </div>
@@ -553,13 +499,10 @@ const GISMonitoringPage = () => {
         </div>
       )}
 
+      {/* ── Detail View ── */}
       {selected && (
         <div className="gis-detail">
-          <button
-            type="button"
-            className="gis-back"
-            onClick={() => setSelected(null)}
-          >
+          <button type="button" className="gis-back" onClick={() => setSelected(null)}>
             ⬅ Back
           </button>
 
@@ -567,54 +510,51 @@ const GISMonitoringPage = () => {
 
           <div className="gis-meta-row">
             <span>Status: {selected.status}</span>
-
             {selected.locationText && <span>📍 {selected.locationText}</span>}
-
-            {selected.plotSize && <span>📐 {selected.plotSize}</span>}
-
-            <span>
-              🌐 {selected.position[0].toFixed(6)},{" "}
-              {selected.position[1].toFixed(6)}
-            </span>
+            {selected.plotSize      && <span>📐 {selected.plotSize}</span>}
+            <span>🌐 {selected.position[0].toFixed(6)}, {selected.position[1].toFixed(6)}</span>
           </div>
 
+          {/* Section header */}
           <div className="gis-section-label">
-            📅 Change Detection Timeline
-            <span className="gis-section-sub">
-              Esri Wayback · Building level historical satellite imagery for each stage of construction
-            </span>
+            📅 Satellite History — Every 3 Months
           </div>
 
-          <div className="gis-timeline">
-            {timelineReleases.map((release, index) => (
-              <StageCard
-                key={`${release.releaseNum}-${release.releaseDateLabel}-${index}`}
-                release={release}
-                pos={selected.position}
-                status={selected.status}
-                index={index}
-              />
-            ))}
-          </div>
+          {loadingHist && (
+            <p className="gis-loading">🛰️ Matching historical satellite releases…</p>
+          )}
+
+          {/* 4 most recent quarterly cards — 2 columns */}
+          {!loadingHist && historySlots.length > 0 && (
+            <div className="gis-timeline">
+              {historySlots.slice(0, 4).map((slot, idx) => (
+                <StageCard
+                  key={`${slot.label}-${idx}`}
+                  slot={slot}
+                  pos={selected.position}
+                  status={selected.status}
+                  index={idx}
+                  isLatest={idx === 0}
+                />
+              ))}
+            </div>
+          )}
 
           <button
             type="button"
             className="gis-archive-btn"
-            onClick={() => setShowArchive((value) => !value)}
+            onClick={() => setShowArchive((v) => !v)}
           >
-            {showArchive
-              ? "▲ Hide Archive"
-              : "🛰️ View Full Historical Archive"}
+            {showArchive ? "▲ Hide Archive" : "🛰️ View Full Historical Archive"}
           </button>
 
-          {showArchive && (
+          {showArchive && historySlots.length > 0 && (
             <FullArchive
               pos={selected.position}
               name={selected.name}
-              releases={releases}
+              slots={historySlots}
             />
           )}
-
         </div>
       )}
     </div>
