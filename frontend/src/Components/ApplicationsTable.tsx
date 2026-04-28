@@ -1,5 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, Eye, FileText, Pencil, X } from "lucide-react";
+import {
+  Building2,
+  Check,
+  Eye,
+  FileText,
+  MapPin,
+  Pencil,
+  User,
+  X,
+} from "lucide-react";
+import { getReportDownloadUrl } from "../Services";
 import "./ApplicationsTable.css";
 
 export type Application = {
@@ -7,24 +17,32 @@ export type Application = {
 
   name?: string;
   applicantName?: string;
-  fatherName?: string;
-  mobile?: string;
-  email?: string;
+  fatherName?: string | null;
+  mobile?: string | null;
+  email?: string | null;
 
   location?: string;
-  address?: string;
+  address?: string | null;
   surveyNo?: string;
   plotSize?: string;
   plotArea?: string;
+  landType?: string;
+
   buildingType?: string;
   floors?: string | number;
+  builtupArea?: string;
   height?: string | number;
+
+  roadWidth?: string;
+  frontSetback?: string;
+  sideSetback?: string;
+  rearSetback?: string;
 
   latitude?: number | string | null;
   longitude?: number | string | null;
 
   status?: string;
-  remarks?: string;
+  remarks?: string | null;
 
   file?: string;
   fileName?: string;
@@ -46,14 +64,28 @@ type Props = {
   onUpdate?: (id: number, payload: FormData) => Promise<void> | void;
 };
 
+type ModalTab = "applicant" | "plot" | "building" | "review";
+
 const getAppName = (app: Application) =>
   app.applicantName || app.name || `Application ${app.id}`;
 
 const getFileName = (app: Application) =>
   app.fileName || app.filename || app.file || app.uploadedFile || "";
 
-const getFileUrl = (app: Application) =>
+const getRawFileUrl = (app: Application) =>
   app.fileUrl || app.documentUrl || app.uploadedFile || app.file || "";
+
+const getFileUrl = (app: Application) => {
+  const rawUrl = getRawFileUrl(app);
+
+  if (!rawUrl) return "";
+
+  if (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) {
+    return rawUrl;
+  }
+
+  return getReportDownloadUrl(rawUrl);
+};
 
 const normalizeValue = (value: unknown) => {
   if (value === null || value === undefined || value === "") return "-";
@@ -74,6 +106,9 @@ const ApplicationsTable = ({
   const [editFile, setEditFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
 
+  const [viewTab, setViewTab] = useState<ModalTab>("applicant");
+  const [editTab, setEditTab] = useState<ModalTab>("applicant");
+
   const itemsPerPage = 4;
 
   const filteredData = useMemo(() => {
@@ -84,6 +119,8 @@ const ApplicationsTable = ({
         getAppName(app).toLowerCase().includes(value) ||
         normalizeValue(app.location).toLowerCase().includes(value) ||
         normalizeValue(app.status).toLowerCase().includes(value) ||
+        normalizeValue(app.surveyNo).toLowerCase().includes(value) ||
+        normalizeValue(app.buildingType).toLowerCase().includes(value) ||
         String(app.id).includes(value)
       );
     });
@@ -124,31 +161,51 @@ const ApplicationsTable = ({
     });
   };
 
+  const appendValue = (formData: FormData, key: string, value: unknown) => {
+    formData.append(
+      key,
+      value === null || value === undefined ? "" : String(value)
+    );
+  };
+
   const handleSave = async () => {
     if (!editApp) return;
 
     const formData = new FormData();
 
-    formData.append("applicantName", editApp.applicantName || editApp.name || "");
-    formData.append("name", editApp.name || editApp.applicantName || "");
-    formData.append("fatherName", editApp.fatherName || "");
-    formData.append("mobile", editApp.mobile || "");
-    formData.append("email", editApp.email || "");
+    appendValue(
+      formData,
+      "applicantName",
+      editApp.applicantName || editApp.name || ""
+    );
+    appendValue(formData, "name", editApp.name || editApp.applicantName || "");
 
-    formData.append("location", editApp.location || "");
-    formData.append("address", editApp.address || "");
-    formData.append("surveyNo", editApp.surveyNo || "");
-    formData.append("plotSize", editApp.plotSize || "");
-    formData.append("plotArea", editApp.plotArea || "");
-    formData.append("buildingType", editApp.buildingType || "");
-    formData.append("floors", String(editApp.floors || ""));
-    formData.append("height", String(editApp.height || ""));
+    appendValue(formData, "fatherName", editApp.fatherName || "");
+    appendValue(formData, "mobile", editApp.mobile || "");
+    appendValue(formData, "email", editApp.email || "");
 
-    formData.append("latitude", String(editApp.latitude || ""));
-    formData.append("longitude", String(editApp.longitude || ""));
+    appendValue(formData, "location", editApp.location || "");
+    appendValue(formData, "address", editApp.address || "");
+    appendValue(formData, "surveyNo", editApp.surveyNo || "");
+    appendValue(formData, "plotSize", editApp.plotSize || "");
+    appendValue(formData, "plotArea", editApp.plotArea || "");
+    appendValue(formData, "landType", editApp.landType || "");
 
-    formData.append("status", editApp.status || "Pending");
-    formData.append("remarks", editApp.remarks || "");
+    appendValue(formData, "buildingType", editApp.buildingType || "");
+    appendValue(formData, "floors", editApp.floors || "");
+    appendValue(formData, "builtupArea", editApp.builtupArea || "");
+    appendValue(formData, "height", editApp.height || "");
+
+    appendValue(formData, "roadWidth", editApp.roadWidth || "");
+    appendValue(formData, "frontSetback", editApp.frontSetback || "");
+    appendValue(formData, "sideSetback", editApp.sideSetback || "");
+    appendValue(formData, "rearSetback", editApp.rearSetback || "");
+
+    appendValue(formData, "latitude", editApp.latitude || "");
+    appendValue(formData, "longitude", editApp.longitude || "");
+
+    appendValue(formData, "status", editApp.status || "Pending");
+    appendValue(formData, "remarks", editApp.remarks || "");
 
     if (editFile) {
       formData.append("file", editFile);
@@ -172,20 +229,46 @@ const ApplicationsTable = ({
     }
   };
 
+  const openView = (app: Application) => {
+    setSelectedApp(app);
+    setViewTab("applicant");
+  };
+
+  const openEdit = (app: Application) => {
+    setEditApp({ ...app });
+    setEditFile(null);
+    setEditTab("applicant");
+  };
+
+  const getTabHeading = (tab: ModalTab) => {
+    switch (tab) {
+      case "applicant":
+        return "Personal Information";
+      case "plot":
+        return "Plot Information";
+      case "building":
+        return "Building Information";
+      case "review":
+        return "Review & File Information";
+      default:
+        return "";
+    }
+  };
+
   return (
     <div className="applications-card">
       <div className="table-topbar">
         <div>
           <h2 className="table-title">Applications</h2>
           <p className="table-subtitle">
-            Manage user requests and review complete application details
+            Manage application reviews, uploaded files, and building details
           </p>
         </div>
 
         <div className="search-box">
           <input
             type="text"
-            placeholder="Search by name, location, status or ID..."
+            placeholder="Search name, location, survey no, status"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="search-input"
@@ -197,12 +280,15 @@ const ApplicationsTable = ({
         <table className="applications-table">
           <thead>
             <tr>
-              <th style={{ width: "90px" }}>ID</th>
+              <th>ID</th>
               <th>Applicant</th>
               <th>Location</th>
-              <th>Plot Size</th>
-              <th style={{ width: "150px" }}>Status</th>
-              <th style={{ width: "220px" }}>Action</th>
+              <th>Survey No</th>
+              <th>Plot Area</th>
+              <th>Building</th>
+              <th>Status</th>
+              <th>File</th>
+              <th>Action</th>
             </tr>
           </thead>
 
@@ -222,18 +308,47 @@ const ApplicationsTable = ({
                         <div className="avatar-circle">
                           {appName.charAt(0).toUpperCase()}
                         </div>
-                        <span>{appName}</span>
+
+                        <div className="name-stack">
+                          <strong>{appName}</strong>
+                          <small>{normalizeValue(app.email)}</small>
+                        </div>
                       </div>
                     </td>
 
                     <td>{normalizeValue(app.location)}</td>
-
-                    <td>{normalizeValue(app.plotSize || app.plotArea)}</td>
+                    <td>{normalizeValue(app.surveyNo)}</td>
+                    <td>{normalizeValue(app.plotArea || app.plotSize)}</td>
 
                     <td>
-                      <span className={`status-badge ${getStatusClass(app.status)}`}>
+                      <div className="mini-stack">
+                        <span>{normalizeValue(app.buildingType)}</span>
+                        <small>{normalizeValue(app.floors)} floors</small>
+                      </div>
+                    </td>
+
+                    <td>
+                      <span
+                        className={`status-badge ${getStatusClass(app.status)}`}
+                      >
                         {app.status || "Pending"}
                       </span>
+                    </td>
+
+                    <td>
+                      {getFileUrl(app) ? (
+                        <a
+                          href={getFileUrl(app)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="table-file-link"
+                          title={getFileName(app)}
+                        >
+                          <FileText size={15} />
+                        </a>
+                      ) : (
+                        "-"
+                      )}
                     </td>
 
                     <td>
@@ -243,7 +358,7 @@ const ApplicationsTable = ({
                           onClick={() => onApprove(app.id)}
                           title="Approve"
                         >
-                          <Check size={18} />
+                          <Check size={16} />
                         </button>
 
                         <button
@@ -251,26 +366,23 @@ const ApplicationsTable = ({
                           onClick={() => onReject(app.id)}
                           title="Reject"
                         >
-                          <X size={18} />
+                          <X size={16} />
                         </button>
 
                         <button
                           className="icon-btn view"
-                          onClick={() => setSelectedApp(app)}
+                          onClick={() => openView(app)}
                           title="View"
                         >
-                          <Eye size={18} />
+                          <Eye size={16} />
                         </button>
 
                         <button
                           className="icon-btn edit"
-                          onClick={() => {
-                            setEditApp(app);
-                            setEditFile(null);
-                          }}
+                          onClick={() => openEdit(app)}
                           title="Edit"
                         >
-                          <Pencil size={18} />
+                          <Pencil size={16} />
                         </button>
                       </div>
                     </td>
@@ -279,7 +391,7 @@ const ApplicationsTable = ({
               })
             ) : (
               <tr>
-                <td colSpan={6}>
+                <td colSpan={9}>
                   <div className="empty-state">No applications found.</div>
                 </td>
               </tr>
@@ -310,129 +422,131 @@ const ApplicationsTable = ({
         </button>
       </div>
 
+      {/* VIEW MODAL */}
       {selectedApp && (
         <div className="modal-overlay" onClick={() => setSelectedApp(null)}>
-          <div className="modal modal-large" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Application Details</h3>
+          <div
+            className="modal modal-approval-style"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-topbar">
+              <div className="modal-meta">
+                <div className="modal-app-id">Application #{selectedApp.id}</div>
+
+                <div className="modal-app-name">{getAppName(selectedApp)}</div>
+
+                <div className="modal-app-subtext">
+                  {normalizeValue(selectedApp.location)} ·{" "}
+                  {normalizeValue(selectedApp.latitude)},{" "}
+                  {normalizeValue(selectedApp.longitude)}
+                </div>
+              </div>
 
               <button
-                className="modal-close-icon"
+                className="modal-close"
                 onClick={() => setSelectedApp(null)}
               >
-                ✕
+                <X size={24} />
               </button>
             </div>
 
-            <div className="details-grid">
-              <div className="detail-row">
-                <span>ID</span>
-                <strong>{selectedApp.id}</strong>
+            <ModalTabs activeTab={viewTab} setActiveTab={setViewTab} />
+
+            <div className="modal-content-area">
+              <div className="section-heading-row">
+                <h3 className="section-heading">{getTabHeading(viewTab)}</h3>
+
+                <span
+                  className={`status-badge ${getStatusClass(
+                    selectedApp.status
+                  )}`}
+                >
+                  {selectedApp.status || "Pending"}
+                </span>
               </div>
 
-              <div className="detail-row">
-                <span>Applicant Name</span>
-                <strong>{getAppName(selectedApp)}</strong>
-              </div>
+              {viewTab === "applicant" && (
+                <div className="details-grid">
+                  <Info
+                    label="Applicant Full Name"
+                    value={getAppName(selectedApp)}
+                  />
+                  <Info
+                    label="Relationship / Father Name"
+                    value={selectedApp.fatherName}
+                  />
+                  <Info label="Mobile Number" value={selectedApp.mobile} />
+                  <Info label="E-mail ID" value={selectedApp.email} />
+                  <Info
+                    label="Application Status"
+                    value={selectedApp.status || "Pending"}
+                  />
+                </div>
+              )}
 
-              <div className="detail-row">
-                <span>Father Name</span>
-                <strong>{normalizeValue(selectedApp.fatherName)}</strong>
-              </div>
+              {viewTab === "plot" && (
+                <div className="details-grid">
+                  <Info label="Location" value={selectedApp.location} />
+                  <Info label="Land Type" value={selectedApp.landType} />
+                  <Info label="Survey Number" value={selectedApp.surveyNo} />
+                  <Info label="Plot Size" value={selectedApp.plotSize} />
+                  <Info label="Plot Area" value={selectedApp.plotArea} />
+                  <Info label="Latitude" value={selectedApp.latitude} />
+                  <Info label="Longitude" value={selectedApp.longitude} />
+                  <Info label="Address" value={selectedApp.address} full />
+                </div>
+              )}
 
-              <div className="detail-row">
-                <span>Mobile</span>
-                <strong>{normalizeValue(selectedApp.mobile)}</strong>
-              </div>
+              {viewTab === "building" && (
+                <div className="details-grid">
+                  <Info label="Building Type" value={selectedApp.buildingType} />
+                  <Info label="Floors" value={selectedApp.floors} />
+                  <Info label="Built-up Area" value={selectedApp.builtupArea} />
+                  <Info label="Height" value={selectedApp.height} />
+                  <Info label="Road Width" value={selectedApp.roadWidth} />
+                  <Info
+                    label="Front Setback"
+                    value={selectedApp.frontSetback}
+                  />
+                  <Info label="Side Setback" value={selectedApp.sideSetback} />
+                  <Info label="Rear Setback" value={selectedApp.rearSetback} />
+                </div>
+              )}
 
-              <div className="detail-row">
-                <span>Email</span>
-                <strong>{normalizeValue(selectedApp.email)}</strong>
-              </div>
+              {viewTab === "review" && (
+                <div className="details-grid">
+                  <Info label="Remarks" value={selectedApp.remarks} full />
 
-              <div className="detail-row">
-                <span>Status</span>
-                <strong>{selectedApp.status || "Pending"}</strong>
-              </div>
+                  <div className="info-card info-card-full">
+                    <span>Uploaded CAD Designs / File</span>
 
-              <div className="detail-row">
-                <span>Location</span>
-                <strong>{normalizeValue(selectedApp.location)}</strong>
-              </div>
+                    {getFileUrl(selectedApp) ? (
+                      <a
+                        href={getFileUrl(selectedApp)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="file-preview-card"
+                      >
+                        <FileText size={20} />
 
-              <div className="detail-row">
-                <span>Address</span>
-                <strong>{normalizeValue(selectedApp.address)}</strong>
-              </div>
-
-              <div className="detail-row">
-                <span>Survey No</span>
-                <strong>{normalizeValue(selectedApp.surveyNo)}</strong>
-              </div>
-
-              <div className="detail-row">
-                <span>Plot Size</span>
-                <strong>{normalizeValue(selectedApp.plotSize)}</strong>
-              </div>
-
-              <div className="detail-row">
-                <span>Plot Area</span>
-                <strong>{normalizeValue(selectedApp.plotArea)}</strong>
-              </div>
-
-              <div className="detail-row">
-                <span>Building Type</span>
-                <strong>{normalizeValue(selectedApp.buildingType)}</strong>
-              </div>
-
-              <div className="detail-row">
-                <span>Floors</span>
-                <strong>{normalizeValue(selectedApp.floors)}</strong>
-              </div>
-
-              <div className="detail-row">
-                <span>Height</span>
-                <strong>{normalizeValue(selectedApp.height)}</strong>
-              </div>
-
-              <div className="detail-row">
-                <span>Latitude</span>
-                <strong>{normalizeValue(selectedApp.latitude)}</strong>
-              </div>
-
-              <div className="detail-row">
-                <span>Longitude</span>
-                <strong>{normalizeValue(selectedApp.longitude)}</strong>
-              </div>
-
-              <div className="detail-row detail-row-full">
-                <span>Remarks</span>
-                <strong>{normalizeValue(selectedApp.remarks)}</strong>
-              </div>
-
-              <div className="detail-row detail-row-full">
-                <span>File</span>
-                <strong>
-                  {getFileUrl(selectedApp) ? (
-                    <a
-                      href={getFileUrl(selectedApp)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="file-link"
-                    >
-                      <FileText size={16} />
-                      {getFileName(selectedApp) || "View uploaded file"}
-                    </a>
-                  ) : (
-                    "-"
-                  )}
-                </strong>
-              </div>
+                        <div>
+                          <strong>
+                            {getFileName(selectedApp) || "View uploaded file"}
+                          </strong>
+                          <small>Open file in new tab</small>
+                        </div>
+                      </a>
+                    ) : (
+                      <strong>-</strong>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="modal-actions">
+            <div className="modal-footer">
               <button
-                className="modal-btn secondary"
+                className="footer-btn footer-btn-secondary"
                 onClick={() => setSelectedApp(null)}
               >
                 Close
@@ -442,200 +556,245 @@ const ApplicationsTable = ({
         </div>
       )}
 
+      {/* EDIT MODAL */}
       {editApp && (
         <div className="modal-overlay" onClick={() => setEditApp(null)}>
-          <div className="modal modal-large" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Edit Application</h3>
+          <div
+            className="modal modal-approval-style"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-topbar">
+              <div className="modal-meta">
+                <div className="modal-app-id">Edit Application #{editApp.id}</div>
 
-              <button className="modal-close-icon" onClick={() => setEditApp(null)}>
-                ✕
+                <div className="modal-app-name">{getAppName(editApp)}</div>
+
+                <div className="modal-app-subtext">
+                  Update application, plot, building and file details
+                </div>
+              </div>
+
+              <button className="modal-close" onClick={() => setEditApp(null)}>
+                <X size={24} />
               </button>
             </div>
 
-            <div className="form-grid">
-              <div className="form-group">
-                <label>Applicant Name</label>
-                <input
-                  type="text"
-                  value={editApp.applicantName || editApp.name || ""}
-                  onChange={(e) => {
-                    handleEditChange("applicantName", e.target.value);
-                    handleEditChange("name", e.target.value);
-                  }}
-                />
-              </div>
+            <ModalTabs activeTab={editTab} setActiveTab={setEditTab} />
 
-              <div className="form-group">
-                <label>Father Name</label>
-                <input
-                  type="text"
-                  value={editApp.fatherName || ""}
-                  onChange={(e) => handleEditChange("fatherName", e.target.value)}
-                />
-              </div>
+            <div className="modal-content-area">
+              <div className="section-heading-row">
+                <h3 className="section-heading">{getTabHeading(editTab)}</h3>
 
-              <div className="form-group">
-                <label>Mobile</label>
-                <input
-                  type="text"
-                  value={editApp.mobile || ""}
-                  onChange={(e) => handleEditChange("mobile", e.target.value)}
-                />
-              </div>
+                <div className="edit-status-select-wrap">
+                  <label>Status</label>
 
-              <div className="form-group">
-                <label>Email</label>
-                <input
-                  type="email"
-                  value={editApp.email || ""}
-                  onChange={(e) => handleEditChange("email", e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Status</label>
-                <select
-                  value={editApp.status || "Pending"}
-                  onChange={(e) => handleEditChange("status", e.target.value)}
-                >
-                  <option>Pending</option>
-                  <option>Approved</option>
-                  <option>Rejected</option>
-                  <option>Violation</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>Location</label>
-                <input
-                  type="text"
-                  value={editApp.location || ""}
-                  onChange={(e) => handleEditChange("location", e.target.value)}
-                />
-              </div>
-
-              <div className="form-group form-group-full">
-                <label>Address</label>
-                <input
-                  type="text"
-                  value={editApp.address || ""}
-                  onChange={(e) => handleEditChange("address", e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Survey No</label>
-                <input
-                  type="text"
-                  value={editApp.surveyNo || ""}
-                  onChange={(e) => handleEditChange("surveyNo", e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Plot Size</label>
-                <input
-                  type="text"
-                  value={editApp.plotSize || ""}
-                  onChange={(e) => handleEditChange("plotSize", e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Plot Area</label>
-                <input
-                  type="text"
-                  value={editApp.plotArea || ""}
-                  onChange={(e) => handleEditChange("plotArea", e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Building Type</label>
-                <input
-                  type="text"
-                  value={editApp.buildingType || ""}
-                  onChange={(e) => handleEditChange("buildingType", e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Floors</label>
-                <input
-                  type="number"
-                  value={editApp.floors || ""}
-                  onChange={(e) => handleEditChange("floors", e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Height</label>
-                <input
-                  type="number"
-                  value={editApp.height || ""}
-                  onChange={(e) => handleEditChange("height", e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Latitude</label>
-                <input
-                  type="number"
-                  value={editApp.latitude || ""}
-                  onChange={(e) => handleEditChange("latitude", e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Longitude</label>
-                <input
-                  type="number"
-                  value={editApp.longitude || ""}
-                  onChange={(e) => handleEditChange("longitude", e.target.value)}
-                />
-              </div>
-
-              <div className="form-group form-group-full">
-                <label>Remarks</label>
-                <input
-                  type="text"
-                  value={editApp.remarks || ""}
-                  onChange={(e) => handleEditChange("remarks", e.target.value)}
-                />
-              </div>
-
-              <div className="form-group form-group-full">
-                <label>Uploaded File</label>
-
-                {getFileUrl(editApp) && (
-                  <a
-                    href={getFileUrl(editApp)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="file-link existing-file"
+                  <select
+                    value={editApp.status || "Pending"}
+                    onChange={(e) => handleEditChange("status", e.target.value)}
+                    className="mini-status-select"
                   >
-                    <FileText size={16} />
-                    {getFileName(editApp) || "View current file"}
-                  </a>
-                )}
-
-                <input
-                  type="file"
-                  onChange={(e) => setEditFile(e.target.files?.[0] || null)}
-                />
-
-                {editFile && (
-                  <small className="selected-file-name">
-                    New file selected: {editFile.name}
-                  </small>
-                )}
+                    <option>Pending</option>
+                    <option>Approved</option>
+                    <option>Rejected</option>
+                    <option>Violation</option>
+                  </select>
+                </div>
               </div>
+
+              {editTab === "applicant" && (
+                <div className="form-grid">
+                  <Field
+                    label="Applicant Full Name"
+                    value={editApp.applicantName || editApp.name || ""}
+                    onChange={(value) => {
+                      handleEditChange("applicantName", value);
+                      handleEditChange("name", value);
+                    }}
+                  />
+
+                  <Field
+                    label="Relationship / Father Name"
+                    value={editApp.fatherName || ""}
+                    onChange={(value) => handleEditChange("fatherName", value)}
+                  />
+
+                  <Field
+                    label="Mobile Number"
+                    value={editApp.mobile || ""}
+                    onChange={(value) => handleEditChange("mobile", value)}
+                  />
+
+                  <Field
+                    label="E-mail ID"
+                    type="email"
+                    value={editApp.email || ""}
+                    onChange={(value) => handleEditChange("email", value)}
+                  />
+                </div>
+              )}
+
+              {editTab === "plot" && (
+                <div className="form-grid">
+                  <Field
+                    label="Location"
+                    value={editApp.location || ""}
+                    onChange={(value) => handleEditChange("location", value)}
+                  />
+
+                  <Field
+                    label="Land Type"
+                    value={editApp.landType || ""}
+                    onChange={(value) => handleEditChange("landType", value)}
+                  />
+
+                  <Field
+                    label="Survey Number"
+                    value={editApp.surveyNo || ""}
+                    onChange={(value) => handleEditChange("surveyNo", value)}
+                  />
+
+                  <Field
+                    label="Plot Size"
+                    value={editApp.plotSize || ""}
+                    onChange={(value) => handleEditChange("plotSize", value)}
+                  />
+
+                  <Field
+                    label="Plot Area"
+                    value={editApp.plotArea || ""}
+                    onChange={(value) => handleEditChange("plotArea", value)}
+                  />
+
+                  <Field
+                    label="Latitude"
+                    type="number"
+                    value={editApp.latitude || ""}
+                    onChange={(value) => handleEditChange("latitude", value)}
+                  />
+
+                  <Field
+                    label="Longitude"
+                    type="number"
+                    value={editApp.longitude || ""}
+                    onChange={(value) => handleEditChange("longitude", value)}
+                  />
+
+                  <Field
+                    label="Address"
+                    value={editApp.address || ""}
+                    onChange={(value) => handleEditChange("address", value)}
+                    full
+                  />
+                </div>
+              )}
+
+              {editTab === "building" && (
+                <div className="form-grid">
+                  <Field
+                    label="Building Type"
+                    value={editApp.buildingType || ""}
+                    onChange={(value) => handleEditChange("buildingType", value)}
+                  />
+
+                  <Field
+                    label="Floors"
+                    type="number"
+                    value={editApp.floors || ""}
+                    onChange={(value) => handleEditChange("floors", value)}
+                  />
+
+                  <Field
+                    label="Built-up Area"
+                    value={editApp.builtupArea || ""}
+                    onChange={(value) => handleEditChange("builtupArea", value)}
+                  />
+
+                  <Field
+                    label="Height"
+                    type="number"
+                    value={editApp.height || ""}
+                    onChange={(value) => handleEditChange("height", value)}
+                  />
+
+                  <Field
+                    label="Road Width"
+                    value={editApp.roadWidth || ""}
+                    onChange={(value) => handleEditChange("roadWidth", value)}
+                  />
+
+                  <Field
+                    label="Front Setback"
+                    value={editApp.frontSetback || ""}
+                    onChange={(value) => handleEditChange("frontSetback", value)}
+                  />
+
+                  <Field
+                    label="Side Setback"
+                    value={editApp.sideSetback || ""}
+                    onChange={(value) => handleEditChange("sideSetback", value)}
+                  />
+
+                  <Field
+                    label="Rear Setback"
+                    value={editApp.rearSetback || ""}
+                    onChange={(value) => handleEditChange("rearSetback", value)}
+                  />
+                </div>
+              )}
+
+              {editTab === "review" && (
+                <div className="form-grid">
+                  <Field
+                    label="Remarks"
+                    value={editApp.remarks || ""}
+                    onChange={(value) => handleEditChange("remarks", value)}
+                    full
+                  />
+
+                  <div className="form-group form-group-full">
+                    <label>Uploaded CAD Designs / File</label>
+
+                    {getFileUrl(editApp) && (
+                      <a
+                        href={getFileUrl(editApp)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="existing-file"
+                      >
+                        <FileText size={16} />
+                        {getFileName(editApp) || "View current file"}
+                      </a>
+                    )}
+
+                    <label className="file-upload-box">
+                      <FileText size={18} />
+                      <span>
+                        {editFile
+                          ? editFile.name
+                          : "Choose a new file to replace current file"}
+                      </span>
+
+                      <input
+                        type="file"
+                        onChange={(e) =>
+                          setEditFile(e.target.files?.[0] || null)
+                        }
+                      />
+                    </label>
+
+                    {editFile && (
+                      <small className="selected-file-name">
+                        New file selected: {editFile.name}
+                      </small>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="modal-actions">
+            <div className="modal-footer">
               <button
-                className="modal-btn secondary"
+                className="footer-btn footer-btn-secondary"
                 onClick={() => {
                   setEditApp(null);
                   setEditFile(null);
@@ -645,7 +804,7 @@ const ApplicationsTable = ({
               </button>
 
               <button
-                className="modal-btn primary"
+                className="footer-btn footer-btn-primary"
                 onClick={handleSave}
                 disabled={saving}
               >
@@ -654,6 +813,105 @@ const ApplicationsTable = ({
             </div>
           </div>
         </div>
+      )}
+    </div>
+  );
+};
+
+type ModalTabsProps = {
+  activeTab: ModalTab;
+  setActiveTab: (tab: ModalTab) => void;
+};
+
+const ModalTabs = ({ activeTab, setActiveTab }: ModalTabsProps) => {
+  const tabs = [
+    {
+      key: "applicant" as ModalTab,
+      label: "Applicant Details",
+      icon: <User size={15} />,
+    },
+    {
+      key: "plot" as ModalTab,
+      label: "Plot Details",
+      icon: <MapPin size={15} />,
+    },
+    {
+      key: "building" as ModalTab,
+      label: "Building Details",
+      icon: <Building2 size={15} />,
+    },
+    {
+      key: "review" as ModalTab,
+      label: "Review & Submit",
+      icon: <FileText size={15} />,
+    },
+  ];
+
+  return (
+    <div className="approval-tabs">
+      {tabs.map((tab) => (
+        <button
+          key={tab.key}
+          type="button"
+          className={`approval-tab ${activeTab === tab.key ? "active" : ""}`}
+          onClick={() => setActiveTab(tab.key)}
+        >
+          {tab.icon}
+          <span>{tab.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+};
+
+type InfoProps = {
+  label: string;
+  value: unknown;
+  full?: boolean;
+};
+
+const Info = ({ label, value, full }: InfoProps) => {
+  return (
+    <div className={`info-card ${full ? "info-card-full" : ""}`}>
+      <span>{label}</span>
+      <strong>{normalizeValue(value)}</strong>
+    </div>
+  );
+};
+
+type FieldProps = {
+  label: string;
+  value: string | number | null | undefined;
+  onChange: (value: string) => void;
+  type?: string;
+  full?: boolean;
+};
+
+const Field = ({
+  label,
+  value,
+  onChange,
+  type = "text",
+  full,
+}: FieldProps) => {
+  const isTextarea = label.toLowerCase().includes("address");
+
+  return (
+    <div className={`form-group ${full ? "form-group-full" : ""}`}>
+      <label>{label}</label>
+
+      {isTextarea ? (
+        <textarea
+          value={value ?? ""}
+          onChange={(e) => onChange(e.target.value)}
+          rows={3}
+        />
+      ) : (
+        <input
+          type={type}
+          value={value ?? ""}
+          onChange={(e) => onChange(e.target.value)}
+        />
       )}
     </div>
   );

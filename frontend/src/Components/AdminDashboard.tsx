@@ -6,6 +6,7 @@ import GISMonitoringPage from "./pages/GISMonitoringPage";
 import GovernanceDashboard from "./GovernanceDashboard";
 import Dashboard from "./pages/Dashboard";
 import Navbar from "./Navbar";
+
 import {
   getApplications,
   approveApplication,
@@ -16,7 +17,27 @@ import {
 type Application = {
   id: number;
   name: string;
+  applicantName?: string;
   status: string;
+  location?: string;
+  plotSize?: string;
+  plotArea?: string;
+  surveyNo?: string;
+  landType?: string;
+  buildingType?: string;
+  floors?: string | number;
+  builtupArea?: string;
+  height?: string | number;
+  roadWidth?: string;
+  frontSetback?: string;
+  sideSetback?: string;
+  rearSetback?: string;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
+  fileName?: string;
+  fileUrl?: string;
+  uploadedFile?: string;
+  [key: string]: any;
 };
 
 const AdminDashboard = () => {
@@ -27,10 +48,8 @@ const AdminDashboard = () => {
   const [formOpen, setFormOpen] = useState(false);
   const [applyOpen, setApplyOpen] = useState(false);
 
-  // ✅ KEEP existing state but empty it
   const [applications, setApplications] = useState<Application[]>([]);
 
-  // ✅ GET FUNCTION USING SERVICE
   const fetchApplications = async () => {
     try {
       const data = await getApplications();
@@ -39,10 +58,13 @@ const AdminDashboard = () => {
 
       const apps = Array.isArray(data) ? data : data.data || [];
 
+      // IMPORTANT: keep all backend fields using ...app
       setApplications(
         apps.map((app: any) => ({
+          ...app,
           id: app.id,
-          name: app.applicantName,
+          name: app.applicantName || app.name || `Application ${app.id}`,
+          applicantName: app.applicantName || app.name || `Application ${app.id}`,
           status: app.status || "Pending",
         }))
       );
@@ -51,41 +73,37 @@ const AdminDashboard = () => {
     }
   };
 
-  // ✅ LOAD DATA ON PAGE LOAD
   useEffect(() => {
     fetchApplications();
   }, []);
 
-  // ✅ APPROVE FUNCTION USING SERVICE
   const onApprove = async (id: number) => {
     try {
       await approveApplication(id);
-      fetchApplications();
+      await fetchApplications();
     } catch (err) {
       console.error("Error approving application:", err);
     }
   };
 
-  const onUpdate = async (id: number, payload: FormData) => {
-  try {
-    await updateApplicationWithFile(id, payload);
-    await fetchApplications();
-  } catch (err) {
-    console.error("Error updating application:", err);
-  }
-};
-
-  // ✅ REJECT FUNCTION USING SERVICE
   const onReject = async (id: number) => {
     try {
       await rejectApplication(id);
-      fetchApplications();
+      await fetchApplications();
     } catch (err) {
       console.error("Error rejecting application:", err);
     }
   };
 
-  // ✅ KEEP EXISTING
+  const onUpdate = async (id: number, payload: FormData) => {
+    try {
+      await updateApplicationWithFile(id, payload);
+      await fetchApplications();
+    } catch (err) {
+      console.error("Error updating application:", err);
+    }
+  };
+
   const handleAddApplication = (newApp: Application) => {
     setApplications((prev) => [...prev, newApp]);
   };
@@ -149,9 +167,7 @@ const AdminDashboard = () => {
           </ul>
         </div>
 
-        {open && (
-          <div className="overlay" onClick={() => setOpen(false)}></div>
-        )}
+        {open && <div className="overlay" onClick={() => setOpen(false)} />}
 
         <main className="main">
           <header className="header">
@@ -170,11 +186,11 @@ const AdminDashboard = () => {
 
           {activePage === "governance" && (
             <GovernanceDashboard
-            applications={applications}
-            onApprove={onApprove}
-            onReject={onReject}
-            onUpdate={onUpdate}
-          />
+              applications={applications}
+              onApprove={onApprove}
+              onReject={onReject}
+              onUpdate={onUpdate}
+            />
           )}
         </main>
       </div>
