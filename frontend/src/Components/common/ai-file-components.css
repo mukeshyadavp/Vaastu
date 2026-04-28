@@ -11,9 +11,9 @@
 
 .generic-upload-section h2 {
   margin: 0 0 24px;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 800;
-  color: #0f172a;
+  color: #475569;
 }
 
 /* ===============================
@@ -565,7 +565,8 @@
   }
 
   .generic-upload-section h2 {
-    font-size: 18px;
+    font-size: 16px;
+    color: #475569;;
   }
 
   .upload-area-wrapper,

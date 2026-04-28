@@ -13,8 +13,6 @@ type UseBuildingPermissionFormProps = {
   fetchApplications?: () => void;
 };
 
-const wait = (ms: number) =>
-  new Promise((resolve) => window.setTimeout(resolve, ms));
 
 export const useBuildingPermissionForm = ({
   setOpen,
