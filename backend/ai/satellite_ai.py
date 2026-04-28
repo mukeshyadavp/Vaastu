@@ -1,19 +1,8 @@
-import random
 from typing import Dict, List
 
-
-APPROVED_PERMIT_LOCATIONS = [
-    {
-        "permitId": "VAASTU-APP-1001",
-        "lat": 16.5062,
-        "lng": 80.6480,
-        "radiusMeters": 80,
-        "status": "Approved"
-    }
-]
-
-
-def mock_detect_new_structures() -> List[Dict]:
+def mock_detect_new_structures(
+    approved_permit_locations: List[Dict]
+) -> List[Dict]:
     """
     Temporary satellite AI simulation.
 
@@ -24,32 +13,47 @@ def mock_detect_new_structures() -> List[Dict]:
     - PostGIS footprint comparison
     """
 
-    return [
-        {
-            "id": "SAT-ALERT-001",
-            "lat": 16.5065,
-            "lng": 80.6483,
-            "detectedAreaSqM": 145,
-            "confidence": 0.92,
-            "changeType": "New Construction",
+    detected = []
+
+    for index, permit in enumerate(approved_permit_locations[:3], start=1):
+        detected.append({
+            "id": f"SAT-AUTH-{index:03d}",
+            "lat": round(permit["lat"] + 0.00018, 6),
+            "lng": round(permit["lng"] + 0.00016, 6),
+            "detectedAreaSqM": permit.get("builtupAreaSqM", 145),
+            "confidence": 0.93,
+            "changeType": "Construction Progress",
             "imageT1": "Previous Month",
-            "imageT2": "Current Month"
-        },
-        {
-            "id": "SAT-ALERT-002",
-            "lat": 16.5201,
-            "lng": 80.6412,
-            "detectedAreaSqM": 220,
-            "confidence": 0.88,
-            "changeType": "Unauthorized Footprint",
-            "imageT1": "Previous Month",
-            "imageT2": "Current Month"
-        }
-    ]
+            "imageT2": "Current Month",
+        })
+
+    if approved_permit_locations:
+        anchor = approved_permit_locations[0]
+        unauthorized_lat = round(anchor["lat"] + 0.0124, 6)
+        unauthorized_lng = round(anchor["lng"] + 0.0091, 6)
+    else:
+        unauthorized_lat = 16.5201
+        unauthorized_lng = 80.6412
+
+    detected.append({
+        "id": "SAT-ALERT-UNAUTH-001",
+        "lat": unauthorized_lat,
+        "lng": unauthorized_lng,
+        "detectedAreaSqM": 220,
+        "confidence": 0.88,
+        "changeType": "Unauthorized Footprint",
+        "imageT1": "Previous Month",
+        "imageT2": "Current Month",
+    })
+
+    return detected
 
 
-def is_matching_approved_permit(alert: Dict) -> bool:
-    for permit in APPROVED_PERMIT_LOCATIONS:
+def is_matching_approved_permit(
+    alert: Dict,
+    approved_permit_locations: List[Dict]
+) -> bool:
+    for permit in approved_permit_locations:
         distance_score = abs(alert["lat"] - permit["lat"]) + abs(alert["lng"] - permit["lng"])
 
         if distance_score < 0.001 and permit["status"] == "Approved":
@@ -58,12 +62,17 @@ def is_matching_approved_permit(alert: Dict) -> bool:
     return False
 
 
-def run_satellite_change_detection() -> Dict:
-    detected_structures = mock_detect_new_structures()
+def run_satellite_change_detection(
+    approved_permit_locations: List[Dict]
+) -> Dict:
+    detected_structures = mock_detect_new_structures(approved_permit_locations)
     alerts = []
 
     for structure in detected_structures:
-        has_permit = is_matching_approved_permit(structure)
+        has_permit = is_matching_approved_permit(
+            structure,
+            approved_permit_locations
+        )
 
         alerts.append({
             **structure,

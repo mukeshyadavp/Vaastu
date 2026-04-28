@@ -237,7 +237,8 @@ const fetchSuggestions = async (query: string) => {
 
   const submitAndRunAutoDcr = async () => {
     if (!file) {
-showToast("Please upload a file before submitting", "error");      setStep(4);
+      showToast("Please upload a file before submitting", "error");
+      setStep(4);
       return;
     }
 
@@ -249,9 +250,16 @@ showToast("Please upload a file before submitting", "error");      setStep(4);
 
       const data = await runAutoDcr(file, {
         buildingType: usage || "Residential",
+        plotArea: Number(plotArea || 300),
+        builtupArea: Number(area || 300),
         floors: Number(floors || 2),
         height: Number(height || 7),
         classification: "Non-High-Rise",
+        frontSetback: Number(front || 3.5),
+        rearSetback: Number(rear || 2.5),
+        side1Setback: Number(side || 2),
+        side2Setback: Number(side || 2),
+        roadWidth: Number(roadWidth || 9),
       });
 
       const isCompliant = data.result.isCompliant;
@@ -273,7 +281,8 @@ showToast("Please upload a file before submitting", "error");      setStep(4);
 
       fetchApplications();
 
-      showToast("Application Submitted Successfully", "success");    } catch (error) {
+      showToast("Application Submitted Successfully", "success");
+    } catch (error) {
       setAiResult("failure");
 
       setMessage(

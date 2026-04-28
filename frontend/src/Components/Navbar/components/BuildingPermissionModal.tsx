@@ -22,7 +22,7 @@ const BuildingPermissionModal: React.FC<BuildingPermissionModalProps> = ({
           <h2>Building Permission</h2>
 
           <span className="closeBtn" onClick={onClose}>
-            ✖
+            X
           </span>
         </div>
 
@@ -59,7 +59,7 @@ const BuildingPermissionModal: React.FC<BuildingPermissionModalProps> = ({
           </div>
 
           <button className="goBtn" onClick={onContinue}>
-            GO →
+            Continue
           </button>
         </div>
       </div>

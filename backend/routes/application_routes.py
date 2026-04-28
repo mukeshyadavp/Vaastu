@@ -1,4 +1,5 @@
 import os
+import uuid
 
 from flask import Blueprint, jsonify, request, current_app, send_from_directory
 from werkzeug.utils import secure_filename
@@ -36,7 +37,8 @@ def save_uploaded_file(uploaded_file):
     if not uploaded_file or not uploaded_file.filename:
         return None, None
 
-    filename = secure_filename(uploaded_file.filename)
+    original_filename = secure_filename(uploaded_file.filename)
+    filename = f"{uuid.uuid4()}_{original_filename}"
 
     upload_folder = current_app.config.get("UPLOAD_FOLDER", "uploads")
     os.makedirs(upload_folder, exist_ok=True)

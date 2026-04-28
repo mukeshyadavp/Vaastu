@@ -20,6 +20,9 @@ export type SatelliteAlert = {
 export type SatelliteScanResponse = {
   success: boolean;
   message: string;
+  metadata?: {
+    approvedPermitsUsed: number;
+  };
   result: {
     engine: string;
     scanStatus: string;

@@ -14,46 +14,37 @@ import "./ApplicationsTable.css";
 
 export type Application = {
   id: number;
-
   name?: string;
   applicantName?: string;
   fatherName?: string | null;
   mobile?: string | null;
   email?: string | null;
-
   location?: string;
   address?: string | null;
   surveyNo?: string;
   plotSize?: string;
   plotArea?: string;
   landType?: string;
-
   buildingType?: string;
   floors?: string | number;
   builtupArea?: string;
   height?: string | number;
-
   roadWidth?: string;
   frontSetback?: string;
   sideSetback?: string;
   rearSetback?: string;
-
   latitude?: number | string | null;
   longitude?: number | string | null;
-
   status?: string;
   remarks?: string | null;
-
   file?: string;
   fileName?: string;
   filename?: string;
   fileUrl?: string;
   documentUrl?: string;
   uploadedFile?: string;
-
   createdAt?: string;
   updatedAt?: string;
-
   [key: string]: any;
 };
 
@@ -100,12 +91,10 @@ const ApplicationsTable = ({
 }: Props) => {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [editApp, setEditApp] = useState<Application | null>(null);
   const [editFile, setEditFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
-
   const [viewTab, setViewTab] = useState<ModalTab>("applicant");
   const [editTab, setEditTab] = useState<ModalTab>("applicant");
 
@@ -179,31 +168,25 @@ const ApplicationsTable = ({
       editApp.applicantName || editApp.name || ""
     );
     appendValue(formData, "name", editApp.name || editApp.applicantName || "");
-
     appendValue(formData, "fatherName", editApp.fatherName || "");
     appendValue(formData, "mobile", editApp.mobile || "");
     appendValue(formData, "email", editApp.email || "");
-
     appendValue(formData, "location", editApp.location || "");
     appendValue(formData, "address", editApp.address || "");
     appendValue(formData, "surveyNo", editApp.surveyNo || "");
     appendValue(formData, "plotSize", editApp.plotSize || "");
     appendValue(formData, "plotArea", editApp.plotArea || "");
     appendValue(formData, "landType", editApp.landType || "");
-
     appendValue(formData, "buildingType", editApp.buildingType || "");
     appendValue(formData, "floors", editApp.floors || "");
     appendValue(formData, "builtupArea", editApp.builtupArea || "");
     appendValue(formData, "height", editApp.height || "");
-
     appendValue(formData, "roadWidth", editApp.roadWidth || "");
     appendValue(formData, "frontSetback", editApp.frontSetback || "");
     appendValue(formData, "sideSetback", editApp.sideSetback || "");
     appendValue(formData, "rearSetback", editApp.rearSetback || "");
-
     appendValue(formData, "latitude", editApp.latitude || "");
     appendValue(formData, "longitude", editApp.longitude || "");
-
     appendValue(formData, "status", editApp.status || "Pending");
     appendValue(formData, "remarks", editApp.remarks || "");
 
@@ -422,7 +405,6 @@ const ApplicationsTable = ({
         </button>
       </div>
 
-      {/* VIEW MODAL */}
       {selectedApp && (
         <div className="modal-overlay" onClick={() => setSelectedApp(null)}>
           <div
@@ -436,7 +418,7 @@ const ApplicationsTable = ({
                 <div className="modal-app-name">{getAppName(selectedApp)}</div>
 
                 <div className="modal-app-subtext">
-                  {normalizeValue(selectedApp.location)} ·{" "}
+                  {normalizeValue(selectedApp.location)} |{" "}
                   {normalizeValue(selectedApp.latitude)},{" "}
                   {normalizeValue(selectedApp.longitude)}
                 </div>
@@ -556,7 +538,6 @@ const ApplicationsTable = ({
         </div>
       )}
 
-      {/* EDIT MODAL */}
       {editApp && (
         <div className="modal-overlay" onClick={() => setEditApp(null)}>
           <div
