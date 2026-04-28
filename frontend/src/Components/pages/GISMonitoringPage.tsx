@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./GISMonitoringPage.css";
-import { apiGet } from "../../Services/api";
+import { apiGet } from "../../Services/apiClient";
 
 import mainImg from "../../assets/modern-district-aerial-panorama-urban-style.jpg";
 import img2 from "../../assets/feb.jfif";

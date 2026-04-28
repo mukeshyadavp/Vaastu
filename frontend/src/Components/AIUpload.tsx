@@ -5,7 +5,7 @@ import {
   generateCadPreview,
   type AutoDcrViolation,
   type AutoDcrCheck,
-} from "../Services/api";
+} from "../Services";
 
 import GenericFileUpload from "./common/GenericFileUpload";
 import AutoDcrResultPanel from "./common/AutoDcrResultPanel";

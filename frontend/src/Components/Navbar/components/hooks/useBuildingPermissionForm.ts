@@ -6,7 +6,7 @@ import {
   generateCadPreview,
   searchLocationSuggestions,
   type AutoDcrCheck,
-} from "../../../../Services/api";
+} from "../../../../Services";
 
 type UseBuildingPermissionFormProps = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;

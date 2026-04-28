@@ -7,6 +7,12 @@ import GovernanceDashboard from "./GovernanceDashboard";
 import Dashboard from "./pages/Dashboard";
 import Navbar from "./Navbar";
 
+import {
+  getApplications,
+  approveApplication,
+  rejectApplication,
+} from "../Services/applicationService";
+
 type Application = {
   id: number;
   name: string;
@@ -21,27 +27,26 @@ const AdminDashboard = () => {
   const [formOpen, setFormOpen] = useState(false);
   const [applyOpen, setApplyOpen] = useState(false);
 
-  // ✅ KEEP existing state but empty it (no delete)
-const [applications, setApplications] = useState<Application[]>([]);
+  // ✅ KEEP existing state but empty it
+  const [applications, setApplications] = useState<Application[]>([]);
 
-  // ✅ GET FUNCTION
+  // ✅ GET FUNCTION USING SERVICE
   const fetchApplications = async () => {
- try {
-  const res = await fetch("http://localhost:5000/api/applications");
-  const data = await res.json();
+    try {
+      const data = await getApplications();
 
-  console.log("API RESPONSE:", data); // 👈 chala important
+      console.log("API RESPONSE:", data);
 
-  const apps = Array.isArray(data) ? data : data.data;
+      const apps = Array.isArray(data) ? data : data.data || [];
 
-  setApplications(
-    apps.map((app: any) => ({
-      id: app.id,
-      name: app.applicantName,
-      status: app.status || "Pending",
-    }))
-  );
-}catch (err) {
+      setApplications(
+        apps.map((app: any) => ({
+          id: app.id,
+          name: app.applicantName,
+          status: app.status || "Pending",
+        }))
+      );
+    } catch (err) {
       console.error("Error fetching applications:", err);
     }
   };
@@ -51,37 +56,29 @@ const [applications, setApplications] = useState<Application[]>([]);
     fetchApplications();
   }, []);
 
-  // ✅ APPROVE FUNCTION
-const onApprove = async (id: number) => {    try {
-      await fetch(
-        `http://localhost:5000/api/applications/${id}/approve`,
-        {
-          method: "PUT",
-        }
-      );
-      fetchApplications(); // refresh
+  // ✅ APPROVE FUNCTION USING SERVICE
+  const onApprove = async (id: number) => {
+    try {
+      await approveApplication(id);
+      fetchApplications();
     } catch (err) {
-      console.error(err);
+      console.error("Error approving application:", err);
     }
   };
 
-  // ✅ REJECT FUNCTION
-const onReject = async (id: number) => {    try {
-      await fetch(
-        `http://localhost:5000/api/applications/${id}/reject`,
-        {
-          method: "PUT",
-        }
-      );
-      fetchApplications(); // refresh
+  // ✅ REJECT FUNCTION USING SERVICE
+  const onReject = async (id: number) => {
+    try {
+      await rejectApplication(id);
+      fetchApplications();
     } catch (err) {
-      console.error(err);
+      console.error("Error rejecting application:", err);
     }
   };
-  
 
-  // ✅ KEEP EXISTING (not removing)
-const handleAddApplication = (newApp: Application) => {    setApplications((prev) => [...prev, newApp]);
+  // ✅ KEEP EXISTING
+  const handleAddApplication = (newApp: Application) => {
+    setApplications((prev) => [...prev, newApp]);
   };
 
   return (
@@ -95,7 +92,7 @@ const handleAddApplication = (newApp: Application) => {    setApplications((prev
         setFormOpen={setFormOpen}
         applyOpen={applyOpen}
         setApplyOpen={setApplyOpen}
-          fetchApplications={fetchApplications} // ✅ ADD
+        fetchApplications={fetchApplications}
       />
 
       <div className="admin-dashboard">
@@ -147,30 +144,27 @@ const handleAddApplication = (newApp: Application) => {    setApplications((prev
           <div className="overlay" onClick={() => setOpen(false)}></div>
         )}
 
-        {/* MAIN CONTENT */}
         <main className="main">
           <header className="header">
-            <button
-              className="menu-btn"
-              onClick={() => setOpen(!open)}
-            >
+            <button className="menu-btn" onClick={() => setOpen(!open)}>
               ☰
             </button>
           </header>
 
-        {activePage === "dashboard" && (
-  <Dashboard applications={applications} />
-)}
+          {activePage === "dashboard" && (
+            <Dashboard applications={applications} />
+          )}
+
           {activePage === "ai" && <AIUpload />}
+
           {activePage === "gis" && <GISMonitoringPage />}
 
-          {/* ✅ GOVERNANCE DASHBOARD */}
           {activePage === "governance" && (
             <GovernanceDashboard
               applications={applications}
               onApprove={onApprove}
               onReject={onReject}
-              onAdd={handleAddApplication} // kept (not removed)
+              onAdd={handleAddApplication}
             />
           )}
         </main>
