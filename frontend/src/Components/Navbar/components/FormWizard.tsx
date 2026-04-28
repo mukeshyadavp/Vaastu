@@ -44,6 +44,16 @@ const FormWizard: React.FC<FormWizardProps> = ({
 
   if (!open) return null;
 
+  const Toast = ({ toast }: any) => {
+  if (!toast?.show) return null;
+
+  return (
+    <div className={`toast ${toast.type}`}>
+      {toast.message}
+    </div>
+  );
+};
+
   return (
     <div className="modalOverlay">
       <div className="formPage" onClick={(event) => event.stopPropagation()}>
@@ -52,6 +62,7 @@ const FormWizard: React.FC<FormWizardProps> = ({
         </button>
 
         <Stepper step={form.step} loading={form.loading} setStep={form.setStep} />
+        <Toast toast={form.toast} />
 
         {form.step === 1 && <ApplicantDetailsStep form={form} />}
         {form.step === 2 && <PlotDetailsStep form={form} />}
