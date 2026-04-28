@@ -106,10 +106,10 @@
 .gis-meta-row span {
   background: #fff;
   border: 1px solid #e5e7eb;
-  color: #334155;
+  color: #475569;
   border-radius: 999px;
   padding: 8px 14px;
-  font-size: 13px;
+  font-size: 10px;
   font-weight: 700;
 }
 
@@ -127,7 +127,7 @@
 .gis-section-sub {
   font-size: 12px;
   font-weight: 600;
-  color: #64748b;
+  color: #475569;
   background: #f1f5f9;
   border-radius: 999px;
   padding: 4px 10px;
@@ -190,7 +190,7 @@
 .gis-stage-date {
   font-size: 10.5px;
   font-weight: 600;
-  color: #64748b;
+  color: #475569;
 }
 
 /* Satellite map inside card */
