@@ -73,6 +73,25 @@ export const useBuildingPermissionForm = ({
     setComplianceChecks([]);
   };
 
+
+  const [toast, setToast] = useState<{
+  show: boolean;
+  message: string;
+  type: "success" | "error";
+}>({
+  show: false,
+  message: "",
+  type: "success",
+});
+
+const showToast = (message: string, type: "success" | "error" = "success") => {
+  setToast({ show: true, message, type });
+
+  setTimeout(() => {
+    setToast({ show: false, message: "", type: "success" });
+  }, 3000);
+};
+
   const isImageFile = (selectedFile: File) => {
     return selectedFile.type.startsWith("image/");
   };
@@ -111,8 +130,7 @@ export const useBuildingPermissionForm = ({
         })
       );
     } else {
-      alert("Location not found");
-    }
+showToast("Location not found", "error");    }
   } catch (error) {
     console.error("Location search failed:", error);
     alert("Unable to search location");
@@ -201,8 +219,7 @@ const fetchSuggestions = async (query: string) => {
 
   const submitAndRunAutoDcr = async () => {
     if (!file) {
-      alert("Please upload CAD / PDF / drawing file before submitting");
-      setStep(4);
+showToast("Please upload a file before submitting", "error");      setStep(4);
       return;
     }
 
@@ -244,8 +261,7 @@ const fetchSuggestions = async (query: string) => {
 
       fetchApplications();
 
-      alert("Application Submitted ✅");
-    } catch (error) {
+showToast("Application Submitted Successfully", "success");    } catch (error) {
       const elapsedTime = Date.now() - loaderStartTime;
       const remainingTime = Math.max(0, 5000 - elapsedTime);
 
@@ -408,6 +424,7 @@ const fetchSuggestions = async (query: string) => {
     suggestions,
 setSuggestions,
 fetchSuggestions,
+toast
   };
 };
 

@@ -79,3 +79,37 @@
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
 }
+
+
+
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 14px 20px;
+  border-radius: 10px;
+  color: white;
+  font-weight: 500;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  animation: slideIn 0.3s ease;
+  z-index: 9999;
+}
+
+.toast.success {
+  background: linear-gradient(135deg, #00c853, #64dd17);
+}
+
+.toast.error {
+  background: linear-gradient(135deg, #ff5252, #ff1744);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
