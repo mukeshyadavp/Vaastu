@@ -4,7 +4,7 @@ import os
 os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
 os.makedirs("/tmp/matplotlib", exist_ok=True)
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from flasgger import Swagger
 from dotenv import load_dotenv
@@ -49,6 +49,7 @@ def get_database_url():
 
     return database_url
 
+
 def create_app():
     app = Flask(
         __name__,
@@ -77,6 +78,8 @@ def create_app():
                 "origins": [
                     "http://localhost:5173",
                     "http://127.0.0.1:5173",
+                    "http://localhost:5000",
+                    "http://127.0.0.1:5000",
                     "https://vaastu-lhhg.vercel.app",
                     "https://vaastu-fullstack.onrender.com",
                 ]
@@ -128,6 +131,75 @@ def create_app():
             "database": "connected",
         }), 200
 
+    # ------------------------------------------------------------------
+    # React / Vite frontend serving
+    # ------------------------------------------------------------------
+    @app.route("/")
+    def serve_index():
+        index_path = os.path.join(app.config["STATIC_FOLDER"], "index.html")
+
+        if os.path.exists(index_path):
+            return send_from_directory(
+                app.config["STATIC_FOLDER"],
+                "index.html",
+            )
+
+        return jsonify({
+            "success": True,
+            "message": "VAASTU backend is running",
+            "frontend": "React build not found in backend/static",
+        }), 200
+
+    @app.route("/<path:path>")
+    def serve_react_or_static(path):
+        """
+        Handles:
+        - Static frontend files: /assets/...
+        - React routes: /admin, /dashboard, /Home
+        - API 404: /api/unknown
+        """
+
+        # Keep API errors as JSON
+        if path.startswith("api/"):
+            return jsonify({
+                "success": False,
+                "message": "API route not found",
+            }), 404
+
+        # Do not break Swagger routes
+        if (
+            path.startswith("apidocs")
+            or path.startswith("apispec")
+            or path.startswith("flasgger_static")
+        ):
+            return jsonify({
+                "success": False,
+                "message": "Swagger route not found",
+            }), 404
+
+        static_file_path = os.path.join(app.config["STATIC_FOLDER"], path)
+
+        # Serve existing static files like JS, CSS, images
+        if os.path.exists(static_file_path) and os.path.isfile(static_file_path):
+            return send_from_directory(app.config["STATIC_FOLDER"], path)
+
+        # React Router fallback for /admin, /dashboard, /Home, etc.
+        index_path = os.path.join(app.config["STATIC_FOLDER"], "index.html")
+
+        if os.path.exists(index_path):
+            return send_from_directory(
+                app.config["STATIC_FOLDER"],
+                "index.html",
+            )
+
+        return jsonify({
+            "success": False,
+            "message": (
+                "Frontend build not found. Run 'npm run build' in frontend "
+                "and copy frontend/dist files into backend/static."
+            ),
+        }), 404
+
     @app.errorhandler(404)
     def not_found(error):
         return jsonify({
@@ -137,6 +209,8 @@ def create_app():
 
     @app.errorhandler(500)
     def internal_error(error):
+        db.session.rollback()
+
         return jsonify({
             "success": False,
             "message": "Internal server error",
