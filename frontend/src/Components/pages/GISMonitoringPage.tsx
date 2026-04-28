@@ -162,7 +162,7 @@ async function fetchAndMatchReleases(
 ): Promise<HistorySlot[]> {
   try {
     const res = await fetch(
-      "https://raw.githubusercontent.com/Esri/wayback/master/src/data/wayback-config.json",
+      "https://s3-us-west-2.amazonaws.com/config.maptiles.arcgis.com/waybackconfig.json",
       { cache: "force-cache" }
     );
 
@@ -170,14 +170,25 @@ async function fetchAndMatchReleases(
       throw new Error("Wayback config fetch failed");
     }
 
-    const raw: Record<string, { releaseDateLabel?: string }> =
-      await res.json();
+    const raw: Record<
+      string,
+      {
+        releaseNum?: number;
+        releaseDateLabel?: string;
+        releaseDatetime?: number;
+        itemURL?: string;
+      }
+    > = await res.json();
 
     const entries: WaybackEntry[] = Object.entries(raw)
       .map(([key, value]) => {
-        const releaseNum = parseInt(key, 10);
-        const label = value.releaseDateLabel ?? "";
-        const date = new Date(label);
+        const releaseNum = Number(value.releaseNum ?? key);
+        const label = value.releaseDateLabel ?? `Release ${releaseNum}`;
+
+        const date =
+          typeof value.releaseDatetime === "number"
+            ? new Date(value.releaseDatetime)
+            : new Date(label);
 
         return {
           releaseNum,
@@ -187,7 +198,7 @@ async function fetchAndMatchReleases(
       })
       .filter(
         (entry) =>
-          !Number.isNaN(entry.releaseNum) &&
+          Number.isFinite(entry.releaseNum) &&
           !Number.isNaN(entry.date.getTime()) &&
           entry.date.getTime() > 0
       )
@@ -210,6 +221,7 @@ async function fetchAndMatchReleases(
       }
 
       const target = slot.targetDate.getTime();
+
       let best = entries[0];
       let bestDiff = Math.abs(entries[0].date.getTime() - target);
 
@@ -231,7 +243,9 @@ async function fetchAndMatchReleases(
         releaseDateLabel: best.label,
       };
     });
-  } catch {
+  } catch (error) {
+    console.error("Wayback release fetch failed:", error);
+
     return slots.map((slot) => ({
       label: slot.label,
       targetDate: slot.targetDate,
