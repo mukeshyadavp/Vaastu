@@ -140,14 +140,14 @@ const fetchSuggestions = async (query: string) => {
 };
 
 
-  const submitApplication = async () => {
+  const submitApplication = async (status: string) => {
     const newData = {
       applicantName: applicantName || "New Applicant",
       location: searchLocation || landType || "Auto Location",
       plotSize: plotArea || "N/A",
       latitude: latitude ? Number(latitude) : null,
       longitude: longitude ? Number(longitude) : null,
-      status: "Pending",
+      status: status || "Pending",
     };
 
     const response = await apiPost("/api/applications", newData);
@@ -210,10 +210,7 @@ const fetchSuggestions = async (query: string) => {
     setLoading(true);
     resetResult();
 
-    const loaderStartTime = Date.now();
-
     try {
-      await submitApplication();
 
       const data = await runAutoDcr(file, {
         buildingType: usage || "Residential",
@@ -222,14 +219,11 @@ const fetchSuggestions = async (query: string) => {
         classification: "Non-High-Rise",
       });
 
-      const elapsedTime = Date.now() - loaderStartTime;
-      const remainingTime = Math.max(0, 5000 - elapsedTime);
-
-      await wait(remainingTime);
-
       const isCompliant = data.result.isCompliant;
 
       setAiResult(isCompliant ? "success" : "failure");
+      const applicationStatus = isCompliant ? "Approved" : "Rejected";
+      await submitApplication(applicationStatus);
 
       setMessage(
         isCompliant
@@ -246,11 +240,6 @@ const fetchSuggestions = async (query: string) => {
 
       alert("Application Submitted ✅");
     } catch (error) {
-      const elapsedTime = Date.now() - loaderStartTime;
-      const remainingTime = Math.max(0, 5000 - elapsedTime);
-
-      await wait(remainingTime);
-
       setAiResult("failure");
 
       setMessage(
