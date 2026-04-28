@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  apiPost,
   getReportDownloadUrl,
   runAutoDcr,
   generateCadPreview,
   searchLocationSuggestions,
+  createApplicationWithFile,
   type AutoDcrCheck,
 } from "../../../../Services";
 
@@ -156,20 +156,40 @@ const fetchSuggestions = async (query: string) => {
 };
 
 
-  const submitApplication = async (status: string) => {
-    const newData = {
-      applicantName: applicantName || "New Applicant",
-      location: searchLocation || landType || "Auto Location",
-      plotSize: plotArea || "N/A",
-      latitude: latitude ? Number(latitude) : null,
-      longitude: longitude ? Number(longitude) : null,
-      status: status || "Pending",
-    };
+ const submitApplication = async (status: string) => {
+  const formData = new FormData();
 
-    const response = await apiPost("/api/applications", newData);
+  formData.append("applicantName", applicantName || "New Applicant");
 
-    return response;
-  };
+  formData.append("location", searchLocation || landType || "Auto Location");
+  formData.append("plotSize", plotArea || "N/A");
+  formData.append("plotArea", plotArea || "");
+
+  formData.append("surveyNo", survey || "");
+  formData.append("roadWidth", roadWidth || "");
+  formData.append("landType", landType || "");
+
+  formData.append("latitude", latitude || "");
+  formData.append("longitude", longitude || "");
+
+  formData.append("buildingType", usage || "Residential");
+  formData.append("floors", floors || "");
+  formData.append("builtupArea", area || "");
+  formData.append("height", height || "");
+  formData.append("frontSetback", front || "");
+  formData.append("sideSetback", side || "");
+  formData.append("rearSetback", rear || "");
+
+  formData.append("status", status || "Pending");
+
+  if (file) {
+    formData.append("file", file);
+  }
+
+  const response = await createApplicationWithFile(formData);
+
+  return response;
+};
 
   const handleFileChange = async (selectedFile: File) => {
     setFile(selectedFile);

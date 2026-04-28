@@ -1,5 +1,4 @@
-import { apiGet, apiPost, apiPut, apiDelete } from "./apiClient";
-
+import { apiGet, apiPost, apiPut, apiDelete, apiUrl,handleResponse } from "./apiClient";
 export type ApplicationItem = {
   id: number;
   applicantName: string;
@@ -65,4 +64,27 @@ export async function rejectApplication(
   id: number
 ): Promise<ApplicationResponse> {
   return apiPut<ApplicationResponse>(`/api/applications/${id}/reject`);
+}
+
+export async function updateApplicationWithFile(
+  id: number,
+  payload: FormData
+): Promise<any> {
+  const response = await fetch(apiUrl(`/api/applications/${id}`), {
+    method: "PUT",
+    body: payload,
+  });
+
+  return handleResponse<any>(response, "Application update failed");
+}
+
+export async function createApplicationWithFile(
+  payload: FormData
+): Promise<any> {
+  const response = await fetch(apiUrl("/api/applications"), {
+    method: "POST",
+    body: payload,
+  });
+
+  return handleResponse<any>(response, "Application creation failed");
 }

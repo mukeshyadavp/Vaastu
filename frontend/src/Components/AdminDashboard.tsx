@@ -6,11 +6,11 @@ import GISMonitoringPage from "./pages/GISMonitoringPage";
 import GovernanceDashboard from "./GovernanceDashboard";
 import Dashboard from "./pages/Dashboard";
 import Navbar from "./Navbar";
-
 import {
   getApplications,
   approveApplication,
   rejectApplication,
+  updateApplicationWithFile,
 } from "../Services/applicationService";
 
 type Application = {
@@ -65,6 +65,15 @@ const AdminDashboard = () => {
       console.error("Error approving application:", err);
     }
   };
+
+  const onUpdate = async (id: number, payload: FormData) => {
+  try {
+    await updateApplicationWithFile(id, payload);
+    await fetchApplications();
+  } catch (err) {
+    console.error("Error updating application:", err);
+  }
+};
 
   // ✅ REJECT FUNCTION USING SERVICE
   const onReject = async (id: number) => {
@@ -161,11 +170,11 @@ const AdminDashboard = () => {
 
           {activePage === "governance" && (
             <GovernanceDashboard
-              applications={applications}
-              onApprove={onApprove}
-              onReject={onReject}
-              onAdd={handleAddApplication}
-            />
+            applications={applications}
+            onApprove={onApprove}
+            onReject={onReject}
+            onUpdate={onUpdate}
+          />
           )}
         </main>
       </div>

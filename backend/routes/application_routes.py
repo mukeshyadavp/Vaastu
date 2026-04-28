@@ -1,7 +1,8 @@
-from flask import Blueprint, jsonify, request
+import os
+from flask import Blueprint, jsonify, request, current_app
 from extensions import db
 from models.application import Application
-
+from werkzeug.utils import secure_filename, send_from_directory
 applications_bp = Blueprint("applications", __name__)
 
 
@@ -65,63 +66,42 @@ def get_applications():
         "data": [item.to_dict() for item in applications],
     }), 200
 
+@applications_bp.route("/uploads/<path:filename>", methods=["GET"])
+def serve_uploaded_file(filename):
+    upload_folder = current_app.config.get("UPLOAD_FOLDER", "uploads")
+
+    return send_from_directory(upload_folder, filename)
 
 @applications_bp.route("/api/applications", methods=["POST"])
 def create_application():
-    """
-    Create new application
-    ---
-    tags:
-      - Applications
-    consumes:
-      - application/json
-    parameters:
-      - in: body
-        name: body
-        required: true
-        schema:
-          type: object
-          required:
-            - applicantName
-            - location
-            - plotSize
-          properties:
-            applicantName:
-              type: string
-              example: Mukesh Yadav
-            location:
-              type: string
-              example: Vijayawada
-            plotSize:
-              type: string
-              example: 250 Sq Yards
-            latitude:
-              type: number
-              example: 16.5062
-            longitude:
-              type: number
-              example: 80.6480
-            status:
-              type: string
-              example: Pending
-    responses:
-      201:
-        description: Application created successfully
-      400:
-        description: Invalid request body
-    """
-    data = request.get_json()
+    is_multipart = (
+        request.content_type
+        and request.content_type.startswith("multipart/form-data")
+    )
 
-    if not data:
+    if is_multipart:
+        data = request.form
+    else:
+        data = request.get_json(silent=True) or {}
+
+    if not data and "file" not in request.files:
         return jsonify({
             "success": False,
             "message": "No data provided",
         }), 400
 
-    required_fields = ["applicantName", "location", "plotSize"]
+    applicant_name = data.get("applicantName") or data.get("name")
+    location = data.get("location")
+    plot_size = data.get("plotSize")
 
-    for field in required_fields:
-        if not data.get(field):
+    required_fields = {
+        "applicantName": applicant_name,
+        "location": location,
+        "plotSize": plot_size,
+    }
+
+    for field, value in required_fields.items():
+        if not value:
             return jsonify({
                 "success": False,
                 "message": f"{field} is required",
@@ -131,13 +111,59 @@ def create_application():
     longitude = to_float_or_none(data.get("longitude"))
 
     new_application = Application(
-        applicant_name=data["applicantName"],
-        location=data["location"],
-        plot_size=data["plotSize"],
+        applicant_name=applicant_name,
+        location=location,
+        plot_size=plot_size,
         latitude=latitude,
         longitude=longitude,
         status=data.get("status", "Pending"),
     )
+
+    # Optional fields if your model has these columns
+    def set_if_model_has(model_attr, request_key):
+        if hasattr(new_application, model_attr):
+            setattr(new_application, model_attr, data.get(request_key) or None)
+
+    set_if_model_has("father_name", "fatherName")
+    set_if_model_has("mobile", "mobile")
+    set_if_model_has("email", "email")
+    set_if_model_has("address", "address")
+    set_if_model_has("survey_no", "surveyNo")
+    set_if_model_has("plot_area", "plotArea")
+    set_if_model_has("building_type", "buildingType")
+    set_if_model_has("floors", "floors")
+    set_if_model_has("height", "height")
+    set_if_model_has("remarks", "remarks")
+
+    # Extra fields from your building permission form
+    set_if_model_has("road_width", "roadWidth")
+    set_if_model_has("land_type", "landType")
+    set_if_model_has("builtup_area", "builtupArea")
+    set_if_model_has("front_setback", "frontSetback")
+    set_if_model_has("side_setback", "sideSetback")
+    set_if_model_has("rear_setback", "rearSetback")
+
+    uploaded_file = request.files.get("file")
+
+    if uploaded_file and uploaded_file.filename:
+        filename = secure_filename(uploaded_file.filename)
+
+        upload_folder = current_app.config.get("UPLOAD_FOLDER", "uploads")
+        os.makedirs(upload_folder, exist_ok=True)
+
+        file_path = os.path.join(upload_folder, filename)
+        uploaded_file.save(file_path)
+
+        file_url = f"/uploads/{filename}"
+
+        if hasattr(new_application, "file_name"):
+            new_application.file_name = filename
+
+        if hasattr(new_application, "file_url"):
+            new_application.file_url = file_url
+
+        if hasattr(new_application, "uploaded_file"):
+            new_application.uploaded_file = file_url
 
     db.session.add(new_application)
     db.session.commit()
@@ -185,52 +211,6 @@ def get_application(application_id):
 
 @applications_bp.route("/api/applications/<int:application_id>", methods=["PUT"])
 def update_application(application_id):
-    """
-    Update application
-    ---
-    tags:
-      - Applications
-    consumes:
-      - application/json
-    parameters:
-      - name: application_id
-        in: path
-        type: integer
-        required: true
-        description: Application ID
-        example: 1
-      - in: body
-        name: body
-        required: true
-        schema:
-          type: object
-          properties:
-            applicantName:
-              type: string
-              example: Mukesh Yadav
-            location:
-              type: string
-              example: Guntur
-            plotSize:
-              type: string
-              example: 300 Sq Yards
-            latitude:
-              type: number
-              example: 16.3067
-            longitude:
-              type: number
-              example: 80.4365
-            status:
-              type: string
-              example: Pending
-    responses:
-      200:
-        description: Application updated successfully
-      400:
-        description: Invalid request body
-      404:
-        description: Application not found
-    """
     application = Application.query.get(application_id)
 
     if not application:
@@ -239,27 +219,79 @@ def update_application(application_id):
             "message": "Application not found",
         }), 404
 
-    data = request.get_json()
+    is_multipart = request.content_type and request.content_type.startswith("multipart/form-data")
 
-    if not data:
+    if is_multipart:
+        data = request.form
+    else:
+        data = request.get_json(silent=True) or {}
+
+    if not data and "file" not in request.files:
         return jsonify({
             "success": False,
             "message": "No data provided",
         }), 400
 
-    application.applicant_name = data.get(
-        "applicantName",
-        application.applicant_name,
-    )
-    application.location = data.get("location", application.location)
-    application.plot_size = data.get("plotSize", application.plot_size)
-    application.status = data.get("status", application.status)
+    def update_if_exists(model_attr, request_key):
+        if hasattr(application, model_attr) and request_key in data:
+            setattr(application, model_attr, data.get(request_key))
+
+    # Existing columns
+    if "applicantName" in data:
+      application.applicant_name = data.get("applicantName") or application.applicant_name
+
+    if "name" in data and not data.get("applicantName"):
+      application.applicant_name = data.get("name") or application.applicant_name
+
+    if "location" in data:
+        application.location = data.get("location") or application.location
+
+    if "plotSize" in data:
+        application.plot_size = data.get("plotSize") or application.plot_size
+
+    if "status" in data:
+        application.status = data.get("status") or application.status
 
     if "latitude" in data:
         application.latitude = to_float_or_none(data.get("latitude"))
 
     if "longitude" in data:
         application.longitude = to_float_or_none(data.get("longitude"))
+
+    # Optional extra columns, only updated if your model has them
+    update_if_exists("father_name", "fatherName")
+    update_if_exists("mobile", "mobile")
+    update_if_exists("email", "email")
+    update_if_exists("address", "address")
+    update_if_exists("survey_no", "surveyNo")
+    update_if_exists("plot_area", "plotArea")
+    update_if_exists("building_type", "buildingType")
+    update_if_exists("floors", "floors")
+    update_if_exists("height", "height")
+    update_if_exists("remarks", "remarks")
+
+    # File upload support
+    uploaded_file = request.files.get("file")
+
+    if uploaded_file and uploaded_file.filename:
+        filename = secure_filename(uploaded_file.filename)
+
+        upload_folder = current_app.config.get("UPLOAD_FOLDER", "uploads")
+        os.makedirs(upload_folder, exist_ok=True)
+
+        file_path = os.path.join(upload_folder, filename)
+        uploaded_file.save(file_path)
+
+        file_url = f"/uploads/{filename}"
+
+        if hasattr(application, "file_name"):
+            application.file_name = filename
+
+        if hasattr(application, "file_url"):
+            application.file_url = file_url
+
+        if hasattr(application, "uploaded_file"):
+            application.uploaded_file = file_url
 
     db.session.commit()
 
@@ -268,7 +300,6 @@ def update_application(application_id):
         "message": "Application updated successfully",
         "data": application.to_dict(),
     }), 200
-
 
 @applications_bp.route("/api/applications/<int:application_id>/approve", methods=["PUT"])
 def approve_application(application_id):
