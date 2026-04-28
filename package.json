@@ -9,6 +9,7 @@
     "dev:full": "concurrently -k -n REACT,FLASK -c green,blue \"npm run dev\" \"npm run dev:backend\"",
     "build": "vite build",
     "preview": "vite preview",
+    "start": "python backend/app.py",
     "prod": "npm run build && python backend/app.py"
   },
   "dependencies": {

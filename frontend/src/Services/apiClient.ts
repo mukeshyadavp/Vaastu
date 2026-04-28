@@ -1,7 +1,10 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
 export function apiUrl(endpoint: string) {
-  return `${API_BASE_URL}${endpoint}`;
+  const cleanBase = API_BASE_URL.replace(/\/$/, "");
+  const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+
+  return `${cleanBase}${cleanEndpoint}`;
 }
 
 export async function handleResponse<T>(
@@ -23,10 +26,6 @@ export async function handleResponse<T>(
 
   return response.json();
 }
-
-/* ===============================
-   Basic API Helpers
-================================ */
 
 export async function apiGet<T>(endpoint: string): Promise<T> {
   const response = await fetch(apiUrl(endpoint));

@@ -1,9 +1,5 @@
 import { apiGet, apiPost, apiPut, apiDelete } from "./apiClient";
 
-/* ===============================
-   Applications Types
-================================ */
-
 export type ApplicationItem = {
   id: number;
   applicantName: string;
@@ -33,10 +29,6 @@ export type ApplicationsListResponse = {
   success: boolean;
   data: ApplicationItem[];
 };
-
-/* ===============================
-   Applications API
-================================ */
 
 export async function getApplications(): Promise<ApplicationsListResponse> {
   return apiGet<ApplicationsListResponse>("/api/applications");

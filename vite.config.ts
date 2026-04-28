@@ -16,20 +16,20 @@ export default defineConfig({
       "/api": {
         target: "http://localhost:5000",
         changeOrigin: true,
-        secure: false
-      }
-    }
+        secure: false,
+      },
+    },
   },
 
   build: {
     outDir: "../backend/static",
     emptyOutDir: true,
-    sourcemap: false
+    sourcemap: false,
   },
 
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "frontend/src")
-    }
-  }
+      "@": path.resolve(__dirname, "frontend/src"),
+    },
+  },
 });
