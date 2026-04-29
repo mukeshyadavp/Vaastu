@@ -397,31 +397,74 @@
 }
 
 /* table */
-.db-modal table {
-  width: 100%;
-  border-collapse: collapse;
-  border-radius: 10px;
-  overflow: hidden;
-}
+.db-modal table {  width: 100%;    border: 1.5px solid #1a1616;  background: white; border-radius: 0px;}
+/* .db-modal thead {  background:  #e7e6e6;} */
+/* .db-modal th {  font-size: 16px;  font-weight: 700;  color: #111827;  text-align: left;  padding: 10px 8px;  border: 1.5px solid #0a0a0a;} */
+.db-modal td {  font-size: 18px;  font-weight: 500;  color: #030303;  padding: 10px 8px;  border: 1.5px solid #141111;  text-align: left;  background: #ffffff;}/* S No column center */
+.db-modal th:first-child,.db-modal td:first-child {  width: 80px;  text-align: center;}/* Status column */
+.db-modal th:last-child,.db-modal td:last-child {  width: 140px;}/* remove hover effect */
+.db-modal tbody tr:hover {  background: transparent;}
 
-.db-modal thead {
-  background: #9ca3af;
-}
+ .db-modal thead {
+  background: #dbdee2;
+} 
 
 .db-modal th {
-  color: white;
-  font-weight: 600;
+  color: rgb(37, 39, 38);
+  font-size: 16px;
+  font-weight: 700;
   text-align: center;
   padding: 12px;
+  border: 1.5px solid #0a0a0a;
 }
 
-.db-modal td {
+
+/* Move Application and Status column text to start (left side) */
+
+.db-modal th:nth-child(2),
+.db-modal td:nth-child(2),
+.db-modal th:nth-child(3),
+.db-modal td:nth-child(3) {
+  text-align: left;
+  padding-left: 14px;
+}
+
+/* Keep only S No centered */
+.db-modal th:first-child,
+.db-modal td:first-child {
+  width: 80px;
   text-align: center;
-  padding: 14px 12px;
-  border-bottom: 1px solid #e5e7eb;
-  background: #ffffff;
 }
 
-.db-modal tbody tr:hover {
-  background: #f8fafc;
+
+
+/* Remove space between table cells exactly like reference */
+
+.db-modal table {
+  width: 100%;
+  border-collapse: collapse;   /* IMPORTANT */
+  border-spacing: 0;           /* IMPORTANT */
+  border: 1.5px solid #1a1616;
+  background: white;
+}
+
+/* Header cells */
+.db-modal th {
+  padding: 8px;
+  border: 1.5px solid #000;
+  text-align: left;
+}
+
+/* Body cells */
+.db-modal td {
+  padding: 8px;
+  border: 1.5px solid #000;
+  background: #fff;
+}
+
+/* Remove extra spacing caused by tbody/tr */
+.db-modal tbody,
+.db-modal tr {
+  margin: 0;
+  padding: 0;
 }
