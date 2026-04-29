@@ -23,7 +23,7 @@ env/
 
 # Flask database
 backend/*.db
-instance
+instance/*
 
 # Uploads (keep folder only)
 backend/uploads/*
