@@ -1041,7 +1041,7 @@ const GISMonitoringPage = () => {
                       className="gis-table-row"
                       onClick={() => setSelected(building)}
                     >
-                      <td>#{building.id}</td>
+                      <td>{building.id}</td>
                       <td>{building.name}</td>
                       <td>
                         <span className="gis-table-status">{building.status}</span>
