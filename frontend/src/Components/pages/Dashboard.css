@@ -6,7 +6,7 @@
 /* ===== TOP CARDS ===== */
 .db-stats-grid {
   display: grid;
-grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 15px;
 }
 
@@ -15,8 +15,8 @@ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   border-radius: 12px;
   color: #1e293b;
   font-weight: 600;
-  background: #ffffff; /* add this */
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* add */
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   transition: 0.2s;
 }
 
@@ -50,7 +50,6 @@ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   display: flex;
   flex-direction: column;
   align-items: center;
-    flex-direction: column; 
   justify-content: center;
   gap: 6px;
 }
@@ -78,12 +77,18 @@ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   background: #fff;
   padding: 18px;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* add */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.db-chart-box h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #334155;
 }
 
 /* ===== BAR CHART ===== */
 .db-bar {
-  width: 50px; /* reduced for mobile fit */
+  width: 50px;
   border-radius: 6px;
 }
 
@@ -111,35 +116,32 @@ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 .db-bars {
   display: flex;
   align-items: flex-end;
-  justify-content: space-around; /* 🔥 FIX */
+  justify-content: space-around;
   gap: 20px;
   height: 200px;
   width: 100%;
 }
-.db-chart-box h4 {
-  font-size: 15px;
-  font-weight: 600;
-  color: #334155;
-}
 
 .db-x-labels {
   display: flex;
-  justify-content: space-around; /* 🔥 FIX */
+  justify-content: space-around;
   font-size: 12px;
   margin-top: 10px;
   text-align: center;
-  /* margin-left: 32px; */
-  /* gap: 28px; */
 }
-.ML1{
+
+.ML1 {
   margin-left: 35px;
 }
-.BL1{
+
+.BL1 {
   margin-left: 32px;
 }
-.BL2{
+
+.BL2 {
   margin-left: 30px;
 }
+
 /* ===== DONUT ===== */
 .db-donut {
   width: 180px;
@@ -211,12 +213,10 @@ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 /* 📱 MOBILE (<=768px) */
 /* ========================= */
 @media (max-width: 768px) {
-
   .db-dashboard-container {
     padding: 12px;
   }
 
-  /* cards */
   .db-stats-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
@@ -245,7 +245,6 @@ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     font-size: 12px;
   }
 
-  /* charts */
   .db-charts-grid {
     grid-template-columns: 1fr;
   }
@@ -258,7 +257,6 @@ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     font-size: 14px;
   }
 
-  /* bars */
   .db-bar {
     width: 35px;
   }
@@ -271,7 +269,6 @@ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     font-size: 10px;
   }
 
-  /* charts size */
   .db-donut,
   .db-pie {
     width: 150px;
@@ -283,19 +280,20 @@ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 /* 📲 SMALL MOBILE (<=480px) */
 /* ========================= */
 @media (max-width: 480px) {
-
   .db-stats-grid {
     grid-template-columns: 1fr;
   }
 
-   .db-card {
-    width: 100%;          /* 🔥 FIX */
+  .db-card {
+    width: 100%;
     padding: 16px;
     border-radius: 14px;
   }
 
   .db-card-content {
     flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
 
   .db-x-labels span {
@@ -306,13 +304,19 @@ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     font-size: 10px;
   }
 
+  .db-title {
+    font-size: 12px;
+  }
+
+  .db-value {
+    font-size: 18px;
+  }
 }
 
 /* ========================= */
 /* 💻 TABLET (769px–1024px) */
 /* ========================= */
 @media (min-width: 769px) and (max-width: 1024px) {
-
   .db-stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -332,135 +336,92 @@ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 }
 
-@media (max-width: 480px) {
+/* ================= MODAL ================= */
 
-  .db-card-content {
-    align-items: center;
-    text-align: center;
-  }
-
-  .db-title {
-    font-size: 12px;
-  }
-
-  .db-value {
-    font-size: 18px;
-  }
-}
-.db-modal {
-  max-height: 80vh;     /* 🔥 important */
-  overflow-y: auto;     /* scroll only inside modal */
-}
 .db-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   z-index: 999;
 }
 
 .db-modal {
-  background: white;
+  background: #ffffff;
+  width: 420px;
+  max-height: 80vh;
+  overflow-y: auto;
+  border-radius: 12px;
   padding: 20px;
-  border-radius: 10px;
-  width: 400px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 
-.db-modal table {
-  width: 100%;
-  margin-top: 10px;
-  border-collapse: collapse;
-}
-
-.db-modal th, .db-modal td {
-  padding: 8px;
-  border-bottom: 1px solid #eee;
-}
-
-/* Table header center */
-.db-modal th {
-  text-align: center;
-}
-
-/* Table data alignment */
-.db-modal td {
-  text-align: center;
-}
-
-/* Table spacing */
-.db-modal table {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-.db-modal th,
-.db-modal td {
-  padding: 12px;
-}
-
-/* ID badge */
-.db-id {
-  background: #e0e7ff;
-  padding: 6px 10px;
-  border-radius: 20px;
-  font-weight: 600;
-  color: #4f46e5;
-}
-
-/* Name + avatar */
-.db-name {
+/* header */
+.db-modal-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 10px;
+  margin-bottom: 18px;
 }
 
-.db-avatar {
-  width: 35px;
-  height: 35px;
+.db-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* close button */
+.db-close-btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: #f1f5f9;
   border-radius: 50%;
-  background: #e5e7eb;
+  font-size: 22px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #334155;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
 }
 
-/* Status */
-.db-status {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-weight: 600;
+.db-close-btn:hover {
+  background: #e2e8f0;
 }
 
-.db-status.approved {
-  background: #dcfce7;
-  color: #166534;
+/* table */
+.db-modal table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-.db-status.pending {
-  background: #fef9c3;
-  color: #92400e;
+.db-modal thead {
+  background: #9ca3af;
 }
 
-.db-status.violation {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-/* Close button container */
-.db-modal button {
-  display: block;
-  margin-left: auto;   /* 🔥 this pushes button to right */
-  margin-top: 15px;
-  padding: 8px 16px;
-  border: none;
-  background: #3b82f6;
+.db-modal th {
   color: white;
-  border-radius: 6px;
-  cursor: pointer;
+  font-weight: 600;
+  text-align: center;
+  padding: 12px;
+}
+
+.db-modal td {
+  text-align: center;
+  padding: 14px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+.db-modal tbody tr:hover {
+  background: #f8fafc;
 }
