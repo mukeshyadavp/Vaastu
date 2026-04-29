@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./GISMonitoringPage.css";
 import { apiGet } from "../../Services/apiClient";
-import { Search } from "lucide-react";
+import { LayoutGrid, List, Search } from "lucide-react";
 
 import mainImg from "../../assets/modern-district-aerial-panorama-urban-style.jpg";
 import img2 from "../../assets/feb.jfif";
@@ -61,6 +61,9 @@ type LocationSearchResponse = {
   data: LocationSuggestion[];
   message?: string;
 };
+
+type ApplicationsView = "grid" | "table";
+
 
 /* ─────────────────────────────────
    URLs
@@ -533,6 +536,7 @@ const GISMonitoringPage = () => {
   const [selected, setSelected] = useState<Building | null>(null);
   const [applications, setApplications] = useState<ApiApplication[]>([]);
   const [loading, setLoading] = useState(false);
+  const [applicationsView, setApplicationsView] = useState<ApplicationsView>("grid");
 
   const [historySlots, setHistorySlots] = useState<HistorySlot[]>([]);
   const [loadingHist, setLoadingHist] = useState(false);
@@ -945,13 +949,41 @@ const GISMonitoringPage = () => {
       {/* Building Grid */}
       {!selected && buildings.length > 0 && (
         <>
-          <div className="gis-section-label gis-section-label-main">
+          <div className="gis-applications-header">
+            <div className="gis-section-label gis-section-label-main">
             🏢 Application Locations
             <span className="gis-section-sub">
-              Click any card to view 3-month satellite history
+              {applicationsView === "grid"
+                ? "Click any card to view 3-month satellite history"
+                : "Click any row to view 3-month satellite history"}
             </span>
+            </div>
+           <div className="gis-view-toggle" role="tablist" aria-label="Application view">
+              <button
+                type="button"
+                className={`gis-view-btn ${
+                  applicationsView === "grid" ? "active" : ""
+                }`}
+                onClick={() => setApplicationsView("grid")}
+              >
+                <LayoutGrid size={16} />
+                <span>Grid</span>
+              </button>
+
+              <button
+                type="button"
+                className={`gis-view-btn ${
+                  applicationsView === "table" ? "active" : ""
+                }`}
+                onClick={() => setApplicationsView("table")}
+              >
+                <List size={16} />
+                <span>Table</span>
+              </button>
+            </div>
           </div>
 
+          {applicationsView === "grid" && (
           <div className="gis-grid">
             {buildings.map((building) => (
               <div
@@ -983,12 +1015,63 @@ const GISMonitoringPage = () => {
                     </small>
                   </div>
                 </div>
-              </div>
+                </div>
             ))}
           </div>
+          )}
+
+          {applicationsView === "table" && (
+            <div className="gis-table-wrap">
+              <table className="gis-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Application</th>
+                    <th>Status</th>
+                    <th>Location</th>
+                    <th>Plot Size</th>
+                    <th>Coordinates</th>
+                    <th>History</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {buildings.map((building) => (
+                    <tr
+                      key={building.id}
+                      className="gis-table-row"
+                      onClick={() => setSelected(building)}
+                    >
+                      <td>#{building.id}</td>
+                      <td>{building.name}</td>
+                      <td>
+                        <span className="gis-table-status">{building.status}</span>
+                      </td>
+                      <td>{building.locationText || "-"}</td>
+                      <td>{building.plotSize || "-"}</td>
+                      <td>
+                        {building.position[0].toFixed(5)},{" "}
+                        {building.position[1].toFixed(5)}
+                      </td>
+                         <td>
+                        <button
+                          type="button"
+                          className="gis-history-btn"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setSelected(building);
+                          }}
+                        >
+                          View History
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </>
       )}
-
       {/* Detail View */}
       {selected && (
         <div className="gis-detail">
