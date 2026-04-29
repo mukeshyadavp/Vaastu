@@ -50,12 +50,18 @@ export type Application = {
 
 type Props = {
   data: Application[];
-  onApprove: (id: number) => void;
-  onReject: (id: number) => void;
+  onApprove: (id: number) => Promise<void> | void;
+  onReject: (id: number) => Promise<void> | void;
   onUpdate?: (id: number, payload: FormData) => Promise<void> | void;
 };
 
 type ModalTab = "applicant" | "plot" | "building" | "review";
+type ToastType = "success" | "error" | "info";
+
+type ToastState = {
+  message: string;
+  type: ToastType;
+} | null;
 
 const getAppName = (app: Application) =>
   app.applicantName || app.name || `Application ${app.id}`;
@@ -83,6 +89,14 @@ const normalizeValue = (value: unknown) => {
   return String(value);
 };
 
+const truncateText = (value: unknown, limit = 34) => {
+  const text = normalizeValue(value);
+
+  if (text === "-") return text;
+
+  return text.length > limit ? `${text.slice(0, limit).trim()}...` : text;
+};
+
 const ApplicationsTable = ({
   data = [],
   onApprove,
@@ -97,8 +111,17 @@ const ApplicationsTable = ({
   const [saving, setSaving] = useState(false);
   const [viewTab, setViewTab] = useState<ModalTab>("applicant");
   const [editTab, setEditTab] = useState<ModalTab>("applicant");
+  const [toast, setToast] = useState<ToastState>(null);
 
-  const itemsPerPage = 4;
+  const itemsPerPage = 5;
+
+  const showToast = (message: string, type: ToastType = "success") => {
+    setToast({ message, type });
+
+    window.setTimeout(() => {
+      setToast(null);
+    }, 2800);
+  };
 
   const filteredData = useMemo(() => {
     return data.filter((app) => {
@@ -157,6 +180,26 @@ const ApplicationsTable = ({
     );
   };
 
+  const handleApprove = async (id: number) => {
+    try {
+      await Promise.resolve(onApprove(id));
+      showToast(`Application #${id} approved successfully.`, "success");
+    } catch (error) {
+      console.error("Approve failed:", error);
+      showToast(`Failed to approve Application #${id}.`, "error");
+    }
+  };
+
+  const handleReject = async (id: number) => {
+    try {
+      await Promise.resolve(onReject(id));
+      showToast(`Application #${id} rejected successfully.`, "success");
+    } catch (error) {
+      console.error("Reject failed:", error);
+      showToast(`Failed to reject Application #${id}.`, "error");
+    }
+  };
+
   const handleSave = async () => {
     if (!editApp) return;
 
@@ -199,14 +242,17 @@ const ApplicationsTable = ({
 
       if (onUpdate) {
         await onUpdate(editApp.id, formData);
+        showToast(`Application #${editApp.id} updated successfully.`, "success");
       } else {
-        console.warn("onUpdate prop missing. Connect update API in parent.");
+        showToast("Update API is not connected.", "error");
+        return;
       }
 
       setEditApp(null);
       setEditFile(null);
     } catch (error) {
       console.error("Application update failed:", error);
+      showToast(`Failed to update Application #${editApp.id}.`, "error");
     } finally {
       setSaving(false);
     }
@@ -283,7 +329,7 @@ const ApplicationsTable = ({
                 return (
                   <tr key={app.id}>
                     <td>
-                      <span className="id-badge">#{app.id}</span>
+                      <span className="id-badge">{app.id}</span>
                     </td>
 
                     <td>
@@ -293,19 +339,38 @@ const ApplicationsTable = ({
                         </div>
 
                         <div className="name-stack">
-                          <strong>{appName}</strong>
-                          <small>{normalizeValue(app.email)}</small>
+                          <strong>
+                            <TruncatedCell value={appName} limit={22} inline />
+                          </strong>
+                          <small>
+                            <TruncatedCell value={app.email} limit={24} inline />
+                          </small>
                         </div>
                       </div>
                     </td>
 
-                    <td>{normalizeValue(app.location)}</td>
-                    <td>{normalizeValue(app.surveyNo)}</td>
-                    <td>{normalizeValue(app.plotArea || app.plotSize)}</td>
+                    <td>
+                      <TruncatedCell value={app.location} limit={25} />
+                    </td>
+
+                    <td>
+                      <TruncatedCell value={app.surveyNo} limit={18} />
+                    </td>
+
+                    <td>
+                      <TruncatedCell
+                        value={app.plotArea || app.plotSize}
+                        limit={18}
+                      />
+                    </td>
 
                     <td>
                       <div className="mini-stack">
-                        <span>{normalizeValue(app.buildingType)}</span>
+                        <TruncatedCell
+                          value={app.buildingType}
+                          limit={18}
+                          inline
+                        />
                         <small>{normalizeValue(app.floors)} floors</small>
                       </div>
                     </td>
@@ -338,7 +403,7 @@ const ApplicationsTable = ({
                       <div className="action-buttons">
                         <button
                           className="icon-btn approve"
-                          onClick={() => onApprove(app.id)}
+                          onClick={() => handleApprove(app.id)}
                           title="Approve"
                         >
                           <Check size={16} />
@@ -346,7 +411,7 @@ const ApplicationsTable = ({
 
                         <button
                           className="icon-btn reject"
-                          onClick={() => onReject(app.id)}
+                          onClick={() => handleReject(app.id)}
                           title="Reject"
                         >
                           <X size={16} />
@@ -386,7 +451,7 @@ const ApplicationsTable = ({
       <div className="pagination">
         <button
           className="page-btn"
-          onClick={() => setCurrentPage((prev) => prev - 1)}
+          onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
           disabled={currentPage === 1}
         >
           Prev
@@ -398,7 +463,9 @@ const ApplicationsTable = ({
 
         <button
           className="page-btn"
-          onClick={() => setCurrentPage((prev) => prev + 1)}
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+          }
           disabled={currentPage === totalPages}
         >
           Next
@@ -406,393 +473,38 @@ const ApplicationsTable = ({
       </div>
 
       {selectedApp && (
-        <div className="modal-overlay" onClick={() => setSelectedApp(null)}>
-          <div
-            className="modal modal-approval-style"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="modal-topbar">
-              <div className="modal-meta">
-                <div className="modal-app-id">Application #{selectedApp.id}</div>
-
-                <div className="modal-app-name">{getAppName(selectedApp)}</div>
-
-                <div className="modal-app-subtext">
-                  {normalizeValue(selectedApp.location)} |{" "}
-                  {normalizeValue(selectedApp.latitude)},{" "}
-                  {normalizeValue(selectedApp.longitude)}
-                </div>
-              </div>
-
-              <button
-                className="modal-close"
-                onClick={() => setSelectedApp(null)}
-              >
-                <X size={24} />
-              </button>
-            </div>
-
-            <ModalTabs activeTab={viewTab} setActiveTab={setViewTab} />
-
-            <div className="modal-content-area">
-              <div className="section-heading-row">
-                <h3 className="section-heading">{getTabHeading(viewTab)}</h3>
-
-                <span
-                  className={`status-badge ${getStatusClass(
-                    selectedApp.status
-                  )}`}
-                >
-                  {selectedApp.status || "Pending"}
-                </span>
-              </div>
-
-              {viewTab === "applicant" && (
-                <div className="details-grid">
-                  <Info
-                    label="Applicant Full Name"
-                    value={getAppName(selectedApp)}
-                  />
-                  <Info
-                    label="Relationship / Father Name"
-                    value={selectedApp.fatherName}
-                  />
-                  <Info label="Mobile Number" value={selectedApp.mobile} />
-                  <Info label="E-mail ID" value={selectedApp.email} />
-                  <Info
-                    label="Application Status"
-                    value={selectedApp.status || "Pending"}
-                  />
-                </div>
-              )}
-
-              {viewTab === "plot" && (
-                <div className="details-grid">
-                  <Info label="Location" value={selectedApp.location} />
-                  <Info label="Land Type" value={selectedApp.landType} />
-                  <Info label="Survey Number" value={selectedApp.surveyNo} />
-                  <Info label="Plot Size" value={selectedApp.plotSize} />
-                  <Info label="Plot Area" value={selectedApp.plotArea} />
-                  <Info label="Latitude" value={selectedApp.latitude} />
-                  <Info label="Longitude" value={selectedApp.longitude} />
-                  <Info label="Address" value={selectedApp.address} full />
-                </div>
-              )}
-
-              {viewTab === "building" && (
-                <div className="details-grid">
-                  <Info label="Building Type" value={selectedApp.buildingType} />
-                  <Info label="Floors" value={selectedApp.floors} />
-                  <Info label="Built-up Area" value={selectedApp.builtupArea} />
-                  <Info label="Height" value={selectedApp.height} />
-                  <Info label="Road Width" value={selectedApp.roadWidth} />
-                  <Info
-                    label="Front Setback"
-                    value={selectedApp.frontSetback}
-                  />
-                  <Info label="Side Setback" value={selectedApp.sideSetback} />
-                  <Info label="Rear Setback" value={selectedApp.rearSetback} />
-                </div>
-              )}
-
-              {viewTab === "review" && (
-                <div className="details-grid">
-                  <Info label="Remarks" value={selectedApp.remarks} full />
-
-                  <div className="info-card info-card-full">
-                    <span>Uploaded CAD Designs / File</span>
-
-                    {getFileUrl(selectedApp) ? (
-                      <a
-                        href={getFileUrl(selectedApp)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="file-preview-card"
-                      >
-                        <FileText size={20} />
-
-                        <div>
-                          <strong>
-                            {getFileName(selectedApp) || "View uploaded file"}
-                          </strong>
-                          <small>Open file in new tab</small>
-                        </div>
-                      </a>
-                    ) : (
-                      <strong>-</strong>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="modal-footer">
-              <button
-                className="footer-btn footer-btn-secondary"
-                onClick={() => setSelectedApp(null)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
+        <ApplicationViewModal
+          app={selectedApp}
+          tab={viewTab}
+          setTab={setViewTab}
+          getStatusClass={getStatusClass}
+          getTabHeading={getTabHeading}
+          onClose={() => setSelectedApp(null)}
+        />
       )}
 
       {editApp && (
-        <div className="modal-overlay" onClick={() => setEditApp(null)}>
-          <div
-            className="modal modal-approval-style"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="modal-topbar">
-              <div className="modal-meta">
-                <div className="modal-app-id">Edit Application #{editApp.id}</div>
+        <ApplicationEditModal
+          app={editApp}
+          tab={editTab}
+          setTab={setEditTab}
+          editFile={editFile}
+          saving={saving}
+          getTabHeading={getTabHeading}
+          onChange={handleEditChange}
+          onFileChange={setEditFile}
+          onSave={handleSave}
+          onClose={() => {
+            setEditApp(null);
+            setEditFile(null);
+          }}
+        />
+      )}
 
-                <div className="modal-app-name">{getAppName(editApp)}</div>
-
-                <div className="modal-app-subtext">
-                  Update application, plot, building and file details
-                </div>
-              </div>
-
-              <button className="modal-close" onClick={() => setEditApp(null)}>
-                <X size={24} />
-              </button>
-            </div>
-
-            <ModalTabs activeTab={editTab} setActiveTab={setEditTab} />
-
-            <div className="modal-content-area">
-              <div className="section-heading-row">
-                <h3 className="section-heading">{getTabHeading(editTab)}</h3>
-
-                <div className="edit-status-select-wrap">
-                  <label>Status</label>
-
-                  <select
-                    value={editApp.status || "Pending"}
-                    onChange={(e) => handleEditChange("status", e.target.value)}
-                    className="mini-status-select"
-                  >
-                    <option>Pending</option>
-                    <option>Approved</option>
-                    <option>Rejected</option>
-                    <option>Violation</option>
-                  </select>
-                </div>
-              </div>
-
-              {editTab === "applicant" && (
-                <div className="form-grid">
-                  <Field
-                    label="Applicant Full Name"
-                    value={editApp.applicantName || editApp.name || ""}
-                    onChange={(value) => {
-                      handleEditChange("applicantName", value);
-                      handleEditChange("name", value);
-                    }}
-                  />
-
-                  <Field
-                    label="Relationship / Father Name"
-                    value={editApp.fatherName || ""}
-                    onChange={(value) => handleEditChange("fatherName", value)}
-                  />
-
-                  <Field
-                    label="Mobile Number"
-                    value={editApp.mobile || ""}
-                    onChange={(value) => handleEditChange("mobile", value)}
-                  />
-
-                  <Field
-                    label="E-mail ID"
-                    type="email"
-                    value={editApp.email || ""}
-                    onChange={(value) => handleEditChange("email", value)}
-                  />
-                </div>
-              )}
-
-              {editTab === "plot" && (
-                <div className="form-grid">
-                  <Field
-                    label="Location"
-                    value={editApp.location || ""}
-                    onChange={(value) => handleEditChange("location", value)}
-                  />
-
-                  <Field
-                    label="Land Type"
-                    value={editApp.landType || ""}
-                    onChange={(value) => handleEditChange("landType", value)}
-                  />
-
-                  <Field
-                    label="Survey Number"
-                    value={editApp.surveyNo || ""}
-                    onChange={(value) => handleEditChange("surveyNo", value)}
-                  />
-
-                  <Field
-                    label="Plot Size"
-                    value={editApp.plotSize || ""}
-                    onChange={(value) => handleEditChange("plotSize", value)}
-                  />
-
-                  <Field
-                    label="Plot Area"
-                    value={editApp.plotArea || ""}
-                    onChange={(value) => handleEditChange("plotArea", value)}
-                  />
-
-                  <Field
-                    label="Latitude"
-                    type="number"
-                    value={editApp.latitude || ""}
-                    onChange={(value) => handleEditChange("latitude", value)}
-                  />
-
-                  <Field
-                    label="Longitude"
-                    type="number"
-                    value={editApp.longitude || ""}
-                    onChange={(value) => handleEditChange("longitude", value)}
-                  />
-
-                  <Field
-                    label="Address"
-                    value={editApp.address || ""}
-                    onChange={(value) => handleEditChange("address", value)}
-                    full
-                  />
-                </div>
-              )}
-
-              {editTab === "building" && (
-                <div className="form-grid">
-                  <Field
-                    label="Building Type"
-                    value={editApp.buildingType || ""}
-                    onChange={(value) => handleEditChange("buildingType", value)}
-                  />
-
-                  <Field
-                    label="Floors"
-                    type="number"
-                    value={editApp.floors || ""}
-                    onChange={(value) => handleEditChange("floors", value)}
-                  />
-
-                  <Field
-                    label="Built-up Area"
-                    value={editApp.builtupArea || ""}
-                    onChange={(value) => handleEditChange("builtupArea", value)}
-                  />
-
-                  <Field
-                    label="Height"
-                    type="number"
-                    value={editApp.height || ""}
-                    onChange={(value) => handleEditChange("height", value)}
-                  />
-
-                  <Field
-                    label="Road Width"
-                    value={editApp.roadWidth || ""}
-                    onChange={(value) => handleEditChange("roadWidth", value)}
-                  />
-
-                  <Field
-                    label="Front Setback"
-                    value={editApp.frontSetback || ""}
-                    onChange={(value) => handleEditChange("frontSetback", value)}
-                  />
-
-                  <Field
-                    label="Side Setback"
-                    value={editApp.sideSetback || ""}
-                    onChange={(value) => handleEditChange("sideSetback", value)}
-                  />
-
-                  <Field
-                    label="Rear Setback"
-                    value={editApp.rearSetback || ""}
-                    onChange={(value) => handleEditChange("rearSetback", value)}
-                  />
-                </div>
-              )}
-
-              {editTab === "review" && (
-                <div className="form-grid">
-                  <Field
-                    label="Remarks"
-                    value={editApp.remarks || ""}
-                    onChange={(value) => handleEditChange("remarks", value)}
-                    full
-                  />
-
-                  <div className="form-group form-group-full">
-                    <label>Uploaded CAD Designs / File</label>
-
-                    {getFileUrl(editApp) && (
-                      <a
-                        href={getFileUrl(editApp)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="existing-file"
-                      >
-                        <FileText size={16} />
-                        {getFileName(editApp) || "View current file"}
-                      </a>
-                    )}
-
-                    <label className="file-upload-box">
-                      <FileText size={18} />
-                      <span>
-                        {editFile
-                          ? editFile.name
-                          : "Choose a new file to replace current file"}
-                      </span>
-
-                      <input
-                        type="file"
-                        onChange={(e) =>
-                          setEditFile(e.target.files?.[0] || null)
-                        }
-                      />
-                    </label>
-
-                    {editFile && (
-                      <small className="selected-file-name">
-                        New file selected: {editFile.name}
-                      </small>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="modal-footer">
-              <button
-                className="footer-btn footer-btn-secondary"
-                onClick={() => {
-                  setEditApp(null);
-                  setEditFile(null);
-                }}
-              >
-                Cancel
-              </button>
-
-              <button
-                className="footer-btn footer-btn-primary"
-                onClick={handleSave}
-                disabled={saving}
-              >
-                {saving ? "Saving..." : "Save Changes"}
-              </button>
-            </div>
-          </div>
+      {toast && (
+        <div className={`toast-popup ${toast.type}`} role="status">
+          <span className="toast-dot" />
+          <p>{toast.message}</p>
         </div>
       )}
     </div>
@@ -860,7 +572,7 @@ const Info = ({ label, value, full }: InfoProps) => {
   );
 };
 
-type FieldProps = {
+type FieldInputProps = {
   label: string;
   value: string | number | null | undefined;
   onChange: (value: string) => void;
@@ -868,13 +580,13 @@ type FieldProps = {
   full?: boolean;
 };
 
-const Field = ({
+const FieldInput = ({
   label,
   value,
   onChange,
   type = "text",
   full,
-}: FieldProps) => {
+}: FieldInputProps) => {
   const isTextarea = label.toLowerCase().includes("address");
 
   return (
@@ -894,6 +606,425 @@ const Field = ({
           onChange={(e) => onChange(e.target.value)}
         />
       )}
+    </div>
+  );
+};
+
+type TruncatedCellProps = {
+  value: unknown;
+  limit?: number;
+  inline?: boolean;
+};
+
+const TruncatedCell = ({ value, limit = 34, inline }: TruncatedCellProps) => {
+  const text = normalizeValue(value);
+  const isLong = text.length > limit;
+
+  return (
+    <span className={`cell-tooltip-wrap ${inline ? "cell-tooltip-inline" : ""}`}>
+      <span className="cell-ellipsis">{truncateText(text, limit)}</span>
+
+      {isLong && <span className="cell-tooltip">{text}</span>}
+    </span>
+  );
+};
+
+type ApplicationViewModalProps = {
+  app: Application;
+  tab: ModalTab;
+  setTab: (tab: ModalTab) => void;
+  getStatusClass: (status?: string) => string;
+  getTabHeading: (tab: ModalTab) => string;
+  onClose: () => void;
+};
+
+const ApplicationViewModal = ({
+  app,
+  tab,
+  setTab,
+  getStatusClass,
+  getTabHeading,
+  onClose,
+}: ApplicationViewModalProps) => {
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div
+        className="modal modal-approval-style"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal-topbar">
+          <div className="modal-meta">
+            <div className="modal-app-id">Application #{app.id}</div>
+            <div className="modal-app-name">{getAppName(app)}</div>
+
+            <div className="modal-app-subtext">
+              {normalizeValue(app.location)} | {normalizeValue(app.latitude)},{" "}
+              {normalizeValue(app.longitude)}
+            </div>
+          </div>
+
+          <button className="modal-close" onClick={onClose}>
+            <X size={24} />
+          </button>
+        </div>
+
+        <ModalTabs activeTab={tab} setActiveTab={setTab} />
+
+        <div className="modal-content-area">
+          <div className="section-heading-row">
+            <h3 className="section-heading">{getTabHeading(tab)}</h3>
+
+            <span className={`status-badge ${getStatusClass(app.status)}`}>
+              {app.status || "Pending"}
+            </span>
+          </div>
+
+          {tab === "applicant" && (
+            <div className="details-grid">
+              <Info label="Applicant Full Name" value={getAppName(app)} />
+              <Info label="Relationship / Father Name" value={app.fatherName} />
+              <Info label="Mobile Number" value={app.mobile} />
+              <Info label="E-mail ID" value={app.email} />
+              <Info label="Application Status" value={app.status || "Pending"} />
+            </div>
+          )}
+
+          {tab === "plot" && (
+            <div className="details-grid">
+              <Info label="Location" value={app.location} />
+              <Info label="Land Type" value={app.landType} />
+              <Info label="Survey Number" value={app.surveyNo} />
+              <Info label="Plot Size" value={app.plotSize} />
+              <Info label="Plot Area" value={app.plotArea} />
+              <Info label="Latitude" value={app.latitude} />
+              <Info label="Longitude" value={app.longitude} />
+              <Info label="Address" value={app.address} full />
+            </div>
+          )}
+
+          {tab === "building" && (
+            <div className="details-grid">
+              <Info label="Building Type" value={app.buildingType} />
+              <Info label="Floors" value={app.floors} />
+              <Info label="Built-up Area" value={app.builtupArea} />
+              <Info label="Height" value={app.height} />
+              <Info label="Road Width" value={app.roadWidth} />
+              <Info label="Front Setback" value={app.frontSetback} />
+              <Info label="Side Setback" value={app.sideSetback} />
+              <Info label="Rear Setback" value={app.rearSetback} />
+            </div>
+          )}
+
+          {tab === "review" && (
+            <div className="details-grid">
+              <Info label="Remarks" value={app.remarks} full />
+
+              <div className="info-card info-card-full">
+                <span>Uploaded CAD Designs / File</span>
+
+                {getFileUrl(app) ? (
+                  <a
+                    href={getFileUrl(app)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="file-preview-card"
+                  >
+                    <FileText size={20} />
+
+                    <div>
+                      <strong>{getFileName(app) || "View uploaded file"}</strong>
+                      <small>Open file in new tab</small>
+                    </div>
+                  </a>
+                ) : (
+                  <strong>-</strong>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="modal-footer">
+          <button className="footer-btn footer-btn-secondary" onClick={onClose}>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+type ApplicationEditModalProps = {
+  app: Application;
+  tab: ModalTab;
+  setTab: (tab: ModalTab) => void;
+  editFile: File | null;
+  saving: boolean;
+  getTabHeading: (tab: ModalTab) => string;
+  onChange: (field: keyof Application, value: string) => void;
+  onFileChange: (file: File | null) => void;
+  onSave: () => void;
+  onClose: () => void;
+};
+
+const ApplicationEditModal = ({
+  app,
+  tab,
+  setTab,
+  editFile,
+  saving,
+  getTabHeading,
+  onChange,
+  onFileChange,
+  onSave,
+  onClose,
+}: ApplicationEditModalProps) => {
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div
+        className="modal modal-approval-style"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal-topbar">
+          <div className="modal-meta">
+            <div className="modal-app-id">Edit Application #{app.id}</div>
+            <div className="modal-app-name">{getAppName(app)}</div>
+
+            <div className="modal-app-subtext">
+              Update application, plot, building and file details
+            </div>
+          </div>
+
+          <button className="modal-close" onClick={onClose}>
+            <X size={24} />
+          </button>
+        </div>
+
+        <ModalTabs activeTab={tab} setActiveTab={setTab} />
+
+        <div className="modal-content-area">
+          <div className="section-heading-row">
+            <h3 className="section-heading">{getTabHeading(tab)}</h3>
+
+            <div className="edit-status-select-wrap">
+              <label>Status</label>
+
+              <select
+                value={app.status || "Pending"}
+                onChange={(e) => onChange("status", e.target.value)}
+                className="mini-status-select"
+              >
+                <option>Pending</option>
+                <option>Approved</option>
+                <option>Rejected</option>
+                <option>Violation</option>
+              </select>
+            </div>
+          </div>
+
+          {tab === "applicant" && (
+            <div className="form-grid">
+              <FieldInput
+                label="Applicant Full Name"
+                value={app.applicantName || app.name || ""}
+                onChange={(value) => {
+                  onChange("applicantName", value);
+                  onChange("name", value);
+                }}
+              />
+
+              <FieldInput
+                label="Relationship / Father Name"
+                value={app.fatherName || ""}
+                onChange={(value) => onChange("fatherName", value)}
+              />
+
+              <FieldInput
+                label="Mobile Number"
+                value={app.mobile || ""}
+                onChange={(value) => onChange("mobile", value)}
+              />
+
+              <FieldInput
+                label="E-mail ID"
+                type="email"
+                value={app.email || ""}
+                onChange={(value) => onChange("email", value)}
+              />
+            </div>
+          )}
+
+          {tab === "plot" && (
+            <div className="form-grid">
+              <FieldInput
+                label="Location"
+                value={app.location || ""}
+                onChange={(value) => onChange("location", value)}
+              />
+
+              <FieldInput
+                label="Land Type"
+                value={app.landType || ""}
+                onChange={(value) => onChange("landType", value)}
+              />
+
+              <FieldInput
+                label="Survey Number"
+                value={app.surveyNo || ""}
+                onChange={(value) => onChange("surveyNo", value)}
+              />
+
+              <FieldInput
+                label="Plot Size"
+                value={app.plotSize || ""}
+                onChange={(value) => onChange("plotSize", value)}
+              />
+
+              <FieldInput
+                label="Plot Area"
+                value={app.plotArea || ""}
+                onChange={(value) => onChange("plotArea", value)}
+              />
+
+              <FieldInput
+                label="Latitude"
+                type="number"
+                value={app.latitude || ""}
+                onChange={(value) => onChange("latitude", value)}
+              />
+
+              <FieldInput
+                label="Longitude"
+                type="number"
+                value={app.longitude || ""}
+                onChange={(value) => onChange("longitude", value)}
+              />
+
+              <FieldInput
+                label="Address"
+                value={app.address || ""}
+                onChange={(value) => onChange("address", value)}
+                full
+              />
+            </div>
+          )}
+
+          {tab === "building" && (
+            <div className="form-grid">
+              <FieldInput
+                label="Building Type"
+                value={app.buildingType || ""}
+                onChange={(value) => onChange("buildingType", value)}
+              />
+
+              <FieldInput
+                label="Floors"
+                type="number"
+                value={app.floors || ""}
+                onChange={(value) => onChange("floors", value)}
+              />
+
+              <FieldInput
+                label="Built-up Area"
+                value={app.builtupArea || ""}
+                onChange={(value) => onChange("builtupArea", value)}
+              />
+
+              <FieldInput
+                label="Height"
+                type="number"
+                value={app.height || ""}
+                onChange={(value) => onChange("height", value)}
+              />
+
+              <FieldInput
+                label="Road Width"
+                value={app.roadWidth || ""}
+                onChange={(value) => onChange("roadWidth", value)}
+              />
+
+              <FieldInput
+                label="Front Setback"
+                value={app.frontSetback || ""}
+                onChange={(value) => onChange("frontSetback", value)}
+              />
+
+              <FieldInput
+                label="Side Setback"
+                value={app.sideSetback || ""}
+                onChange={(value) => onChange("sideSetback", value)}
+              />
+
+              <FieldInput
+                label="Rear Setback"
+                value={app.rearSetback || ""}
+                onChange={(value) => onChange("rearSetback", value)}
+              />
+            </div>
+          )}
+
+          {tab === "review" && (
+            <div className="form-grid">
+              <FieldInput
+                label="Remarks"
+                value={app.remarks || ""}
+                onChange={(value) => onChange("remarks", value)}
+                full
+              />
+
+              <div className="form-group form-group-full">
+                <label>Uploaded CAD Designs / File</label>
+
+                {getFileUrl(app) && (
+                  <a
+                    href={getFileUrl(app)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="existing-file"
+                  >
+                    <FileText size={16} />
+                    {getFileName(app) || "View current file"}
+                  </a>
+                )}
+
+                <label className="file-upload-box">
+                  <FileText size={18} />
+                  <span>
+                    {editFile
+                      ? editFile.name
+                      : "Choose a new file to replace current file"}
+                  </span>
+
+                  <input
+                    type="file"
+                    onChange={(e) => onFileChange(e.target.files?.[0] || null)}
+                  />
+                </label>
+
+                {editFile && (
+                  <small className="selected-file-name">
+                    New file selected: {editFile.name}
+                  </small>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="modal-footer">
+          <button className="footer-btn footer-btn-secondary" onClick={onClose}>
+            Cancel
+          </button>
+
+          <button
+            className="footer-btn footer-btn-primary"
+            onClick={onSave}
+            disabled={saving}
+          >
+            {saving ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

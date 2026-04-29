@@ -64,6 +64,7 @@ type LocationSearchResponse = {
 
 type ApplicationsView = "grid" | "table";
 
+const APPLICATIONS_PER_PAGE = 5;
 
 /* ─────────────────────────────────
    URLs
@@ -536,7 +537,10 @@ const GISMonitoringPage = () => {
   const [selected, setSelected] = useState<Building | null>(null);
   const [applications, setApplications] = useState<ApiApplication[]>([]);
   const [loading, setLoading] = useState(false);
-  const [applicationsView, setApplicationsView] = useState<ApplicationsView>("grid");
+  const [applicationsView, setApplicationsView] =
+    useState<ApplicationsView>("grid");
+
+  const [currentTablePage, setCurrentTablePage] = useState(1);
 
   const [historySlots, setHistorySlots] = useState<HistorySlot[]>([]);
   const [loadingHist, setLoadingHist] = useState(false);
@@ -647,6 +651,42 @@ const GISMonitoringPage = () => {
       }),
     [applications]
   );
+
+  const totalTablePages = Math.max(
+    1,
+    Math.ceil(buildings.length / APPLICATIONS_PER_PAGE)
+  );
+
+  const paginatedBuildings = useMemo(() => {
+    const startIndex = (currentTablePage - 1) * APPLICATIONS_PER_PAGE;
+    const endIndex = startIndex + APPLICATIONS_PER_PAGE;
+
+    return buildings.slice(startIndex, endIndex);
+  }, [buildings, currentTablePage]);
+
+  const tableStartItem =
+    buildings.length === 0
+      ? 0
+      : (currentTablePage - 1) * APPLICATIONS_PER_PAGE + 1;
+
+  const tableEndItem = Math.min(
+    currentTablePage * APPLICATIONS_PER_PAGE,
+    buildings.length
+  );
+
+  useEffect(() => {
+    if (currentTablePage > totalTablePages) {
+      setCurrentTablePage(totalTablePages);
+    }
+  }, [currentTablePage, totalTablePages]);
+
+  const handleViewChange = (view: ApplicationsView) => {
+    setApplicationsView(view);
+
+    if (view === "table") {
+      setCurrentTablePage(1);
+    }
+  };
 
   const selectLocationSuggestion = (item: LocationSuggestion) => {
     const lat = Number(item.lat);
@@ -946,25 +986,30 @@ const GISMonitoringPage = () => {
           </div>
         )}
 
-      {/* Building Grid */}
+      {/* Applications */}
       {!selected && buildings.length > 0 && (
         <>
           <div className="gis-applications-header">
             <div className="gis-section-label gis-section-label-main">
-            🏢 Application Locations
-            <span className="gis-section-sub">
-              {applicationsView === "grid"
-                ? "Click any card to view 3-month satellite history"
-                : "Click any row to view 3-month satellite history"}
-            </span>
+              🏢 Application Locations
+              <span className="gis-section-sub">
+                {applicationsView === "grid"
+                  ? "Click any card to view 3-month satellite history"
+                  : "Click any row to view 3-month satellite history"}
+              </span>
             </div>
-           <div className="gis-view-toggle" role="tablist" aria-label="Application view">
+
+            <div
+              className="gis-view-toggle"
+              role="tablist"
+              aria-label="Application view"
+            >
               <button
                 type="button"
                 className={`gis-view-btn ${
                   applicationsView === "grid" ? "active" : ""
                 }`}
-                onClick={() => setApplicationsView("grid")}
+                onClick={() => handleViewChange("grid")}
               >
                 <LayoutGrid size={16} />
                 <span>Grid</span>
@@ -975,7 +1020,7 @@ const GISMonitoringPage = () => {
                 className={`gis-view-btn ${
                   applicationsView === "table" ? "active" : ""
                 }`}
-                onClick={() => setApplicationsView("table")}
+                onClick={() => handleViewChange("table")}
               >
                 <List size={16} />
                 <span>Table</span>
@@ -984,94 +1029,160 @@ const GISMonitoringPage = () => {
           </div>
 
           {applicationsView === "grid" && (
-          <div className="gis-grid">
-            {buildings.map((building) => (
-              <div
-                key={building.id}
-                className="gis-card"
-                onClick={() => setSelected(building)}
-              >
-                <img
-                  src={building.previewImage}
-                  alt={`${building.name} latest satellite preview`}
-                  className="gis-card-img"
-                  loading="lazy"
-                  onError={(event) => {
-                    event.currentTarget.src = building.fallbackImage;
-                  }}
-                />
+            <div className="gis-grid">
+              {buildings.map((building) => (
+                <div
+                  key={building.id}
+                  className="gis-card"
+                  onClick={() => setSelected(building)}
+                >
+                  <img
+                    src={building.previewImage}
+                    alt={`${building.name} latest satellite preview`}
+                    className="gis-card-img"
+                    loading="lazy"
+                    onError={(event) => {
+                      event.currentTarget.src = building.fallbackImage;
+                    }}
+                  />
 
-                <div className="gis-overlay">
-                  <div>
-                    <strong>{building.name}</strong>
+                  <div className="gis-overlay">
+                    <div>
+                      <strong>{building.name}</strong>
 
-                    <span>
-                      {building.status} · {building.position[0].toFixed(5)},{" "}
-                      {building.position[1].toFixed(5)}
-                    </span>
+                      <span>
+                        {building.status} · {building.position[0].toFixed(5)},{" "}
+                        {building.position[1].toFixed(5)}
+                      </span>
 
-                    <small className="gis-card-caption">
-                      Latest satellite preview
-                    </small>
+                      <small className="gis-card-caption">
+                        Latest satellite preview
+                      </small>
+                    </div>
                   </div>
                 </div>
-                </div>
-            ))}
-          </div>
+              ))}
+            </div>
           )}
 
           {applicationsView === "table" && (
-            <div className="gis-table-wrap">
-              <table className="gis-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Application</th>
-                    <th>Status</th>
-                    <th>Location</th>
-                    <th>Plot Size</th>
-                    <th>Coordinates</th>
-                    <th>History</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {buildings.map((building) => (
-                    <tr
-                      key={building.id}
-                      className="gis-table-row"
-                      onClick={() => setSelected(building)}
-                    >
-                      <td>{building.id}</td>
-                      <td>{building.name}</td>
-                      <td>
-                        <span className="gis-table-status">{building.status}</span>
-                      </td>
-                      <td>{building.locationText || "-"}</td>
-                      <td>{building.plotSize || "-"}</td>
-                      <td>
-                        {building.position[0].toFixed(5)},{" "}
-                        {building.position[1].toFixed(5)}
-                      </td>
-                         <td>
-                        <button
-                          type="button"
-                          className="gis-history-btn"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            setSelected(building);
-                          }}
-                        >
-                          View History
-                        </button>
-                      </td>
+            <div className="gis-table-card">
+              <div className="gis-table-topline">
+                <div>
+                  <strong>Applications Table</strong>
+                  <span>
+                    Showing {tableStartItem}-{tableEndItem} of{" "}
+                    {buildings.length} applications
+                  </span>
+                </div>
+
+                <span className="gis-table-page-size">
+                  5 applications / page
+                </span>
+              </div>
+
+              <div className="gis-table-wrap">
+                <table className="gis-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Application</th>
+                      <th>Status</th>
+                      <th>Location</th>
+                      <th>Plot Size</th>
+                      <th>Coordinates</th>
+                      <th>History</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+
+                  <tbody>
+                    {paginatedBuildings.map((building) => (
+                      <tr
+                        key={building.id}
+                        className="gis-table-row"
+                        onClick={() => setSelected(building)}
+                      >
+                        <td>{building.id}</td>
+                        <td>{building.name}</td>
+                        <td>
+                          <span className="gis-table-status">
+                            {building.status}
+                          </span>
+                        </td>
+                        <td>{building.locationText || "-"}</td>
+                        <td>{building.plotSize || "-"}</td>
+                        <td>
+                          {building.position[0].toFixed(5)},{" "}
+                          {building.position[1].toFixed(5)}
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            className="gis-history-btn"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setSelected(building);
+                            }}
+                          >
+                            View History
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="gis-pagination">
+                <button
+                  type="button"
+                  className="gis-pagination-btn"
+                  disabled={currentTablePage === 1}
+                  onClick={() =>
+                    setCurrentTablePage((page) => Math.max(1, page - 1))
+                  }
+                >
+                  Previous
+                </button>
+
+                <div className="gis-pagination-pages">
+                  {Array.from({ length: totalTablePages }, (_, index) => {
+                    const pageNumber = index + 1;
+
+                    return (
+                      <button
+                        type="button"
+                        key={pageNumber}
+                        className={`gis-page-number ${
+                          currentTablePage === pageNumber ? "active" : ""
+                        }`}
+                        onClick={() => setCurrentTablePage(pageNumber)}
+                        aria-label={`Go to page ${pageNumber}`}
+                      >
+                        {pageNumber}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  type="button"
+                  className="gis-pagination-btn"
+                  disabled={currentTablePage === totalTablePages}
+                  onClick={() =>
+                    setCurrentTablePage((page) =>
+                      Math.min(totalTablePages, page + 1)
+                    )
+                  }
+                >
+                  Next
+                </button>
+              </div>
             </div>
           )}
         </>
       )}
+
       {/* Detail View */}
       {selected && (
         <div className="gis-detail">
