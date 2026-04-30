@@ -1051,17 +1051,15 @@ h3 {
   }
 }
 
-/* Tablet and mobile: convert rows to cards */
 @media (max-width: 820px) {
-  .search-box {
-    width: 100%;
-    min-width: 0;
+  .table-wrapper {
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-radius: 12px;
   }
 
-  .table-wrapper {
-    border: none;
-    border-radius: 0;
-    overflow: visible;
+  .applications-table {
+    min-width: 1000px;
   }
 
   .applications-table,
@@ -1070,107 +1068,54 @@ h3 {
   .applications-table th,
   .applications-table td,
   .applications-table tr {
-    display: block;
-    width: 100%;
-  }
-
-  .applications-table {
-    table-layout: auto;
+    display: revert !important;
   }
 
   .applications-table thead {
-    display: none;
+    display: table-header-group !important;
   }
 
-  .applications-table tbody tr {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 15px;
-    margin-bottom: 12px;
-    padding: 10px;
-    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+
+  .applications-table tbody {
+    display: table-row-group !important;
   }
 
-  .applications-table tbody td {
-    height: auto;
-    max-height: none;
-    display: grid;
-    grid-template-columns: 110px minmax(0, 1fr);
-    align-items: center;
-    gap: 10px;
-    text-align: left;
-    border-bottom: 1px solid #eef2f7;
-    padding: 9px 4px;
-    font-size: 12px;
-    overflow: visible;
-    white-space: nowrap;
+  .applications-table tr {
+    display: table-row !important;
   }
 
-  .applications-table tbody td:last-child {
-    border-bottom: none;
+  .applications-table td,
+  .applications-table th {
+    display: table-cell !important;
   }
 
   .applications-table tbody td::before {
-    color: #64748b;
-    font-size: 10px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    display: none !important;
   }
 
-  .applications-table tbody td:nth-child(1)::before {
-    content: "ID";
+  .applications-table tbody td {
+    text-align: center;
+    white-space: nowrap;
   }
 
-  .applications-table tbody td:nth-child(2)::before {
-    content: "Applicant";
+  .applications-table tbody td:nth-child(3) {
+    text-align: left;
   }
 
-  .applications-table tbody td:nth-child(3)::before {
-    content: "Location";
+
+    .search-box {
+    min-width: 0;        /* 🔥 override desktop */
+    width: 200px;        /* 👈 exact small width */
+    max-width: 200px;
   }
 
-  .applications-table tbody td:nth-child(4)::before {
-    content: "Survey No";
-  }
-
-  .applications-table tbody td:nth-child(5)::before {
-    content: "Plot Area";
-  }
-
-  .applications-table tbody td:nth-child(6)::before {
-    content: "Building";
-  }
-
-  .applications-table tbody td:nth-child(7)::before {
-    content: "Status";
-  }
-
-  .applications-table tbody td:nth-child(8)::before {
-    content: "File";
-  }
-
-  .applications-table tbody td:nth-child(9)::before {
-    content: "Action";
-  }
-
-  .name-cell {
-    align-items: center;
-  }
-
-  .mini-stack {
-    align-items: flex-start;
-  }
-
-  .action-buttons {
-    justify-content: flex-start;
-  }
-
-  .pagination {
-    justify-content: center;
+  .search-input {
+    height: 36px;        /* optional: smaller height */
+    font-size: 12px;
+    padding: 0 10px;
+    
   }
 }
-
 /* ===============================
    Modal Responsive
 ================================ */
@@ -1360,17 +1305,25 @@ h3 {
     height: 28px;
   }
 
-  .pagination {
-    justify-content: space-between;
+
+  
+
+ .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* 👈 keeps buttons visible */
+    gap: 8px;
+    flex-wrap: nowrap;
   }
 
   .page-btn {
-    flex: 1;
+    flex: 0 0 auto;   /* 👈 prevent shrinking/disappearing */
   }
 
   .page-info {
-    width: 100%;
+    flex: 1;          /* 👈 take center space */
     text-align: center;
-    order: -1;
+    white-space: nowrap;
+    order: 0;         /* reset order */
   }
 }
