@@ -383,13 +383,16 @@ def generate_compliance_pdf(
     story.append(compliance_table)
 
     # AI Explanation
-    story.extend(
-        build_ai_analysis_section(
-            auto_dcr_result=auto_dcr_result,
-            normal_style=normal_style,
-            section_style=section_style,
-        )
-    )
+    # Temporarily disabled OpenAI scrutiny explanation in the compliance PDF.
+    # The compliance PDF will now show only deterministic Auto-DCR rule results.
+    #
+    # story.extend(
+    #     build_ai_analysis_section(
+    #         auto_dcr_result=auto_dcr_result,
+    #         normal_style=normal_style,
+    #         section_style=section_style,
+    #     )
+    # )
 
     # Building Details
     story.append(Paragraph("Building Details", section_style))
