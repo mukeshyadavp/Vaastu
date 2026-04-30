@@ -4,7 +4,6 @@
 }
 
 /* ===== TOP CARDS ===== */
-
 .db-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -17,7 +16,7 @@
   color: #1e293b;
   font-weight: 600;
   background: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   transition: 0.2s;
 }
 
@@ -26,22 +25,10 @@
 }
 
 /* COLORS */
-
-.db-blue {
-  background: rgb(86, 228, 128);
-}
-
-.db-pink {
-  background: #736eb7;
-}
-
-.db-yellow {
-  background: rgb(176, 190, 148);
-}
-
-.db-green {
-  background: rgb(0, 166, 255);
-}
+.db-blue { background: rgb(86, 228, 128); }
+.db-pink { background: #736eb7; }
+.db-yellow { background: rgb(176, 190, 148); }
+.db-green { background: rgb(0, 166, 255); }
 
 .db-title {
   font-size: 14px;
@@ -59,7 +46,6 @@
 }
 
 /* ===== CARD CONTENT ===== */
-
 .db-card-content {
   display: flex;
   flex-direction: column;
@@ -80,7 +66,6 @@
 }
 
 /* ===== CHART GRID ===== */
-
 .db-charts-grid {
   margin-top: 20px;
   display: grid;
@@ -92,39 +77,26 @@
   background: #fff;
   padding: 18px;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .db-chart-box h4 {
   font-size: 15px;
   font-weight: 600;
   color: #334155;
-  margin-bottom: 14px;
 }
 
 /* ===== BAR CHART ===== */
-
 .db-bar {
   width: 50px;
-  min-height: 4px;
-  border-radius: 6px 6px 0 0;
-  transition: height 0.25s ease;
+  border-radius: 6px;
 }
 
-.db-blue-bar {
-  background: #3b82f6;
-}
+.db-blue-bar { background: #3b82f6; }
+.db-pink-bar { background: #ec4899; }
+.db-green-bar { background: #22c55e; }
 
-.db-pink-bar {
-  background: #ec4899;
-}
-
-.db-green-bar {
-  background: #22c55e;
-}
-
-/* ===== APPLICATION MANAGEMENT BAR ===== */
-
+/* ===== TIMESHEET ===== */
 .db-timesheet-wrapper {
   display: flex;
   align-items: flex-end;
@@ -148,22 +120,6 @@
   gap: 20px;
   height: 200px;
   width: 100%;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.db-bar-wrap {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
-}
-
-.db-bar-wrap strong {
-  font-size: 11px;
-  font-weight: 800;
-  color: #475569;
 }
 
 .db-x-labels {
@@ -172,76 +128,50 @@
   font-size: 12px;
   margin-top: 10px;
   text-align: center;
-  color: #475569;
-  font-weight: 700;
+}
+
+.ML1 {
+  margin-left: 35px;
+}
+
+.BL1 {
+  margin-left: 32px;
+}
+
+.BL2 {
+  margin-left: 30px;
 }
 
 /* ===== DONUT ===== */
-
 .db-donut {
   width: 180px;
   height: 180px;
   border-radius: 50%;
   margin: auto;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.db-donut::after {
-  content: "";
-  position: absolute;
-  width: 108px;
-  height: 108px;
-  border-radius: 50%;
-  background: #ffffff;
-}
-
-.db-donut-center {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.db-donut-center strong {
-  font-size: 24px;
-  color: #0f172a;
-  line-height: 1;
-}
-
-.db-donut-center span {
-  margin-top: 4px;
-  font-size: 11px;
-  color: #64748b;
-  font-weight: 700;
+  background: conic-gradient(
+    #3b82f6 0% 69%,
+    #22c55e 69% 93%,
+    #facc15 93% 100%
+  );
 }
 
 /* ===== PIE ===== */
-
 .db-pie {
   width: 180px;
   height: 180px;
   border-radius: 50%;
   margin: auto;
-  transition: background 0.25s ease;
+  background: conic-gradient(
+    #ec4899 0% 45%,
+    #c084fc 45% 75%,
+    #f9a8d4 75% 100%
+  );
 }
 
 /* ===== LEGEND ===== */
-
 .db-legend {
-  margin-top: 12px;
+  margin-top: 10px;
   font-size: 14px;
-}
-
-.db-legend p {
-  margin: 7px 0;
-  color: #475569;
-  font-weight: 700;
-  font-size: 13px;
 }
 
 .db-dot {
@@ -252,76 +182,36 @@
   margin-right: 5px;
 }
 
-.db-dot.db-blue {
-  background: #3b82f6;
-}
+.db-dot.db-blue { background: #3b82f6; }
+.db-dot.db-green { background: #22c55e; }
+.db-dot.db-yellow { background: #facc15; }
 
-.db-dot.db-green {
-  background: #22c55e;
-}
+.db-dot.audit1 { background: #ec4899; }
+.db-dot.audit2 { background: #c084fc; }
+.db-dot.audit3 { background: #f9a8d4; }
 
-.db-dot.db-yellow {
-  background: #facc15;
-}
-
-.db-dot.audit1 {
-  background: #ec4899;
-}
-
-.db-dot.audit2 {
-  background: #c084fc;
-}
-
-.db-dot.audit3 {
-  background: #f9a8d4;
-}
-
-/* ===== APPLICATION TRACKING PROGRESS ===== */
-
+/* ===== PROGRESS ===== */
 .db-progress-item {
-  margin-bottom: 15px;
-  margin-top: 18px;
+  margin-bottom: 12px;
+  margin-top: 20px;
   font-size: 14px;
-}
-
-.db-progress-label {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 7px;
-}
-
-.db-progress-label span {
-  color: #334155;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.db-progress-label strong {
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 800;
 }
 
 .db-progress {
   height: 8px;
   background: #e5e7eb;
-  border-radius: 999px;
-  overflow: hidden;
+  border-radius: 5px;
 }
 
 .db-progress div {
   height: 100%;
   background: #3b82f6;
-  border-radius: 999px;
-  transition: width 0.25s ease;
+  border-radius: 5px;
 }
 
 /* ========================= */
-/* MOBILE <= 768px */
+/* 📱 MOBILE (<=768px) */
 /* ========================= */
-
 @media (max-width: 768px) {
   .db-dashboard-container {
     padding: 12px;
@@ -384,25 +274,11 @@
     width: 150px;
     height: 150px;
   }
-
-  .db-donut::after {
-    width: 90px;
-    height: 90px;
-  }
-
-  .db-donut-center strong {
-    font-size: 20px;
-  }
-
-  .db-donut-center span {
-    font-size: 10px;
-  }
 }
 
 /* ========================= */
-/* SMALL MOBILE <= 480px */
+/* 📲 SMALL MOBILE (<=480px) */
 /* ========================= */
-
 @media (max-width: 480px) {
   .db-stats-grid {
     grid-template-columns: 1fr;
@@ -420,6 +296,14 @@
     text-align: center;
   }
 
+  .db-x-labels span {
+    font-size: 9px;
+  }
+
+  .db-y-axis {
+    font-size: 10px;
+  }
+
   .db-title {
     font-size: 12px;
   }
@@ -427,40 +311,11 @@
   .db-value {
     font-size: 18px;
   }
-
-  .db-timesheet-wrapper {
-    gap: 8px;
-  }
-
-  .db-y-axis {
-    font-size: 10px;
-    height: 170px;
-  }
-
-  .db-bars {
-    height: 170px;
-    gap: 10px;
-  }
-
-  .db-bar {
-    width: 28px;
-  }
-
-  .db-x-labels span {
-    font-size: 9px;
-  }
-
-  .db-progress-label {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 3px;
-  }
 }
 
 /* ========================= */
-/* TABLET 769px–1024px */
+/* 💻 TABLET (769px–1024px) */
 /* ========================= */
-
 @media (min-width: 769px) and (max-width: 1024px) {
   .db-stats-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -474,11 +329,6 @@
   .db-pie {
     width: 200px;
     height: 200px;
-  }
-
-  .db-donut::after {
-    width: 120px;
-    height: 120px;
   }
 
   .db-bar {
@@ -499,20 +349,19 @@
   justify-content: center;
   align-items: center;
   z-index: 999;
-  padding: 12px;
 }
 
 .db-modal {
   background: #ffffff;
   width: 420px;
-  max-width: 100%;
   max-height: 80vh;
   overflow-y: auto;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 
+/* header */
 .db-modal-header {
   display: flex;
   justify-content: space-between;
@@ -527,6 +376,7 @@
   color: #64748b;
 }
 
+/* close button */
 .db-close-btn {
   width: 34px;
   height: 34px;
@@ -546,49 +396,30 @@
   background: #e2e8f0;
 }
 
-/* ===== MODAL TABLE ===== */
+/* table */
+.db-modal table {  width: 100%;    border: 1.5px solid #1a1616;  background: white; border-radius: 0px;}
+/* .db-modal thead {  background:  #e7e6e6;} */
+/* .db-modal th {  font-size: 16px;  font-weight: 700;  color: #111827;  text-align: left;  padding: 10px 8px;  border: 1.5px solid #0a0a0a;} */
+.db-modal td {  font-size: 18px;  font-weight: 500;  color: #030303;  padding: 10px 8px;  border: 1.5px solid #141111;  text-align: left;  background: #ffffff;}/* S No column center */
+.db-modal th:first-child,.db-modal td:first-child {  width: 80px;  text-align: center;}/* Status column */
+.db-modal th:last-child,.db-modal td:last-child {  width: 140px;}/* remove hover effect */
+.db-modal tbody tr:hover {  background: transparent;}
 
-.db-modal table {
-  width: 100%;
-  border-collapse: collapse;
-  border-spacing: 0;
-  border: 1.5px solid #1a1616;
-  background: white;
-}
-
-.db-modal thead {
+ .db-modal thead {
   background: #dbdee2;
-}
+} 
 
 .db-modal th {
   color: rgb(37, 39, 38);
   font-size: 16px;
   font-weight: 700;
-  padding: 8px;
-  border: 1.5px solid #000;
-  text-align: left;
-}
-
-.db-modal td {
-  font-size: 18px;
-  font-weight: 500;
-  color: #030303;
-  padding: 8px;
-  border: 1.5px solid #000;
-  text-align: left;
-  background: #ffffff;
-}
-
-.db-modal th:first-child,
-.db-modal td:first-child {
-  width: 80px;
   text-align: center;
+  padding: 12px;
+  border: 1.5px solid #0a0a0a;
 }
 
-.db-modal th:last-child,
-.db-modal td:last-child {
-  width: 140px;
-}
+
+/* Move Application and Status column text to start (left side) */
 
 .db-modal th:nth-child(2),
 .db-modal td:nth-child(2),
@@ -598,87 +429,206 @@
   padding-left: 14px;
 }
 
+/* Keep only S No centered */
+.db-modal th:first-child,
+.db-modal td:first-child {
+  width: 80px;
+  text-align: center;
+}
+
+
+
+/* Remove space between table cells exactly like reference */
+
+.db-modal table {
+  width: 100%;
+  border-collapse: collapse;   /* IMPORTANT */
+  border-spacing: 0;           /* IMPORTANT */
+  border: 1.5px solid #1a1616;
+  background: white;
+}
+
+/* Header cells */
+.db-modal th {
+  padding: 8px;
+  border: 1.5px solid #000;
+  text-align: left;
+}
+
+/* Body cells */
+.db-modal td {
+  padding: 8px;
+  border: 1.5px solid #000;
+  background: #fff;
+}
+
+/* Remove extra spacing caused by tbody/tr */
 .db-modal tbody,
 .db-modal tr {
   margin: 0;
   padding: 0;
 }
-
-.db-modal tbody tr:hover {
-  background: transparent;
+/* ===== BAR CHART ===== */
+.db-bar {
+  width: 50px;
+  min-height: 4px;
+  border-radius: 6px 6px 0 0;
+  transition: height 0.25s ease;
 }
 
-/* ===== MODAL MOBILE TABLE ===== */
+.db-blue-bar {
+  background: #3b82f6;
+}
 
-@media (max-width: 480px) {
-  .db-modal {
-    width: 100%;
-    padding: 14px;
-  }
+.db-pink-bar {
+  background: #ec4899;
+}
 
-  .db-modal-header h3 {
-    font-size: 15px;
-  }
+.db-green-bar {
+  background: #22c55e;
+}
 
-  .db-modal table,
-  .db-modal thead,
-  .db-modal tbody,
-  .db-modal th,
-  .db-modal td,
-  .db-modal tr {
-    display: block;
-    width: 100%;
-  }
+/* ===== TIMESHEET ===== */
+.db-timesheet-wrapper {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
 
-  .db-modal thead {
-    display: none;
-  }
+.db-y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 200px;
+  font-size: 12px;
+  color: #666;
+}
 
-  .db-modal tr {
-    border: 1px solid #d1d5db;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    overflow: hidden;
-  }
+.db-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 20px;
+  height: 200px;
+  width: 100%;
+  border-bottom: 1px solid #e5e7eb;
+}
 
-  .db-modal td {
-    display: grid;
-    grid-template-columns: 82px minmax(0, 1fr);
-    gap: 8px;
-    border: none;
-    border-bottom: 1px solid #e5e7eb;
-    font-size: 13px;
-    word-break: break-word;
-  }
+.db-bar-wrap {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
 
-  .db-modal td:last-child {
-    border-bottom: none;
-  }
+.db-bar-wrap strong {
+  font-size: 11px;
+  font-weight: 800;
+  color: #475569;
+}
 
-  .db-modal td::before {
-    font-size: 11px;
-    font-weight: 800;
-    color: #64748b;
-    text-transform: uppercase;
-  }
+.db-x-labels {
+  display: flex;
+  justify-content: space-around;
+  font-size: 12px;
+  margin-top: 10px;
+  text-align: center;
+  color: #475569;
+  font-weight: 700;
+}
 
-  .db-modal td:nth-child(1)::before {
-    content: "S No";
-  }
+/* ===== DONUT ===== */
+.db-donut {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  margin: auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .db-modal td:nth-child(2)::before {
-    content: "Application";
-  }
+.db-donut::after {
+  content: "";
+  position: absolute;
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  background: #ffffff;
+}
 
-  .db-modal td:nth-child(3)::before {
-    content: "Status";
-  }
+.db-donut-center {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 
-  .db-modal th:first-child,
-  .db-modal td:first-child,
-  .db-modal th:last-child,
-  .db-modal td:last-child {
-    width: 100%;
-    text-align: left;
-  }
+.db-donut-center strong {
+  font-size: 24px;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.db-donut-center span {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+/* ===== PIE ===== */
+.db-pie {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  margin: auto;
+  transition: background 0.25s ease;
+}
+
+/* ===== PROGRESS ===== */
+.db-progress-item {
+  margin-bottom: 15px;
+  margin-top: 18px;
+  font-size: 14px;
+}
+
+.db-progress-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+
+.db-progress-label span {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.db-progress-label strong {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.db-progress {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.db-progress div {
+  height: 100%;
+  background: #3b82f6;
+  border-radius: 999px;
+  transition: width 0.25s ease;
 }
