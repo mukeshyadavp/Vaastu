@@ -18,7 +18,13 @@ type Application = {
   id: number;
   name: string;
   applicantName?: string;
+
+  // Backend status value: Pending / Approved / Rejected
   status: string;
+
+  // UI status value: In progress / Completed / Overdue
+  displayStatus?: string;
+
   location?: string;
   plotSize?: string;
   plotArea?: string;
@@ -40,6 +46,20 @@ type Application = {
   [key: string]: any;
 };
 
+const getDisplayStatus = (status?: string) => {
+  const normalized = String(status || "Pending")
+    .trim()
+    .toLowerCase();
+
+  if (normalized === "pending") return "In progress";
+  if (normalized === "approved") return "Completed";
+
+  // Because your Dashboard treats rejected applications as overdue
+  if (normalized === "rejected") return "Overdue";
+
+  return "In progress";
+};
+
 const AdminDashboard = () => {
   const [open, setOpen] = useState(false);
 
@@ -58,15 +78,24 @@ const AdminDashboard = () => {
 
       const apps = Array.isArray(data) ? data : data.data || [];
 
-      // IMPORTANT: keep all backend fields using ...app
       setApplications(
-        apps.map((app: any) => ({
-          ...app,
-          id: app.id,
-          name: app.applicantName || app.name || `Application ${app.id}`,
-          applicantName: app.applicantName || app.name || `Application ${app.id}`,
-          status: app.status || "Pending",
-        }))
+        apps.map((app: any) => {
+          const backendStatus = app.status || "Pending";
+
+          return {
+            ...app,
+            id: app.id,
+            name: app.applicantName || app.name || `Application ${app.id}`,
+            applicantName:
+              app.applicantName || app.name || `Application ${app.id}`,
+
+            // Keep original backend status for filtering and API logic
+            status: backendStatus,
+
+            // Use this only for UI display
+            displayStatus: getDisplayStatus(backendStatus),
+          };
+        })
       );
     } catch (err) {
       console.error("Error fetching applications:", err);
@@ -105,7 +134,16 @@ const AdminDashboard = () => {
   };
 
   const handleAddApplication = (newApp: Application) => {
-    setApplications((prev) => [...prev, newApp]);
+    const backendStatus = newApp.status || "Pending";
+
+    setApplications((prev) => [
+      ...prev,
+      {
+        ...newApp,
+        status: backendStatus,
+        displayStatus: getDisplayStatus(backendStatus),
+      },
+    ]);
   };
 
   return (
